@@ -15,15 +15,18 @@
 
 #include <cstring>
 #include <cstdio>
-extern "C" {
-    #include "tinycc-mob/libtcc.h"
-}
 
 #ifdef _WIN32
 #define PATH_SEPARATOR "\\"
 #else
 #define PATH_SEPARATOR "/"
 #endif
+
+extern "C" {
+    #include "tinycc-mob/libtcc.h"
+}
+
+typedef struct TCCState TCCState;
 
 void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
@@ -40,6 +43,7 @@ void GDTinyCC::_bind_methods() {
 
 
 GDTinyCC::GDTinyCC() {
+    tcc_state = nullptr;
 }
 
 GDTinyCC::~GDTinyCC() {
@@ -48,6 +52,15 @@ GDTinyCC::~GDTinyCC() {
 
 void GDTinyCC::_ready() {
     compile_file();
+    
+    // C-_ready() aufrufen falls vorhanden
+    if (tcc_state) {
+        using ReadyFunc = void(*)();
+        ReadyFunc ready_func = (ReadyFunc)tcc_get_symbol((TCCState*)tcc_state, "_ready");
+        if (ready_func) {
+            ready_func();
+        }
+    }
 }
 
 void GDTinyCC::_process(double delta) {
@@ -136,6 +149,8 @@ void GDTinyCC::compile_file() {
         return;
     }
 
+    tcc_state = s;
+
     using MainFunc = void(*)();
     MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
 
@@ -144,8 +159,6 @@ void GDTinyCC::compile_file() {
     } else {
         UtilityFunctions::print("main-function not found!");
     }
-
-    tcc_delete(s);
 }
 
 void tcc_error_callback(void *opaque, const char *msg) {

@@ -11,6 +11,7 @@ class GDTinyCC : public Node {
 
 private:
     String source_file;
+    void *tcc_state;
 
 protected:
     static void _bind_methods();
