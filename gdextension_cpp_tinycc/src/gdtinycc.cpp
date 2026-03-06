@@ -53,7 +53,6 @@ GDTinyCC::~GDTinyCC() {
 void GDTinyCC::_ready() {
     compile_file();
     
-    // C-_ready() aufrufen falls vorhanden
     if (tcc_state) {
         using ReadyFunc = void(*)();
         ReadyFunc ready_func = (ReadyFunc)tcc_get_symbol((TCCState*)tcc_state, "_ready");
