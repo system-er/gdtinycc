@@ -23,7 +23,7 @@ void main() {
 
     
 # build:    
-copy tiny-mob into src/tiny-mob   
+copy tinycc-mob into src/tinycc-mob   
 copy libtcc1.a into demo/bin/lib (compile from src/tinycc-mob/lib or copy from a tinycc-mob release...)    
 copy godot-cpp version 4.5 to directory godot-cpp    
 start scons    
