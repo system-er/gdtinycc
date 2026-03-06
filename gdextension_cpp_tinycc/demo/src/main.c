@@ -6,5 +6,5 @@ void main() {
 }
 
 void _ready() {
-    godot_print("C-_ready called!");
+    godot_print("gdtinycc-_ready called!");
 }
