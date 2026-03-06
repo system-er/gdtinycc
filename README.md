@@ -1,15 +1,12 @@
 # GDTinyCC - gdextension for tinycc
 
 integrates tinycc into Godot with gdextension c++.     
-edit your c-files with the editor of your choic          
-and type the name of the .c-file in the GDTinyCC-node in inspector.      
+edit your c-files with the editor of your choice          
+and choose the name of the .c-file in the GDTinyCC-node in inspector.      
     
-GDTinyCC is a new node for godot that inherits from Node.    
-_ready, _process, _physics_process and _input functions work in squirrel.    
-    
+GDTinyCC is a new node for godot that inherits from Node.     
 WIP - programmed with godot 4.5, tinycc-mob    
     
-  
 
 # commands:       
 godot_print(string)    
@@ -27,5 +24,6 @@ void main() {
     
 # build:    
 copy tiny-mob into src/tiny-mob   
+copy libtcc1.a into demo/bin/lib (compile from src/tinycc-mob/lib or copy from a tinycc-mob release...)    
 copy godot-cpp version 4.5 to directory godot-cpp    
 start scons    
