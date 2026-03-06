@@ -144,12 +144,12 @@ void GDTinyCC::compile_file() {
     }
 
     if (output_mode == 1) {
-        // Speichern als Executable
+        // executable
         UtilityFunctions::print("exe-mode not implemented! please use memory-mode.");
         tcc_delete(s);
         return;
     } else {
-        // Im Speicher ausführen
+        // memory
         if (tcc_relocate(s) < 0) {
             UtilityFunctions::print("relocationerror!");
             tcc_delete(s);
