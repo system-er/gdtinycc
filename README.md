@@ -12,7 +12,7 @@ WIP - programmed with godot 4.5, tinycc-mob
 godot_print(string)    
     
 
-# src/main.c   
+# example src/main.c   
 ```
 #include "gdtinycc_runtime.h"
 
