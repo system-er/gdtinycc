@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dsnp5a6lr43ug"]
+
+[node name="Main" type="Node2D"]
+
+[node name="GDTinyCC" type="GDTinyCC" parent="."]
+source_file = "res://src/main.c"
