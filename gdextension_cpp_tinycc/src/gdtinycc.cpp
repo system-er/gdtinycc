@@ -33,28 +33,27 @@ using namespace godot;
 void GDTinyCC::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_source_file", "path"), &GDTinyCC::set_source_file);
     ClassDB::bind_method(D_METHOD("get_source_file"), &GDTinyCC::get_source_file);
-    ClassDB::bind_method(D_METHOD("set_output_mode", "mode"), &GDTinyCC::set_output_mode);
-    ClassDB::bind_method(D_METHOD("get_output_mode"), &GDTinyCC::get_output_mode);
     ClassDB::bind_method(D_METHOD("compile_file"), &GDTinyCC::compile_file);
 
     ClassDB::add_property("GDTinyCC", PropertyInfo(Variant::STRING, "source_file", PROPERTY_HINT_FILE, "*.c"), "set_source_file", "get_source_file");
-    ClassDB::add_property("GDTinyCC", PropertyInfo(Variant::INT, "output_mode", PROPERTY_HINT_ENUM, "memory,executable"), "set_output_mode", "get_output_mode");
 }
+
 
 GDTinyCC::GDTinyCC() {
-    output_mode = 0;
-}
-
-void GDTinyCC::_ready() {
-    compile_file();
 }
 
 GDTinyCC::~GDTinyCC() {
 }
 
+
+void GDTinyCC::_ready() {
+    compile_file();
+}
+
 void GDTinyCC::_process(double delta) {
 
 }
+
 
 void GDTinyCC::set_source_file(const String &p_path) {
     source_file = p_path;
@@ -62,14 +61,6 @@ void GDTinyCC::set_source_file(const String &p_path) {
 
 String GDTinyCC::get_source_file() const {
     return source_file;
-}
-
-void GDTinyCC::set_output_mode(int p_mode) {
-    output_mode = p_mode;
-}
-
-int GDTinyCC::get_output_mode() const {
-    return output_mode;
 }
 
 void GDTinyCC::compile_file() {
@@ -105,11 +96,7 @@ void GDTinyCC::compile_file() {
     tcc_set_error_func(s, nullptr, tcc_error_callback);
     tcc_set_lib_path(s, dll_path);
     
-    if (output_mode == 1) {
-        tcc_set_output_type(s, TCC_OUTPUT_EXE);
-    } else {
-        tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
-    }
+    tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
     
     tcc_add_include_path(s, dll_path);
     tcc_add_sysinclude_path(s, dll_path);
@@ -143,27 +130,19 @@ void GDTinyCC::compile_file() {
         return;
     }
 
-    if (output_mode == 1) {
-        // executable
-        UtilityFunctions::print("exe-mode not implemented! please use memory-mode.");
+    if (tcc_relocate(s) < 0) {
+        UtilityFunctions::print("relocationerror!");
         tcc_delete(s);
         return;
+    }
+
+    using MainFunc = void(*)();
+    MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
+
+    if (main_func) {
+        main_func();
     } else {
-        // memory
-        if (tcc_relocate(s) < 0) {
-            UtilityFunctions::print("relocationerror!");
-            tcc_delete(s);
-            return;
-        }
-
-        using MainFunc = void(*)();
-        MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
-
-        if (main_func) {
-            main_func();
-        } else {
-            UtilityFunctions::print("main-function not found!");
-        }
+        UtilityFunctions::print("main-function not found!");
     }
 
     tcc_delete(s);
