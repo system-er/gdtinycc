@@ -21,7 +21,9 @@ godot_get_property(node, property)
 //VARTYPE_VECTOR2 = 5,    
 //VARTYPE_VECTOR3 = 6    
 GDExtensionVariant = godot_get_variant(node, property)   
-//example: GDExtensionVariant v = godot_get_variant(testnode, "name");    
+```
+//example: GDExtensionVariant v = godot_get_variant(testnode, "name");
+```
 
 godot_set_variant(node, property, GDExtensionVariant)    
 ```
