@@ -2,10 +2,13 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/property_info.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+
+
 
 #ifdef _WIN32
 #include <windows.h>
@@ -27,10 +30,12 @@ extern "C" {
 }
 
 typedef struct TCCState TCCState;
+godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
 
 void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
-void godot_print_double(double value);
+void* godot_get_node(const char *path);
+
 
 using namespace godot;
 
@@ -44,10 +49,14 @@ void GDTinyCC::_bind_methods() {
 
 
 GDTinyCC::GDTinyCC() {
+    _current_instance = this;
     tcc_state = nullptr;
 }
 
 GDTinyCC::~GDTinyCC() {
+    if (_current_instance == this) {
+        _current_instance = nullptr;
+    }
 }
 
 
@@ -84,7 +93,7 @@ String GDTinyCC::get_source_file() const {
 
 void GDTinyCC::compile_file() {
     if (source_file.is_empty()) {
-        UtilityFunctions::print("no sourcefile!");
+        UtilityFunctions::print("error: compile_file - no sourcefile!");
         return;
     }
 
@@ -93,7 +102,7 @@ void GDTinyCC::compile_file() {
 #ifdef _WIN32
     HMODULE hModule;
     if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCSTR)&godot_print, &hModule)) {
-        UtilityFunctions::print("no dll handle");
+        UtilityFunctions::print("error: compile_file - no dll handle");
         return;
     }
     GetModuleFileNameA(hModule, dll_path, sizeof(dll_path));
@@ -101,7 +110,7 @@ void GDTinyCC::compile_file() {
 #else
     Dl_info info;
     if (dladdr((void*)godot_print, &info) == 0) {
-        UtilityFunctions::print("no so handle");
+        UtilityFunctions::print("error: compile_file - no so handle");
         return;
     }
     strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
@@ -129,10 +138,11 @@ void GDTinyCC::compile_file() {
     
     tcc_add_library_path(s, dll_path);
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
+    tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
     if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
-        UtilityFunctions::print("warning: could not load libtcc1.a");
+        UtilityFunctions::print("error: compile_file - could not load libtcc1.a");
     }
 
     String full_path = source_file;
@@ -142,7 +152,7 @@ void GDTinyCC::compile_file() {
     
     Ref<FileAccess> fa = FileAccess::open(full_path, FileAccess::READ);
     if (fa.is_null()) {
-        UtilityFunctions::print("file open error: ", full_path);
+        UtilityFunctions::print("error: compile_file - file open error: ", full_path);
         tcc_delete(s);
         return;
     }
@@ -152,13 +162,13 @@ void GDTinyCC::compile_file() {
     UtilityFunctions::print("compile: ", full_path);
     
     if (tcc_compile_string(s, source_code.utf8().get_data()) < 0) {
-        UtilityFunctions::print("compileerror!");
+        UtilityFunctions::print("error: compile_file - compileerror!");
         tcc_delete(s);
         return;
     }
 
     if (tcc_relocate(s) < 0) {
-        UtilityFunctions::print("relocationerror!");
+        UtilityFunctions::print("error: compile_file - relocationerror!");
         tcc_delete(s);
         return;
     }
@@ -171,7 +181,7 @@ void GDTinyCC::compile_file() {
     if (main_func) {
         main_func();
     } else {
-        UtilityFunctions::print("main-function not found!");
+        UtilityFunctions::print("error: compile_file - main-function not found!");
     }
 }
 
@@ -182,3 +192,18 @@ void tcc_error_callback(void *opaque, const char *msg) {
 void godot_print(const char *msg) {
     UtilityFunctions::print(msg);
 }
+
+void* godot_get_node(const char* path) {
+    if (GDTinyCC::_current_instance) {
+        godot::NodePath node_path(path);
+        godot::Node* node = GDTinyCC::_current_instance->get_node<godot::Node>(node_path);
+        if (!node){
+            UtilityFunctions::print("error: godot_get_node - node not found ");
+        }
+        return static_cast<void*>(node);
+    } else {
+        UtilityFunctions::print("error: godot_get_node - no current instance found");
+        return nullptr;
+    }
+}
+

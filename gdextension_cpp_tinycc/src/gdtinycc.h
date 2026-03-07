@@ -4,6 +4,7 @@
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/string.hpp>
 
+
 namespace godot {
 
 class GDTinyCC : public Node {
@@ -25,6 +26,7 @@ public:
     void compile_file();
     void set_source_file(const String &p_path);
     String get_source_file() const;
+    static GDTinyCC* _current_instance;
 };
 
 }
