@@ -18,6 +18,7 @@ godot_add_child_deferred(parent, child)
 godot_get_property(node, property)    
 godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
+godot_queue_free(node)    
 
 
 //new var-type GDExtensionVariant    
