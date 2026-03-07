@@ -11,6 +11,11 @@ WIP (project is at beginning) - programmed with godot 4.5, tinycc-mob
 # docu:       
 godot_print(string)    
 godot_get_node(path)    
+godot_instantiate(scenepath)    
+godot_create(classname)    
+godot_add_child(parent, child)    
+godot_add_child_deferred(parent, child)    
+
 godot_get_property(node, property)    
 
 //new var-type GDExtensionVariant    
@@ -70,10 +75,19 @@ void main() {
     else {
         godot_print("gdtinycc main: node not found");
     }
-}
-    else {
-        godot_print("gdtinycc main: node not found");
+
+    void *label = godot_create("Label");
+    if (!label) {
+        godot_print("failed to create label");
+        return;
     }
+    GDExtensionVariant v;
+    v.type = VARTYPE_STRING;
+    snprintf(v.value.s, sizeof(v.value.s), "Hallo Welt!");
+    godot_set_variant(label, "text", v);
+    
+    void *main_node = godot_get_node("/root/Main");
+    godot_add_child_deferred(main_node, label);
 }
 
 void _ready() {
