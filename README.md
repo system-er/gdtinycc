@@ -5,7 +5,7 @@ edit your c-files with the editor of your choice
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
     
 GDTinyCC is a new node for godot that inherits from Node.     
-WIP (project is at beginning) - programmed with godot 4.5, tinycc-mob    
+WIP - programmed with godot 4.5, tinycc-mob    
     
 
 # docu:       
