@@ -23,14 +23,14 @@ godot_set_variant(node, property, GDExtensionVariant)
 godot_queue_free(node)    
 
 
-//new var-type GDExtensionVariant    
-//VARTYPE_BOOL = 1,    
-//VARTYPE_INT = 2,    
-//VARTYPE_FLOAT = 3,    
-//VARTYPE_STRING = 4,    
-//VARTYPE_VECTOR2 = 5,    
-//VARTYPE_VECTOR3 = 6,     
-//VARTYPE_COLOR = 7    
+new var-type GDExtensionVariant    
+- VARTYPE_BOOL = 1,
+- VARTYPE_INT = 2,    
+- VARTYPE_FLOAT = 3,    
+- VARTYPE_STRING = 4,    
+- VARTYPE_VECTOR2 = 5,    
+- VARTYPE_VECTOR3 = 6,     
+- VARTYPE_COLOR = 7    
 
 ```
 example: GDExtensionVariant v = godot_get_variant(testnode, "name");
