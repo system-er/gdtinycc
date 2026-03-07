@@ -8,11 +8,37 @@ GDTinyCC is a new node for godot that inherits from Node.
 WIP (project is at beginning) - programmed with godot 4.5, tinycc-mob    
     
 
-# commands:       
+# docu:       
 godot_print(string)    
 godot_get_node(path)    
 godot_get_property(node, property)    
-godot_get_variant(node, property)    
+
+//new var-type GDExtensionVarType    
+//VARTYPE_BOOL = 1,    
+//VARTYPE_INT = 2,    
+//VARTYPE_FLOAT = 3,    
+//VARTYPE_STRING = 4,    
+//VARTYPE_VECTOR2 = 5,    
+//VARTYPE_VECTOR3 = 6    
+GDExtensionVariant = godot_get_variant(node, property)   
+//example: GDExtensionVariant v = godot_get_variant(testnode, "name");    
+
+godot_set_variant(node, property, GDExtensionVariant)    
+```
+//example: set labeltext
+//GDExtensionVariant v;
+//v.type = VARTYPE_STRING;
+//snprintf(v.value.s, sizeof(v.value.s), "Hallo Welt!");
+//void *label = godot_get_node("/root/Main/Label");
+//godot_set_variant(label, "text", v);
+```
+```
+//example: set vector2
+//v.type = VARTYPE_VECTOR2;
+//v.value.vec2.x = 100.0f;
+//v.value.vec2.y = 200.0f;
+//godot_set_variant(sprite, "position", v);
+```
 
 # example src/main.c   
 ```
