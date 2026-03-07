@@ -14,10 +14,18 @@ godot_print(string)
 
 # example src/main.c   
 ```
+#include "stddef.h"
 #include "gdtinycc_runtime.h"
 
 void main() {
     godot_print("hello world from gdtinycc");
+    void* testnode = godot_get_node("/root/Main");
+    if (testnode != NULL) {
+        godot_print("gdtinycc main: node found");
+    }
+    else {
+        godot_print("gdtinycc main: node not found");
+    }
 }
 
 void _ready() {
