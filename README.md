@@ -12,7 +12,7 @@ WIP - programmed with godot 4.5, tinycc-mob
 godot_print(string)    
 godot_get_node(path)    
 godot_get_property(node, property)    
-    
+godot_get_variant(node, property)    
 
 # example src/main.c   
 ```
@@ -24,9 +24,14 @@ void main() {
     void* testnode = godot_get_node("/root/Main");
     if (testnode != NULL) {
         godot_print("gdtinycc main: node found");
-        const char* name = godot_get_property(testnode, "name");
-        godot_print(name);
+        GDExtensionVariant v = godot_get_variant(testnode, "name");
+        godot_print(godot_get_type_name(v.type));
+        godot_print(v.value.s);
     }
+    else {
+        godot_print("gdtinycc main: node not found");
+    }
+}
     else {
         godot_print("gdtinycc main: node not found");
     }
