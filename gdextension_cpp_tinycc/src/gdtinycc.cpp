@@ -30,6 +30,7 @@ typedef struct TCCState TCCState;
 
 void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
+void godot_print_double(double value);
 
 using namespace godot;
 
@@ -63,7 +64,13 @@ void GDTinyCC::_ready() {
 }
 
 void GDTinyCC::_process(double delta) {
-
+   if (tcc_state) {
+        using ProcessFunc = void(*)(double);
+        ProcessFunc process_func = (ProcessFunc)tcc_get_symbol((TCCState*)tcc_state, "_process");
+        if (process_func) {
+            process_func(delta);
+        }
+    }
 }
 
 
@@ -84,8 +91,8 @@ void GDTinyCC::compile_file() {
     char dll_path[1024];
     
 #ifdef _WIN32
-    HMODULE hModule = GetModuleHandleA("libgdtinycc.windows.template_debug.x86_64.dll");
-    if (!hModule) {
+    HMODULE hModule;
+    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCSTR)&godot_print, &hModule)) {
         UtilityFunctions::print("no dll handle");
         return;
     }
@@ -117,8 +124,16 @@ void GDTinyCC::compile_file() {
     tcc_add_include_path(s, include_path.utf8().get_data());
     tcc_add_sysinclude_path(s, include_path.utf8().get_data());
     
+    String tinycc_include = String(dll_path) + PATH_SEPARATOR ".." PATH_SEPARATOR ".." PATH_SEPARATOR "src" PATH_SEPARATOR "tinycc-mob" PATH_SEPARATOR "include";
+    tcc_add_sysinclude_path(s, tinycc_include.utf8().get_data());
+    
     tcc_add_library_path(s, dll_path);
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
+
+    String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
+    if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
+        UtilityFunctions::print("warning: could not load libtcc1.a");
+    }
 
     String full_path = source_file;
     if (!source_file.begins_with("res://")) {
