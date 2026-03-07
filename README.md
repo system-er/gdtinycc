@@ -23,6 +23,9 @@ void main() {
 void _ready() {
     godot_print("gdtinycc-_ready called!");
 }
+
+void _process(double delta) {
+}
 ```
 
     
