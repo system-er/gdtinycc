@@ -1,6 +1,7 @@
 # GDTinyCC - gdextension for tinycc
 
 integrates tinycc into Godot with gdextension c++.     
+compile and execute C code directly.    
 edit your c-files with the editor of your choice          
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
     
