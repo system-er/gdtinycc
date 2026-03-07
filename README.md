@@ -11,6 +11,7 @@ WIP - programmed with godot 4.5, tinycc-mob
 # commands:       
 godot_print(string)    
 godot_get_node(path)    
+godot_get_property(node, property)    
     
 
 # example src/main.c   
@@ -23,6 +24,8 @@ void main() {
     void* testnode = godot_get_node("/root/Main");
     if (testnode != NULL) {
         godot_print("gdtinycc main: node found");
+        const char* name = godot_get_property(testnode, "name");
+        godot_print(name);
     }
     else {
         godot_print("gdtinycc main: node not found");
