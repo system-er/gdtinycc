@@ -30,7 +30,7 @@ godot_set_variant(node, property, GDExtensionVariant)
 //example: set labeltext
 //GDExtensionVariant v;
 //v.type = VARTYPE_STRING;
-//snprintf(v.value.s, sizeof(v.value.s), "Hallo Welt!");
+//snprintf(v.value.s, sizeof(v.value.s), "hello world");
 //void *label = godot_get_node("/root/Main/Label");
 //godot_set_variant(label, "text", v);
 ```
