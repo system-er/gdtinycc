@@ -15,8 +15,10 @@ godot_instantiate(scenepath)
 godot_create(classname)    
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)    
-
 godot_get_property(node, property)    
+godot_get_variant(node, property)    
+godot_set_variant(node, property, GDExtensionVariant)    
+
 
 //new var-type GDExtensionVariant    
 //VARTYPE_BOOL = 1,    
@@ -26,12 +28,11 @@ godot_get_property(node, property)
 //VARTYPE_VECTOR2 = 5,    
 //VARTYPE_VECTOR3 = 6,     
 //VARTYPE_COLOR = 7    
-GDExtensionVariant = godot_get_variant(node, property)   
+
 ```
 example: GDExtensionVariant v = godot_get_variant(testnode, "name");
 ```
-
-godot_set_variant(node, property, GDExtensionVariant)    
+  
 ```
 //example: set labeltext
 GDExtensionVariant v;
@@ -40,6 +41,7 @@ snprintf(v.value.s, sizeof(v.value.s), "hello world");
 void *label = godot_get_node("/root/Main/Label");
 godot_set_variant(label, "text", v);
 ```
+
 ```
 //example: set vector2
 v.type = VARTYPE_VECTOR2;
