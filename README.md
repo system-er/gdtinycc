@@ -13,7 +13,7 @@ godot_print(string)
 godot_get_node(path)    
 godot_get_property(node, property)    
 
-//new var-type GDExtensionVarType    
+//new var-type GDExtensionVariant    
 //VARTYPE_BOOL = 1,    
 //VARTYPE_INT = 2,    
 //VARTYPE_FLOAT = 3,    
