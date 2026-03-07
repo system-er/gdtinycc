@@ -264,33 +264,36 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
     UtilityFunctions::print("godot_get_variant: type=", (int)value.get_type());
     
     switch ((int)value.get_type()) {
-        case godot::Variant::NIL:
+        case 0:  // NIL
             result.type = VARTYPE_NULL;
             break;
-        case godot::Variant::BOOL:
+        case 1:  // BOOL
             result.type = VARTYPE_BOOL;
             result.value.b = (bool)value ? 1 : 0;
             break;
-        case godot::Variant::INT:
+        case 2:  // INT
             result.type = VARTYPE_INT;
             result.value.i = (int)value;
             break;
-        case godot::Variant::FLOAT:
+        case 3:  // FLOAT
             result.type = VARTYPE_FLOAT;
             result.value.f = (float)(double)value;
             break;
-        case godot::Variant::STRING:
+        case 4:   // STRING (Godot 3)
+        case 21:  // STRING (Godot 4)
             result.type = VARTYPE_STRING;
             snprintf(result.value.s, sizeof(result.value.s), "%s", ((godot::String)value).utf8().get_data());
             break;
-        case godot::Variant::VECTOR2: {
+        case 5:  // VECTOR2
+        {
             godot::Vector2 v = value;
             result.type = VARTYPE_VECTOR2;
             result.value.vec2.x = v.x;
             result.value.vec2.y = v.y;
             break;
         }
-        case godot::Variant::VECTOR3: {
+        case 6:  // VECTOR3
+        {
             godot::Vector3 v = value;
             result.type = VARTYPE_VECTOR3;
             result.value.vec3.x = v.x;
@@ -298,16 +301,18 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.vec3.z = v.z;
             break;
         }
-        case godot::Variant::COLOR: {
+        case 29:  // COLOR (Godot 4)
+        {
             godot::Color c = value;
             result.type = VARTYPE_COLOR;
-            result.value.color.r = c.get_r();
-            result.value.color.g = c.get_g();
-            result.value.color.b = c.get_b();
-            result.value.color.a = c.get_a();
+            result.value.color.r = c.r;
+            result.value.color.g = c.g;
+            result.value.color.b = c.b;
+            result.value.color.a = c.a;
             break;
         }
         default:
+            UtilityFunctions::print("godot_get_variant: unhandled type=", (int)value.get_type());
             result.type = VARTYPE_NULL;
             break;
     }
