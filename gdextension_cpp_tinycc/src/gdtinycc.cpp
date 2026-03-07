@@ -7,6 +7,26 @@
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
+#include <godot_cpp/classes/packed_scene.hpp>
+#include <godot_cpp/classes/object.hpp>
+#include <godot_cpp/classes/control.hpp>
+#include <godot_cpp/classes/label.hpp>
+#include <godot_cpp/classes/button.hpp>
+#include <godot_cpp/classes/sprite2d.hpp>
+#include <godot_cpp/classes/sprite3d.hpp>
+#include <godot_cpp/classes/camera2d.hpp>
+#include <godot_cpp/classes/camera3d.hpp>
+#include <godot_cpp/classes/node2d.hpp>
+#include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/classes/character_body2d.hpp>
+#include <godot_cpp/classes/character_body3d.hpp>
+#include <godot_cpp/classes/area2d.hpp>
+#include <godot_cpp/classes/area3d.hpp>
+#include <godot_cpp/classes/static_body2d.hpp>
+#include <godot_cpp/classes/static_body3d.hpp>
+#include <godot_cpp/classes/rigid_body2d.hpp>
+#include <godot_cpp/classes/rigid_body3d.hpp>
 
 
 
@@ -41,6 +61,10 @@ void godot_print_float(float f);
 
 GDExtensionVariant godot_get_variant(void* node, const char *property);
 void godot_set_variant(void* node, const char *property, GDExtensionVariant variant);
+void* godot_instantiate(const char* scene_path);
+void* godot_create(const char* class_name);
+void godot_add_child(void* parent, void* child);
+void godot_add_child_deferred(void* parent, void* child);
 const char* godot_get_type_name(int type);
 
 
@@ -149,6 +173,10 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
     tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
+    tcc_add_symbol(s, "godot_instantiate", (void*)godot_instantiate);
+    tcc_add_symbol(s, "godot_create", (void*)godot_create);
+    tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
+    tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
@@ -261,7 +289,7 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
     godot::Node* node = static_cast<godot::Node*>(node_ptr);
     godot::Variant value = node->get(property);
     
-    UtilityFunctions::print("godot_get_variant: type=", (int)value.get_type());
+    //UtilityFunctions::print("godot_get_variant: type=", (int)value.get_type());
     
     switch ((int)value.get_type()) {
         case 0:  // NIL
@@ -373,5 +401,127 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
     }
     
     node->set(property, value);
+}
+
+void* godot_instantiate(const char* scene_path) {
+    if (!GDTinyCC::_current_instance) {
+        UtilityFunctions::print("godot_instantiate: no current instance");
+        return nullptr;
+    }
+    
+    godot::ResourceLoader* loader = godot::ResourceLoader::get_singleton();
+    godot::String path(scene_path);
+    
+    godot::Variant loaded = loader->load(path);
+    if (loaded.get_type() == godot::Variant::NIL) {
+        UtilityFunctions::print("godot_instantiate: failed to load scene: ", scene_path);
+        return nullptr;
+    }
+    
+    if (loaded.get_type() != godot::Variant::OBJECT) {
+        UtilityFunctions::print("godot_instantiate: not an object: ", scene_path);
+        return nullptr;
+    }
+    
+    godot::Object* obj = (godot::Object*)loaded;
+    godot::PackedScene* scene = godot::Object::cast_to<godot::PackedScene>(obj);
+    if (!scene) {
+        UtilityFunctions::print("godot_instantiate: not a packed scene: ", scene_path);
+        return nullptr;
+    }
+    
+    godot::Node* instance = scene->instantiate();
+    if (!instance) {
+        UtilityFunctions::print("godot_instantiate: instantiate returned null");
+        return nullptr;
+    }
+    
+    return static_cast<void*>(instance);
+}
+
+void godot_add_child(void* parent_ptr, void* child_ptr) {
+    if (!parent_ptr || !child_ptr) {
+        UtilityFunctions::print("godot_add_child: parent or child is null");
+        return;
+    }
+    
+    godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
+    godot::Node* child = static_cast<godot::Node*>(child_ptr);
+    
+    parent->add_child(child);
+}
+
+void godot_add_child_deferred(void* parent_ptr, void* child_ptr) {
+    if (!parent_ptr || !child_ptr) {
+        UtilityFunctions::print("godot_add_child_deferred: parent or child is null");
+        return;
+    }
+    
+    godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
+    godot::Node* child = static_cast<godot::Node*>(child_ptr);
+    
+    parent->call_deferred("add_child", child);
+}
+
+void* godot_create(const char* class_name) {
+    godot::StringName class_name_sn(class_name);
+    
+    if (class_name_sn == godot::StringName("Node")) {
+        return static_cast<void*>(memnew(godot::Node));
+    }
+    if (class_name_sn == godot::StringName("Control")) {
+        return static_cast<void*>(memnew(godot::Control));
+    }
+    if (class_name_sn == godot::StringName("Label")) {
+        return static_cast<void*>(memnew(godot::Label));
+    }
+    if (class_name_sn == godot::StringName("Button")) {
+        return static_cast<void*>(memnew(godot::Button));
+    }
+    if (class_name_sn == godot::StringName("Sprite2D")) {
+        return static_cast<void*>(memnew(godot::Sprite2D));
+    }
+    if (class_name_sn == godot::StringName("Sprite3D")) {
+        return static_cast<void*>(memnew(godot::Sprite3D));
+    }
+    if (class_name_sn == godot::StringName("Camera2D")) {
+        return static_cast<void*>(memnew(godot::Camera2D));
+    }
+    if (class_name_sn == godot::StringName("Camera3D")) {
+        return static_cast<void*>(memnew(godot::Camera3D));
+    }
+    if (class_name_sn == godot::StringName("Node2D")) {
+        return static_cast<void*>(memnew(godot::Node2D));
+    }
+    if (class_name_sn == godot::StringName("Node3D")) {
+        return static_cast<void*>(memnew(godot::Node3D));
+    }
+    if (class_name_sn == godot::StringName("CharacterBody2D")) {
+        return static_cast<void*>(memnew(godot::CharacterBody2D));
+    }
+    if (class_name_sn == godot::StringName("CharacterBody3D")) {
+        return static_cast<void*>(memnew(godot::CharacterBody3D));
+    }
+    if (class_name_sn == godot::StringName("Area2D")) {
+        return static_cast<void*>(memnew(godot::Area2D));
+    }
+    if (class_name_sn == godot::StringName("Area3D")) {
+        return static_cast<void*>(memnew(godot::Area3D));
+    }
+    if (class_name_sn == godot::StringName("StaticBody2D")) {
+        return static_cast<void*>(memnew(godot::StaticBody2D));
+    }
+    if (class_name_sn == godot::StringName("StaticBody3D")) {
+        return static_cast<void*>(memnew(godot::StaticBody3D));
+    }
+    if (class_name_sn == godot::StringName("RigidBody2D")) {
+        return static_cast<void*>(memnew(godot::RigidBody2D));
+    }
+    if (class_name_sn == godot::StringName("RigidBody3D")) {
+        return static_cast<void*>(memnew(godot::RigidBody3D));
+    }
+    
+    UtilityFunctions::print("godot_create: unsupported class: ", class_name);
+    return nullptr;
 }
 
