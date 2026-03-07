@@ -46,6 +46,7 @@ godot_set_variant(label, "text", v);
 
 ```
 //example: set vector2
+GDExtensionVariant v;
 v.type = VARTYPE_VECTOR2;
 v.value.vec2.x = 100.0f;
 v.value.vec2.y = 200.0f;
@@ -53,7 +54,7 @@ godot_set_variant(sprite, "position", v);
 ```
 
 ```
-//set color
+//example: set color
 GDExtensionVariant v;
 v.type = VARTYPE_COLOR;
 v.value.color.r = 1.0f;
