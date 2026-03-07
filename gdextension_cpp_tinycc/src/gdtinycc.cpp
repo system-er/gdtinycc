@@ -36,6 +36,22 @@ void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
 void* godot_get_node(const char *path);
 const char* godot_get_property(void* node, const char *property);
+void godot_print_float(float f);
+
+struct GDExtensionVariant {
+    int type;
+    union {
+        int i;
+        float f;
+        char s[256];
+        int b;
+        float vec2[2];
+        float vec3[3];
+    } value;
+};
+
+GDExtensionVariant godot_get_variant(void* node, const char *property);
+const char* godot_get_type_name(int type);
 
 
 using namespace godot;
@@ -141,12 +157,14 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
+    tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
+    tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
     if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
         UtilityFunctions::print("error: compile_file - could not load libtcc1.a");
     }
-
+ 
     String full_path = source_file;
     if (!source_file.begins_with("res://")) {
         full_path = "res://" + source_file;
@@ -237,5 +255,76 @@ const char* godot_get_property(void* node_ptr, const char* property) {
             break;
     }
     return buffer;
+}
+
+
+
+GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
+    GDExtensionVariant result = {0, {0}};
+    
+    if (!node_ptr) {
+        UtilityFunctions::print("godot_get_variant: node is null");
+        return result;
+    }
+    
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    godot::Variant value = node->get(property);
+    
+    UtilityFunctions::print("godot_get_variant: type=", (int)value.get_type());
+    
+    switch ((int)value.get_type()) {
+        case 0:  // NIL
+            result.type = 0;
+            break;
+        case 1:  // BOOL
+            result.type = 1;
+            result.value.b = (bool)value ? 1 : 0;
+            break;
+        case 2:  // INT
+            result.type = 2;
+            result.value.i = (int)value;
+            break;
+        case 3:  // FLOAT
+            result.type = 3;
+            result.value.f = (float)(double)value;
+            break;
+        case 4:   // STRING (Godot 3)
+        case 21:  // STRING (Godot 4)
+            result.type = 4;
+            snprintf(result.value.s, sizeof(result.value.s), "%s", ((godot::String)value).utf8().get_data());
+            break;
+        case 5: {  // VECTOR2
+            godot::Vector2 v = value;
+            result.type = 5;
+            result.value.vec2[0] = v.x;
+            result.value.vec2[1] = v.y;
+            break;
+        }
+        case 6: {  // VECTOR3
+            godot::Vector3 v = value;
+            result.type = 6;
+            result.value.vec3[0] = v.x;
+            result.value.vec3[1] = v.y;
+            result.value.vec3[2] = v.z;
+            break;
+        }
+        default:
+            result.type = 0;
+            break;
+    }
+    return result;
+}
+
+const char* godot_get_type_name(int type) {
+    switch (type) {
+        case 0: return "NULL";
+        case 1: return "BOOL";
+        case 2: return "INT";
+        case 3: return "FLOAT";
+        case 4: return "STRING";
+        case 5: return "VECTOR2";
+        case 6: return "VECTOR3";
+        default: return "UNKNOWN";
+    }
 }
 
