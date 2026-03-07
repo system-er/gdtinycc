@@ -6,14 +6,27 @@ void* godot_get_node(const char *path);
 const char* godot_get_property(void* node, const char *property);
 
 typedef struct {
+    float x;
+    float y;
+} Vector2;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} Vector3;
+
+typedef struct {
     int type;
     union {
         int i;
         float f;
         char s[256];
         int b;
-        float vec2[2];
-        float vec3[3];
+        //float vec2[2];
+        Vector2 vec2;
+        //float vec3[3];
+        Vector3 vec3;
     } value;
 } GDExtensionVariant;
 
