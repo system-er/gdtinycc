@@ -17,16 +17,22 @@ typedef struct {
 } Vector3;
 
 typedef struct {
+    float r;
+    float g;
+    float b;
+    float a;
+} Color;
+
+typedef struct {
     int type;
     union {
         int i;
         float f;
         char s[256];
         int b;
-        //float vec2[2];
         Vector2 vec2;
-        //float vec3[3];
         Vector3 vec3;
+        Color color;
     } value;
 } GDExtensionVariant;
 
