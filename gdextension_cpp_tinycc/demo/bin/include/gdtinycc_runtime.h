@@ -53,6 +53,8 @@ void* godot_instantiate(const char* scene_path);
 void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
+GDExtensionVariant godot_call(void* node, const char* method_name, int arg_count, GDExtensionVariant* args);
+void godot_queue_free(void* node);
 void godot_print_float(float f);
 const char* godot_get_type_name(int type);
 
