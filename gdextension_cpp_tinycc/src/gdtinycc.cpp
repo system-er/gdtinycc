@@ -38,6 +38,17 @@ void* godot_get_node(const char *path);
 const char* godot_get_property(void* node, const char *property);
 void godot_print_float(float f);
 
+typedef struct {
+    float x;
+    float y;
+} Vector2;
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} Vector3;
+
 struct GDExtensionVariant {
     int type;
     union {
@@ -45,8 +56,10 @@ struct GDExtensionVariant {
         float f;
         char s[256];
         int b;
-        float vec2[2];
-        float vec3[3];
+        //float vec2[2];
+        Vector2 vec2;
+        //float vec3[3];
+        Vector3 vec3;
     } value;
 };
 
@@ -296,16 +309,16 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
         case 5: {  // VECTOR2
             godot::Vector2 v = value;
             result.type = 5;
-            result.value.vec2[0] = v.x;
-            result.value.vec2[1] = v.y;
+            result.value.vec2.x = v.x;
+            result.value.vec2.y = v.y;
             break;
         }
         case 6: {  // VECTOR3
             godot::Vector3 v = value;
             result.type = 6;
-            result.value.vec3[0] = v.x;
-            result.value.vec3[1] = v.y;
-            result.value.vec3[2] = v.z;
+            result.value.vec3.x = v.x;
+            result.value.vec3.y = v.y;
+            result.value.vec3.z = v.z;
             break;
         }
         default:
