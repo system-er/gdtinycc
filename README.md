@@ -83,7 +83,7 @@ void main() {
     }
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
-    snprintf(v.value.s, sizeof(v.value.s), "Hallo Welt!");
+    snprintf(v.value.s, sizeof(v.value.s), "this is a label from gdtinycc");
     godot_set_variant(label, "text", v);
     
     void *main_node = godot_get_node("/root/Main");
