@@ -84,6 +84,7 @@ void GDTinyCC::_bind_methods() {
 GDTinyCC::GDTinyCC() {
     _current_instance = this;
     tcc_state = nullptr;
+    UtilityFunctions::print("GDTinyCC started.");
 }
 
 GDTinyCC::~GDTinyCC() {
@@ -111,6 +112,16 @@ void GDTinyCC::_process(double delta) {
         ProcessFunc process_func = (ProcessFunc)tcc_get_symbol((TCCState*)tcc_state, "_process");
         if (process_func) {
             process_func(delta);
+        }
+    }
+}
+
+void GDTinyCC::_physics_process(double delta) {
+   if (tcc_state) {
+        using ProcessFunc = void(*)(double);
+        ProcessFunc pprocess_func = (ProcessFunc)tcc_get_symbol((TCCState*)tcc_state, "_physics_process");
+        if (pprocess_func) {
+            pprocess_func(delta);
         }
     }
 }

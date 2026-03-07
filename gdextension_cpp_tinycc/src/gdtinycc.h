@@ -2,6 +2,7 @@
 #define GDTINYCC_H
 
 #include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/variant/string.hpp>
 
 
@@ -23,6 +24,8 @@ public:
 
     void _ready();
     void _process(double delta);
+    void _physics_process(double delta);
+	//void _input(const Ref<InputEvent> &event);
     void compile_file();
     void set_source_file(const String &p_path);
     String get_source_file() const;
