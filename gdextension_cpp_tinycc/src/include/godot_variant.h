@@ -13,6 +13,13 @@ typedef struct {
 } Vector3;
 
 typedef struct {
+    float r;
+    float g;
+    float b;
+    float a;
+} Color;
+
+typedef struct {
     int type;
     union {
         int i;
@@ -21,6 +28,7 @@ typedef struct {
         int b;
         Vector2 vec2;
         Vector3 vec3;
+        Color color;
     } value;
 } GDExtensionVariant;
 
@@ -31,7 +39,8 @@ typedef enum {
     VARTYPE_FLOAT = 3,
     VARTYPE_STRING = 4,
     VARTYPE_VECTOR2 = 5,
-    VARTYPE_VECTOR3 = 6
+    VARTYPE_VECTOR3 = 6,
+    VARTYPE_COLOR = 7
 } GDExtensionVarType;
 
 #endif

@@ -298,6 +298,15 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.vec3.z = v.z;
             break;
         }
+        case godot::Variant::COLOR: {
+            godot::Color c = value;
+            result.type = VARTYPE_COLOR;
+            result.value.color.r = c.get_r();
+            result.value.color.g = c.get_g();
+            result.value.color.b = c.get_b();
+            result.value.color.a = c.get_a();
+            break;
+        }
         default:
             result.type = VARTYPE_NULL;
             break;
@@ -314,6 +323,7 @@ const char* godot_get_type_name(int type) {
         case VARTYPE_STRING: return "STRING";
         case VARTYPE_VECTOR2: return "VECTOR2";
         case VARTYPE_VECTOR3: return "VECTOR3";
+        case VARTYPE_COLOR: return "COLOR";
         default: return "UNKNOWN";
     }
 }
@@ -348,6 +358,9 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
             break;
         case VARTYPE_VECTOR3:
             value = godot::Variant(godot::Vector3(variant.value.vec3.x, variant.value.vec3.y, variant.value.vec3.z));
+            break;
+        case VARTYPE_COLOR:
+            value = godot::Variant(godot::Color(variant.value.color.r, variant.value.color.g, variant.value.color.b, variant.value.color.a));
             break;
         default:
             UtilityFunctions::print("godot_set_variant: unknown type ", variant.type);
