@@ -35,6 +35,7 @@ godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
 void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
 void* godot_get_node(const char *path);
+const char* godot_get_property(void* node, const char *property);
 
 
 using namespace godot;
@@ -139,6 +140,7 @@ void GDTinyCC::compile_file() {
     tcc_add_library_path(s, dll_path);
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
+    tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
     if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
@@ -205,5 +207,35 @@ void* godot_get_node(const char* path) {
         UtilityFunctions::print("error: godot_get_node - no current instance found");
         return nullptr;
     }
+}
+
+const char* godot_get_property(void* node_ptr, const char* property) {
+    static char buffer[256] = "";
+    if (!node_ptr) {
+        buffer[0] = '\0';
+        return buffer;
+    }
+    
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    godot::Variant value = node->get(property);
+    
+    switch (value.get_type()) {
+        case godot::Variant::STRING:
+            snprintf(buffer, sizeof(buffer), "%s", ((godot::String)value).utf8().get_data());
+            break;
+        case godot::Variant::INT:
+            snprintf(buffer, sizeof(buffer), "%d", (int)value);
+            break;
+        case godot::Variant::FLOAT:
+            snprintf(buffer, sizeof(buffer), "%f", (double)value);
+            break;
+        case godot::Variant::BOOL:
+            snprintf(buffer, sizeof(buffer), "%s", (bool)value ? "true" : "false");
+            break;
+        default:
+            snprintf(buffer, sizeof(buffer), "[%s]", ((godot::String)value).utf8().get_data());
+            break;
+    }
+    return buffer;
 }
 
