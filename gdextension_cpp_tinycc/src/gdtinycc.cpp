@@ -65,6 +65,8 @@ void* godot_instantiate(const char* scene_path);
 void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
+GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
+void godot_queue_free(void* node_ptr);
 const char* godot_get_type_name(int type);
 
 
@@ -177,6 +179,8 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_create", (void*)godot_create);
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
+    tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
@@ -523,5 +527,133 @@ void* godot_create(const char* class_name) {
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
     return nullptr;
+}
+
+godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
+    godot::Variant value;
+    switch (ext.type) {
+        case VARTYPE_NULL:
+            value = godot::Variant();
+            break;
+        case VARTYPE_BOOL:
+            value = godot::Variant(ext.value.b != 0);
+            break;
+        case VARTYPE_INT:
+            value = godot::Variant(ext.value.i);
+            break;
+        case VARTYPE_FLOAT:
+            value = godot::Variant((double)ext.value.f);
+            break;
+        case VARTYPE_STRING:
+            value = godot::Variant(godot::String(ext.value.s));
+            break;
+        case VARTYPE_VECTOR2:
+            value = godot::Variant(godot::Vector2(ext.value.vec2.x, ext.value.vec2.y));
+            break;
+        case VARTYPE_VECTOR3:
+            value = godot::Variant(godot::Vector3(ext.value.vec3.x, ext.value.vec3.y, ext.value.vec3.z));
+            break;
+        case VARTYPE_COLOR:
+            value = godot::Variant(godot::Color(ext.value.color.r, ext.value.color.g, ext.value.color.b, ext.value.color.a));
+            break;
+        default:
+            break;
+    }
+    return value;
+}
+
+GDExtensionVariant variant_to_ext(const godot::Variant& value) {
+    GDExtensionVariant result = {VARTYPE_NULL, {0}};
+    
+    switch ((int)value.get_type()) {
+        case 0:  // NIL
+            result.type = VARTYPE_NULL;
+            break;
+        case 1:  // BOOL
+            result.type = VARTYPE_BOOL;
+            result.value.b = (bool)value ? 1 : 0;
+            break;
+        case 2:  // INT
+            result.type = VARTYPE_INT;
+            result.value.i = (int)value;
+            break;
+        case 3:  // FLOAT
+            result.type = VARTYPE_FLOAT;
+            result.value.f = (float)(double)value;
+            break;
+        case 4:   // STRING
+        case 21:  // STRING (Godot 4)
+            result.type = VARTYPE_STRING;
+            snprintf(result.value.s, sizeof(result.value.s), "%s", ((godot::String)value).utf8().get_data());
+            break;
+        case 5:  // VECTOR2
+        {
+            godot::Vector2 v = value;
+            result.type = VARTYPE_VECTOR2;
+            result.value.vec2.x = v.x;
+            result.value.vec2.y = v.y;
+            break;
+        }
+        case 6:  // VECTOR3
+        {
+            godot::Vector3 v = value;
+            result.type = VARTYPE_VECTOR3;
+            result.value.vec3.x = v.x;
+            result.value.vec3.y = v.y;
+            result.value.vec3.z = v.z;
+            break;
+        }
+        case 29:  // COLOR (Godot 4)
+        {
+            godot::Color c = value;
+            result.type = VARTYPE_COLOR;
+            result.value.color.r = c.r;
+            result.value.color.g = c.g;
+            result.value.color.b = c.b;
+            result.value.color.a = c.a;
+            break;
+        }
+        default:
+            UtilityFunctions::print("godot_call: unhandled return type=", (int)value.get_type());
+            break;
+    }
+    return result;
+}
+
+GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args) {
+    GDExtensionVariant result = {VARTYPE_NULL, {0}};
+    
+    if (!node_ptr) {
+        UtilityFunctions::print("godot_call: node is null");
+        return result;
+    }
+    
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    
+    godot::Variant ret;
+    if (arg_count == 0) {
+        ret = node->call(method_name);
+    } else if (args) {
+        godot::Variant* variant_args = new godot::Variant[arg_count];
+        for (int i = 0; i < arg_count; i++) {
+            variant_args[i] = variant_from_ext(args[i]);
+        }
+        ret = node->call(method_name, variant_args, arg_count);
+        delete[] variant_args;
+    } else {
+        UtilityFunctions::print("godot_call: args is null but arg_count > 0");
+        return result;
+    }
+    
+    return variant_to_ext(ret);
+}
+
+void godot_queue_free(void* node_ptr) {
+    if (!node_ptr) {
+        return;
+    }
+    
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    node->queue_free();
 }
 
