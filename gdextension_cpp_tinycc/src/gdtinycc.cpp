@@ -27,6 +27,7 @@
 
 extern "C" {
     #include "tinycc-mob/libtcc.h"
+    #include "include/godot_variant.h"
 }
 
 typedef struct TCCState TCCState;
@@ -38,32 +39,8 @@ void* godot_get_node(const char *path);
 const char* godot_get_property(void* node, const char *property);
 void godot_print_float(float f);
 
-typedef struct {
-    float x;
-    float y;
-} Vector2;
-
-typedef struct {
-    float x;
-    float y;
-    float z;
-} Vector3;
-
-struct GDExtensionVariant {
-    int type;
-    union {
-        int i;
-        float f;
-        char s[256];
-        int b;
-        //float vec2[2];
-        Vector2 vec2;
-        //float vec3[3];
-        Vector3 vec3;
-    } value;
-};
-
 GDExtensionVariant godot_get_variant(void* node, const char *property);
+void godot_set_variant(void* node, const char *property, GDExtensionVariant variant);
 const char* godot_get_type_name(int type);
 
 
@@ -171,6 +148,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
+    tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
@@ -286,43 +264,42 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
     UtilityFunctions::print("godot_get_variant: type=", (int)value.get_type());
     
     switch ((int)value.get_type()) {
-        case 0:  // NIL
-            result.type = 0;
+        case godot::Variant::NIL:
+            result.type = VARTYPE_NULL;
             break;
-        case 1:  // BOOL
-            result.type = 1;
+        case godot::Variant::BOOL:
+            result.type = VARTYPE_BOOL;
             result.value.b = (bool)value ? 1 : 0;
             break;
-        case 2:  // INT
-            result.type = 2;
+        case godot::Variant::INT:
+            result.type = VARTYPE_INT;
             result.value.i = (int)value;
             break;
-        case 3:  // FLOAT
-            result.type = 3;
+        case godot::Variant::FLOAT:
+            result.type = VARTYPE_FLOAT;
             result.value.f = (float)(double)value;
             break;
-        case 4:   // STRING (Godot 3)
-        case 21:  // STRING (Godot 4)
-            result.type = 4;
+        case godot::Variant::STRING:
+            result.type = VARTYPE_STRING;
             snprintf(result.value.s, sizeof(result.value.s), "%s", ((godot::String)value).utf8().get_data());
             break;
-        case 5: {  // VECTOR2
+        case godot::Variant::VECTOR2: {
             godot::Vector2 v = value;
-            result.type = 5;
+            result.type = VARTYPE_VECTOR2;
             result.value.vec2.x = v.x;
             result.value.vec2.y = v.y;
             break;
         }
-        case 6: {  // VECTOR3
+        case godot::Variant::VECTOR3: {
             godot::Vector3 v = value;
-            result.type = 6;
+            result.type = VARTYPE_VECTOR3;
             result.value.vec3.x = v.x;
             result.value.vec3.y = v.y;
             result.value.vec3.z = v.z;
             break;
         }
         default:
-            result.type = 0;
+            result.type = VARTYPE_NULL;
             break;
     }
     return result;
@@ -330,14 +307,53 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
 
 const char* godot_get_type_name(int type) {
     switch (type) {
-        case 0: return "NULL";
-        case 1: return "BOOL";
-        case 2: return "INT";
-        case 3: return "FLOAT";
-        case 4: return "STRING";
-        case 5: return "VECTOR2";
-        case 6: return "VECTOR3";
+        case VARTYPE_NULL: return "NULL";
+        case VARTYPE_BOOL: return "BOOL";
+        case VARTYPE_INT: return "INT";
+        case VARTYPE_FLOAT: return "FLOAT";
+        case VARTYPE_STRING: return "STRING";
+        case VARTYPE_VECTOR2: return "VECTOR2";
+        case VARTYPE_VECTOR3: return "VECTOR3";
         default: return "UNKNOWN";
     }
+}
+
+void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {
+    if (!node_ptr) {
+        UtilityFunctions::print("godot_set_variant: node is null");
+        return;
+    }
+    
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    godot::Variant value;
+    
+    switch (variant.type) {
+        case VARTYPE_NULL:
+            value = godot::Variant();
+            break;
+        case VARTYPE_BOOL:
+            value = godot::Variant(variant.value.b != 0);
+            break;
+        case VARTYPE_INT:
+            value = godot::Variant(variant.value.i);
+            break;
+        case VARTYPE_FLOAT:
+            value = godot::Variant((double)variant.value.f);
+            break;
+        case VARTYPE_STRING:
+            value = godot::Variant(godot::String(variant.value.s));
+            break;
+        case VARTYPE_VECTOR2:
+            value = godot::Variant(godot::Vector2(variant.value.vec2.x, variant.value.vec2.y));
+            break;
+        case VARTYPE_VECTOR3:
+            value = godot::Variant(godot::Vector3(variant.value.vec3.x, variant.value.vec3.y, variant.value.vec3.z));
+            break;
+        default:
+            UtilityFunctions::print("godot_set_variant: unknown type ", variant.type);
+            return;
+    }
+    
+    node->set(property, value);
 }
 
