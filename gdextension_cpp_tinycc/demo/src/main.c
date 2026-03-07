@@ -24,9 +24,16 @@ void main() {
     v.type = VARTYPE_STRING;
     snprintf(v.value.s, sizeof(v.value.s), "this is a label from gdtinycc");
     godot_set_variant(label, "text", v);
-    
+
+    GDExtensionVariant va;
+    va.type = VARTYPE_VECTOR2;
+    va.value.vec2.x = 200.0f;
+    va.value.vec2.y = 100.0f;
+    godot_set_variant(label, "position", va);
+
     void *main_node = godot_get_node("/root/Main");
     godot_add_child_deferred(main_node, label);
+
 }
 
 void _ready() {
