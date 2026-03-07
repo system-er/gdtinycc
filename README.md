@@ -10,6 +10,7 @@ WIP - programmed with godot 4.5, tinycc-mob
 
 # commands:       
 godot_print(string)    
+godot_get_node(path)    
     
 
 # example src/main.c   
