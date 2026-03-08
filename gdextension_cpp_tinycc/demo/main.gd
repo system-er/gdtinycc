@@ -1,16 +1,9 @@
 extends Node2D
 
 func benchmark() -> int:
-	var sum := 0
-	var n1 := 0
-	var n2 := 1
+	var sum = 0
 	for i in range(0, 10000000):
-		var n := n2
-		n2 = n2 + n1
-		n1 = n
-		sum += n2
-
-	#print(sum)
+		sum = sum + 1
 	return sum
 
 func _ready():
