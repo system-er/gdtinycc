@@ -21,7 +21,8 @@ godot_get_property(node, property)
 godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
 godot_queue_free(node)    
-
+godot_emit_signal(node, signal_name, arg_count, args)
+godot_connect(node, signal_name, callback_func, user_data)
 
 new var-type GDExtensionVariant    
 - VARTYPE_BOOL = 1,
@@ -69,6 +70,9 @@ v.value.color.a = 1.0f;
 #include "stddef.h"
 #include "gdtinycc_runtime.h"
 
+void on_button_pressed(void* user_data, GDExtensionVariant arg) {
+    godot_print("Button pressed!");
+}
 void main() {
     godot_print("hello world from GDTinyCC");
     void* testnode = godot_get_node("/root/Main");
@@ -94,6 +98,9 @@ void main() {
     
     void *main_node = godot_get_node("/root/Main");
     godot_add_child_deferred(main_node, label);
+
+    void* button = godot_get_node("/root/Main/Button");
+    godot_connect(button, "pressed", on_button_pressed, NULL);
 }
 
 void _ready() {
