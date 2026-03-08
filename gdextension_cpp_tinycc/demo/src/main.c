@@ -5,25 +5,19 @@
 
 // callfunction for button-signal
 void on_button_pressed(void* user_data, GDExtensionVariant arg) {
-    godot_print("Button pressed!");
+    godot_print("Button pressed");
 }
 
 // callfunction for timer-signal
 void on_timeout(void* user_data) {
-    godot_print("timeout!");
+    godot_print("callfunction timer");
 }
 
 // a little benchmark
 int benchmark() {
 	int sum = 0;
-	int n1 = 0;
-	int n2 = 1;
-    int n = 0;
 	for(int i=0; i<10000000; i++) {
-		n = n2;
-		n2 = n2 + n1;
-		n1 = n;
-		sum = sum + n2;
+		sum = sum + 1;
     }
 	return sum;
 }
@@ -87,6 +81,7 @@ void main() {
 void _ready() {
     godot_print("GDTinyCC _ready called!");
 
+    // stop time for benchmark
     long start_time = godot_get_ticks_msec();
 	benchmark();
 	long end_time = godot_get_ticks_msec();
