@@ -87,16 +87,9 @@ void on_timeout(void* user_data) {
 // a little benchmark
 int benchmark() {
 	int sum = 0;
-	int n1 = 0;
-	int n2 = 1;
-    int n = 0;
 	for(int i=0; i<10000000; i++) {
-		n = n2;
-		n2 = n2 + n1;
-		n1 = n;
-		sum = sum + n2;
+		sum = sum + 1;
     }
-
 	return sum;
 }
 
