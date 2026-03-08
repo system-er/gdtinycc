@@ -121,6 +121,7 @@ void main() {
 void _ready() {
     godot_print("GDTinyCC _ready called!");
 
+	// stop time for benchmark
     long start_time = godot_get_ticks_msec();
 	benchmark();
 	long end_time = godot_get_ticks_msec();
