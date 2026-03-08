@@ -68,6 +68,8 @@ void godot_add_child_deferred(void* parent, void* child);
 GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_queue_free(void* node_ptr);
 const char* godot_get_type_name(int type);
+void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args);
+void godot_connect(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
 
 
 using namespace godot;
@@ -76,6 +78,7 @@ void GDTinyCC::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_source_file", "path"), &GDTinyCC::set_source_file);
     ClassDB::bind_method(D_METHOD("get_source_file"), &GDTinyCC::get_source_file);
     ClassDB::bind_method(D_METHOD("compile_file"), &GDTinyCC::compile_file);
+    ClassDB::bind_method(D_METHOD("_on_signal_callback"), &GDTinyCC::_on_signal_callback);
 
     ClassDB::add_property("GDTinyCC", PropertyInfo(Variant::STRING, "source_file", PROPERTY_HINT_FILE, "*.c"), "set_source_file", "get_source_file");
 }
@@ -205,6 +208,8 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
+    tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
+    tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
     if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
@@ -678,5 +683,72 @@ void godot_queue_free(void* node_ptr) {
     
     godot::Node* node = static_cast<godot::Node*>(node_ptr);
     node->queue_free();
+}
+
+void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args) {
+    if (!node_ptr) {
+        UtilityFunctions::print("godot_emit_signal: node is null");
+        return;
+    }
+    
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    godot::StringName signal_name_sn(signal_name);
+    
+    if (arg_count == 0) {
+        node->emit_signal(signal_name_sn);
+    } else if (args) {
+        godot::Variant* variant_args = new godot::Variant[arg_count];
+        for (int i = 0; i < arg_count; i++) {
+            variant_args[i] = variant_from_ext(args[i]);
+        }
+        node->emit_signal(signal_name_sn, variant_args, arg_count);
+        delete[] variant_args;
+    } else {
+        UtilityFunctions::print("godot_emit_signal: args is null but arg_count > 0");
+    }
+}
+
+bool GDTinyCC::connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data) {
+    if (!node_ptr || !callback_func) {
+        UtilityFunctions::print("godot_connect: invalid parameters");
+        return false;
+    }
+    
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    godot::String signal_sn(signal_name);
+    
+    current_callback_func = callback_func;
+    current_user_data = user_data;
+    
+    bool result = node->connect(signal_sn, godot::Callable(this, "_on_signal_callback"));
+    
+    //if (!result) {
+    //    UtilityFunctions::print("godot_connect: warning: returned false");
+    //}
+    
+    return result;
+}
+
+void GDTinyCC::_on_signal_callback() {
+    if (current_callback_func) {
+        using CallbackFunc = void(*)(void*);
+        CallbackFunc func = (CallbackFunc)current_callback_func;
+        func(current_user_data);
+    }
+}
+
+void GDTinyCC::disconnect_all_signals() {
+    for (auto& cb : signal_callbacks) {
+        if (cb.source_node) {
+            cb.source_node->disconnect(StringName(cb.signal_name.c_str()), godot::Callable(this, "_on_signal_callback"));
+        }
+    }
+    signal_callbacks.clear();
+}
+
+void godot_connect(void* node_ptr, const char* signal_name, void* callback_func, void* user_data) {
+    if (GDTinyCC::_current_instance) {
+        GDTinyCC::_current_instance->connect_signal(node_ptr, signal_name, callback_func, user_data);
+    }
 }
 
