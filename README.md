@@ -36,28 +36,6 @@ new var-type GDExtensionVariant
 - VARTYPE_COLOR = 7    
 
 ```
-example: GDExtensionVariant v = godot_get_variant(testnode, "name");
-```
-  
-```
-//example: set labeltext
-GDExtensionVariant v;
-v.type = VARTYPE_STRING;
-snprintf(v.value.s, sizeof(v.value.s), "hello world");
-void *label = godot_get_node("/root/Main/Label");
-godot_set_variant(label, "text", v);
-```
-
-```
-//example: set vector2
-GDExtensionVariant v;
-v.type = VARTYPE_VECTOR2;
-v.value.vec2.x = 100.0f;
-v.value.vec2.y = 200.0f;
-godot_set_variant(sprite, "position", v);
-```
-
-```
 //example: set color
 GDExtensionVariant v;
 v.type = VARTYPE_COLOR;
@@ -172,6 +150,30 @@ void _input(void* event_ptr)
 {
     //godot_print("input event!");
 }
+```
+
+other examples:    
+
+```
+example: GDExtensionVariant v = godot_get_variant(testnode, "name");
+```
+  
+```
+//example: set labeltext
+GDExtensionVariant v;
+v.type = VARTYPE_STRING;
+snprintf(v.value.s, sizeof(v.value.s), "hello world");
+void *label = godot_get_node("/root/Main/Label");
+godot_set_variant(label, "text", v);
+```
+
+```
+//example: set vector2
+GDExtensionVariant v;
+v.type = VARTYPE_VECTOR2;
+v.value.vec2.x = 100.0f;
+v.value.vec2.y = 200.0f;
+godot_set_variant(sprite, "position", v);
 ```
 
     
