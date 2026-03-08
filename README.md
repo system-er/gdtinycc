@@ -83,6 +83,22 @@ void on_timeout(void* user_data) {
     godot_print("timeout!");
 }
 
+// a little benchmark
+int benchmark() {
+	int sum = 0;
+	int n1 = 0;
+	int n2 = 1;
+    int n = 0;
+	for(int i=0; i<10000000; i++) {
+		n = n2;
+		n2 = n2 + n1;
+		n1 = n;
+		sum = sum + n2;
+    }
+
+	return sum;
+}
+
 // the c-main-function
 void main() {
     godot_print("hello world from GDTinyCC.");
@@ -136,6 +152,15 @@ void main() {
     godot_set_variant(timer, "autostart", vt2);
     godot_connect(timer, "timeout", on_timeout, NULL);
     godot_add_child_deferred(parent, timer);
+
+    long start_time = godot_get_ticks_msec();
+	benchmark();
+	long end_time = godot_get_ticks_msec();
+	long result = end_time - start_time;
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%ld", result);
+    godot_print("GDTinyCC time to run in ms:");
+    godot_print(buffer);
 }
 
 // _ready-function is called from godot
