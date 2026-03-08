@@ -70,7 +70,7 @@ v.value.color.a = 1.0f;
 #include "gdtinycc_runtime.h"
 
 void main() {
-    godot_print("hello world from gdtinycc");
+    godot_print("hello world from GDTinyCC");
     void* testnode = godot_get_node("/root/Main");
     if (testnode != NULL) {
         godot_print("gdtinycc main: node found");
@@ -79,7 +79,7 @@ void main() {
         godot_print(v.value.s);
     }
     else {
-        godot_print("gdtinycc main: node not found");
+        godot_print("GDTinyCC main: node not found");
     }
 
     void *label = godot_create("Label");
@@ -89,7 +89,7 @@ void main() {
     }
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
-    snprintf(v.value.s, sizeof(v.value.s), "this is a label from gdtinycc");
+    snprintf(v.value.s, sizeof(v.value.s), "this is a label from GDTinyCC");
     godot_set_variant(label, "text", v);
     
     void *main_node = godot_get_node("/root/Main");
@@ -97,7 +97,7 @@ void main() {
 }
 
 void _ready() {
-    godot_print("gdtinycc-_ready called!");
+    godot_print("GDTinyCC _ready called!");
 }
 
 void _process(double delta) {
