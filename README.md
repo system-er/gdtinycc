@@ -21,8 +21,8 @@ godot_get_property(node, property)
 godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
 godot_queue_free(node)    
-godot_emit_signal(node, signal_name, arg_count, args)
-godot_connect(node, signal_name, callback_func, user_data)
+godot_emit_signal(node, signal_name, arg_count, args)    
+godot_connect(node, signal_name, callback_func, user_data)    
 
 new var-type GDExtensionVariant    
 - VARTYPE_BOOL = 1,
