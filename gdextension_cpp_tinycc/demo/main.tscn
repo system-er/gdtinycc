@@ -4,3 +4,11 @@
 
 [node name="GDTinyCC" type="GDTinyCC" parent="."]
 source_file = "res://src/main.c"
+
+[node name="Button" type="Button" parent="."]
+offset_left = 30.0
+offset_top = 68.0
+offset_right = 247.0
+offset_bottom = 138.0
+theme_override_font_sizes/font_size = 28
+text = "click me"
