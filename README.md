@@ -45,12 +45,12 @@ new var-type GDExtensionVariant
 
 // callfunction for button-signal
 void on_button_pressed(void* user_data, GDExtensionVariant arg) {
-    godot_print("Button pressed!");
+    godot_print("Button pressed");
 }
 
 // callfunction for timer-signal
 void on_timeout(void* user_data) {
-    godot_print("timeout!");
+    godot_print("callfunction timer");
 }
 
 // a little benchmark
