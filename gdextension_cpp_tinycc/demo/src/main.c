@@ -7,6 +7,10 @@ void on_button_pressed(void* user_data, GDExtensionVariant arg) {
     godot_print("Button pressed!");
 }
 
+void on_timeout(void* user_data) {
+    godot_print("timeout!");
+}
+
 void main() {
     godot_print("hello world from GDTinyCC.");
     void* testnode = godot_get_node("/root/Main");
@@ -42,6 +46,17 @@ void main() {
     void* button = godot_get_node("/root/Main/Button");
     godot_connect(button, "pressed", on_button_pressed, NULL);
 
+    void* timer = godot_create("Timer");
+    GDExtensionVariant vt1;
+    vt1.type = VARTYPE_FLOAT;
+    vt1.value.f = 3.0f;
+    godot_set_variant(timer, "wait_time", vt1);
+    GDExtensionVariant vt2;
+    vt2.type = VARTYPE_BOOL;
+    vt2.value.f = 1;
+    godot_set_variant(timer, "autostart", vt2);
+    godot_connect(timer, "timeout", on_timeout, NULL);
+    godot_add_child_deferred(testnode, timer);
 }
 
 void _ready() {
