@@ -153,6 +153,11 @@ void main() {
     godot_set_variant(timer, "autostart", vt2);
     godot_connect(timer, "timeout", on_timeout, NULL);
     godot_add_child_deferred(parent, timer);
+}
+
+// _ready-function is called from godot
+void _ready() {
+    godot_print("GDTinyCC _ready called!");
 
     long start_time = godot_get_ticks_msec();
 	benchmark();
@@ -162,11 +167,6 @@ void main() {
     snprintf(buffer, sizeof(buffer), "%ld", result);
     godot_print("GDTinyCC time to run in ms:");
     godot_print(buffer);
-}
-
-// _ready-function is called from godot
-void _ready() {
-    godot_print("GDTinyCC _ready called!");
 }
 
 void _process(double delta) {
