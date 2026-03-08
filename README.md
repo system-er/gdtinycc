@@ -24,6 +24,7 @@ GDExtensionVariant godot_call(node, method_name, arg_count, args)
 godot_queue_free(node)    
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(node, signal_name, callback_func, user_data)    
+godot_get_ticks_msec()    
 
 new var-type GDExtensionVariant    
 - VARTYPE_BOOL = 1,
