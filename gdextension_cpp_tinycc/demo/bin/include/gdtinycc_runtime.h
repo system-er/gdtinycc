@@ -57,5 +57,7 @@ GDExtensionVariant godot_call(void* node, const char* method_name, int arg_count
 void godot_queue_free(void* node);
 void godot_print_float(float f);
 const char* godot_get_type_name(int type);
+void godot_emit_signal(void* node, const char* signal_name, int arg_count, GDExtensionVariant* args);
+void godot_connect(void* node, const char* signal_name, void* callback_func, void* user_data);
 
 #endif
