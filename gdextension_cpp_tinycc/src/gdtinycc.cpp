@@ -47,8 +47,9 @@
 
 extern "C" {
     #include "tinycc-mob/libtcc.h"
-    #include "include/godot_variant.h"
 }
+
+#include "gdtinycc.h"
 
 typedef struct TCCState TCCState;
 godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
