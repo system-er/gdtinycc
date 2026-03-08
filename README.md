@@ -70,9 +70,11 @@ v.value.color.a = 1.0f;
 #include "stddef.h"
 #include "gdtinycc_runtime.h"
 
+
 void on_button_pressed(void* user_data, GDExtensionVariant arg) {
     godot_print("Button pressed!");
 }
+
 void main() {
     godot_print("hello world from GDTinyCC");
     void* testnode = godot_get_node("/root/Main");
