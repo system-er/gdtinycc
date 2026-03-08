@@ -28,6 +28,8 @@
 #include <godot_cpp/classes/rigid_body2d.hpp>
 #include <godot_cpp/classes/rigid_body3d.hpp>
 #include <godot_cpp/classes/timer.hpp>
+#include <godot_cpp/classes/time.hpp>
+#include <godot_cpp/classes/image.hpp>
 
 
 #ifdef _WIN32
@@ -70,6 +72,8 @@ GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_c
 void godot_queue_free(void* node_ptr);
 const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args);
+long long godot_get_ticks_msec();
+void godot_print_int(int value);
 void godot_connect(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
 
 
@@ -192,7 +196,7 @@ void GDTinyCC::compile_file() {
     tcc_add_include_path(s, include_path.utf8().get_data());
     tcc_add_sysinclude_path(s, include_path.utf8().get_data());
     
-    String tinycc_include = String(dll_path) + PATH_SEPARATOR ".." PATH_SEPARATOR ".." PATH_SEPARATOR "src" PATH_SEPARATOR "tinycc-mob" PATH_SEPARATOR "include";
+    String tinycc_include = String(dll_path) + PATH_SEPARATOR ".." PATH_SEPARATOR ".." PATH_SEPARATOR "src" PATH_SEPARATOR "tinycc-mob" PATH_SEPARATOR "win32" PATH_SEPARATOR "include";
     tcc_add_sysinclude_path(s, tinycc_include.utf8().get_data());
     
     tcc_add_library_path(s, dll_path);
@@ -208,6 +212,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
+    tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
 
@@ -391,6 +396,10 @@ const char* godot_get_type_name(int type) {
     }
 }
 
+long long godot_get_ticks_msec() {
+    return godot::Time::get_singleton()->get_ticks_msec();
+}
+
 void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {
     if (!node_ptr) {
         UtilityFunctions::print("godot_set_variant: node is null");
@@ -552,6 +561,9 @@ void* godot_create(const char* class_name) {
     }
     if (class_name_sn == godot::StringName("Timer")) {
         return static_cast<void*>(memnew(godot::Timer));
+    }
+    if (class_name_sn == godot::StringName("Image")) {
+        return static_cast<void*>(memnew(godot::Image));
     }
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
