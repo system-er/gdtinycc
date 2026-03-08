@@ -27,7 +27,7 @@
 #include <godot_cpp/classes/static_body3d.hpp>
 #include <godot_cpp/classes/rigid_body2d.hpp>
 #include <godot_cpp/classes/rigid_body3d.hpp>
-
+#include <godot_cpp/classes/timer.hpp>
 
 
 #ifdef _WIN32
@@ -78,7 +78,6 @@ void GDTinyCC::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_source_file", "path"), &GDTinyCC::set_source_file);
     ClassDB::bind_method(D_METHOD("get_source_file"), &GDTinyCC::get_source_file);
     ClassDB::bind_method(D_METHOD("compile_file"), &GDTinyCC::compile_file);
-    ClassDB::bind_method(D_METHOD("_on_signal_callback"), &GDTinyCC::_on_signal_callback);
 
     ClassDB::add_property("GDTinyCC", PropertyInfo(Variant::STRING, "source_file", PROPERTY_HINT_FILE, "*.c"), "set_source_file", "get_source_file");
 }
@@ -321,8 +320,6 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
     godot::Node* node = static_cast<godot::Node*>(node_ptr);
     godot::Variant value = node->get(property);
     
-    //UtilityFunctions::print("godot_get_variant: type=", (int)value.get_type());
-    
     switch ((int)value.get_type()) {
         case 0:  // NIL
             result.type = VARTYPE_NULL;
@@ -552,6 +549,9 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("RigidBody3D")) {
         return static_cast<void*>(memnew(godot::RigidBody3D));
     }
+    if (class_name_sn == godot::StringName("Timer")) {
+        return static_cast<void*>(memnew(godot::Timer));
+    }
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
     return nullptr;
@@ -717,33 +717,22 @@ bool GDTinyCC::connect_signal(void* node_ptr, const char* signal_name, void* cal
     godot::Node* node = static_cast<godot::Node*>(node_ptr);
     godot::String signal_sn(signal_name);
     
-    current_callback_func = callback_func;
-    current_user_data = user_data;
+    godot::SignalHandler* handler = memnew(godot::SignalHandler);
+    handler->callback_func = callback_func;
+    handler->user_data = user_data;
     
-    bool result = node->connect(signal_sn, godot::Callable(this, "_on_signal_callback"));
+    signal_handlers.push_back(handler);
     
-    //if (!result) {
-    //    UtilityFunctions::print("godot_connect: warning: returned false");
-    //}
+    bool result = node->connect(signal_sn, godot::Callable(handler, "_on_signal_callback"));
     
     return result;
 }
 
-void GDTinyCC::_on_signal_callback() {
-    if (current_callback_func) {
-        using CallbackFunc = void(*)(void*);
-        CallbackFunc func = (CallbackFunc)current_callback_func;
-        func(current_user_data);
-    }
-}
-
 void GDTinyCC::disconnect_all_signals() {
-    for (auto& cb : signal_callbacks) {
-        if (cb.source_node) {
-            cb.source_node->disconnect(StringName(cb.signal_name.c_str()), godot::Callable(this, "_on_signal_callback"));
-        }
+    for (auto* handler : signal_handlers) {
+        memdelete(handler);
     }
-    signal_callbacks.clear();
+    signal_handlers.clear();
 }
 
 void godot_connect(void* node_ptr, const char* signal_name, void* callback_func, void* user_data) {
@@ -751,4 +740,3 @@ void godot_connect(void* node_ptr, const char* signal_name, void* callback_func,
         GDTinyCC::_current_instance->connect_signal(node_ptr, signal_name, callback_func, user_data);
     }
 }
-

@@ -14,6 +14,7 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
         return;
     }
 
+    ClassDB::register_class<SignalHandler>();
     ClassDB::register_class<GDTinyCC>();
 }
 

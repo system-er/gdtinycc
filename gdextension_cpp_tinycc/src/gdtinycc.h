@@ -8,14 +8,24 @@
 #include <vector>
 #include <string>
 
-struct SignalCallback {
-    std::string signal_name;
-    void* callback_func;
-    void* user_data;
-    godot::Object* source_node;
-};
-
 namespace godot {
+
+class SignalHandler : public Node {
+    GDCLASS(SignalHandler, Node)
+public:
+    void* callback_func = nullptr;
+    void* user_data = nullptr;
+    void _on_signal_callback() {
+        if (callback_func) {
+            using CallbackFunc = void(*)(void*);
+            CallbackFunc func = (CallbackFunc)callback_func;
+            func(user_data);
+        }
+    }
+    static void _bind_methods() {
+        ClassDB::bind_method(D_METHOD("_on_signal_callback"), &SignalHandler::_on_signal_callback);
+    }
+};
 
 class GDTinyCC : public Node {
     GDCLASS(GDTinyCC, Node)
@@ -23,11 +33,7 @@ class GDTinyCC : public Node {
 private:
     String source_file;
     void *tcc_state;
-    std::vector<SignalCallback> signal_callbacks;
-    void* current_callback_func;
-    void* current_user_data;
-
-    void _on_signal_callback();
+    std::vector<SignalHandler*> signal_handlers;
 
 protected:
     static void _bind_methods();
