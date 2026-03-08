@@ -1,6 +1,9 @@
-[gd_scene format=3 uid="uid://dsnp5a6lr43ug"]
+[gd_scene load_steps=2 format=3 uid="uid://dsnp5a6lr43ug"]
+
+[ext_resource type="Script" uid="uid://k5a8mdnbdxy0" path="res://main.gd" id="1_ig7tw"]
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_ig7tw")
 
 [node name="GDTinyCC" type="GDTinyCC" parent="."]
 source_file = "res://src/main.c"
