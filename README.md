@@ -10,7 +10,8 @@ WIP - programmed with godot 4.5, tinycc-mob
 - _ready, _process, _physics_process, _input and _unhandled_input
 - _enter_tree, exit_tree, _notification        
 - signals work    
-- time to get out the old bible of C from Kernighan/Ritchie ;-)    
+- time to get out the old bible of C from Kernighan/Ritchie ;-)
+
 	
 three options:
 - compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
