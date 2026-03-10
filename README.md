@@ -11,9 +11,9 @@ WIP - programmed with godot 4.5, tinycc-mob
     
 	
 three options:
-- compile c-source-file .c (filename in inspector in "Source File")    
-- save the compiled program in an objectfile .o (filename in inspector in "Output Object File")    
-- load the saved program from an objectfile .o (filename in inspector in "Input Object File")    
+- compile c-source-file (filename *.c in inspector in "Source File")    
+- save the compiled program in an objectfile (filename *.o in inspector in "Output Object File")    
+- load the saved program from an objectfile (filename *.o in inspector in "Input Object File")    
   the input object-file must be in the bin-directory!     
    
 
