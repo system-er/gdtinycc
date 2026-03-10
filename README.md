@@ -10,7 +10,7 @@ WIP - programmed with godot 4.5, tinycc-mob
 - _ready, _process, _physics_process and _input work.    
 - save the compiled program in an objectfile .o (filename in inspector in "Output Object File")    
 - load the saved program from an objectfile .o (filename in inspector in "Input Object File")    
-  the input object-file must be in the bin-directory!
+  the input object-file must be in the bin-directory!    
   now you can release without the source-c-file!    
   
 
