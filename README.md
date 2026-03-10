@@ -19,7 +19,8 @@ three options:
 - load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File")    
   the input object-file must be in the bin-directory!     
    
-
+godot with the node GDTinyCC:    
+![Pic1](screenshot.jpg)
 	   
 # docu:       
 godot_print(string)    
