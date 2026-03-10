@@ -12,9 +12,9 @@ WIP - programmed with godot 4.5, tinycc-mob
     
 	
 three options:
-- compile c-source-file just in time (filename *.c in inspector in "Source File")    
+- compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
 - save the compiled program in an objectfile (filename *.o in inspector in "Output Object File")    
-- load the saved program from an objectfile (filename *.o in inspector in "Input Object File")    
+- load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File")    
   the input object-file must be in the bin-directory!     
    
 
