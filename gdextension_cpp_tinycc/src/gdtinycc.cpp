@@ -122,6 +122,12 @@ GDTinyCC::~GDTinyCC() {
     if (_current_instance == this) {
         _current_instance = nullptr;
     }
+    disconnect_all_signals();
+
+    if (tcc_state) {
+        tcc_delete((TCCState*)tcc_state);
+        tcc_state = nullptr;
+    }
 }
 
 
