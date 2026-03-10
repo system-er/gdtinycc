@@ -8,6 +8,7 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
 GDTinyCC is a new node for godot that inherits from Node.     
 WIP - programmed with godot 4.5, tinycc-mob   
 - _ready, _process, _physics_process and _input work.
+- signals work    
     
 	
 three options:
