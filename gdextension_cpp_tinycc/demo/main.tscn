@@ -6,7 +6,7 @@
 script = ExtResource("1_ig7tw")
 
 [node name="GDTinyCC" type="GDTinyCC" parent="."]
-source_file = "res://src/main.c"
+input_object_file = "res://bin/test.o"
 
 [node name="Button" type="Button" parent="."]
 offset_left = 30.0
