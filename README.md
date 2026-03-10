@@ -43,7 +43,8 @@ new var-type GDExtensionVariant
 - VARTYPE_STRING = 4,    
 - VARTYPE_VECTOR2 = 5,    
 - VARTYPE_VECTOR3 = 6,     
-- VARTYPE_COLOR = 7    
+- VARTYPE_COLOR = 7,
+- VARTYPE_RECT2 = 8,        
 
 
 # example src/main.c   
