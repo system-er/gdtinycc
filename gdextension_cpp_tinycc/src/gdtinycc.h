@@ -91,6 +91,10 @@ public:
     void _process(double delta);
     void _physics_process(double delta);
     void _input(const Ref<InputEvent> &event);
+    void _unhandled_input(const Ref<InputEvent> &event);
+    void _enter_tree();
+    void _exit_tree();
+
 
     void compile_file();
     void compile_to_object(const String &output_file);

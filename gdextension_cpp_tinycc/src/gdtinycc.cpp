@@ -1044,3 +1044,27 @@ void godot_connect(void* node_ptr, const char* signal_name, void* callback_func,
         GDTinyCC::_current_instance->connect_signal(node_ptr, signal_name, callback_func, user_data);
     }
 }
+
+void GDTinyCC::_enter_tree() {
+    if (tcc_state) {
+        using Func = void(*)();
+        Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_enter_tree");
+        if (f) f();
+    }
+}
+
+void GDTinyCC::_exit_tree() {
+    if (tcc_state) {
+        using Func = void(*)();
+        Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_exit_tree");
+        if (f) f();
+    }
+}
+
+void GDTinyCC::_unhandled_input(const Ref<InputEvent> &event) {
+    if (tcc_state) {
+        using Func = void(*)(void*);
+        Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_unhandled_input");
+        if (f) f((void*)event.ptr());
+    }
+}
