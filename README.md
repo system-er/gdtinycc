@@ -1,4 +1,4 @@
-# GDTinyCC - gdextension for tinycc
+# GDTinyCC - gdextension C compiler
 
 integrates tinycc into Godot with gdextension c++.     
 compile and execute C code directly.    
