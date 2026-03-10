@@ -7,9 +7,9 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
     
 GDTinyCC is a new node for godot that inherits from Node.     
 WIP - programmed with godot 4.5, tinycc-mob   
-- _ready, _process, _physics_process and _input work.
-- save the compiled program in an objectfile .o (write in inspector in "Output Object File")
-- load the saved program from an objectfile .o (write in inspector in "Input Object File")
+- _ready, _process, _physics_process and _input work.    
+- save the compiled program in an objectfile .o (filename in inspector in "Output Object File")    
+- load the saved program from an objectfile .o (filename in inspector in "Input Object File")    
   the input object-file must be in the bin-directory!    
   
 
