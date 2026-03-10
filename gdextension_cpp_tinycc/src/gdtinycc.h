@@ -74,6 +74,9 @@ class GDTinyCC : public Node {
 
 private:
     String source_file;
+    String output_object_file;
+    String input_object_file;
+
     void *tcc_state;
     std::vector<SignalHandler*> signal_handlers;
 
@@ -90,8 +93,15 @@ public:
     void _input(const Ref<InputEvent> &event);
 
     void compile_file();
+    void compile_to_object(const String &output_file);
+    void load_object(const String &object_file);
     void set_source_file(const String &p_path);
     String get_source_file() const;
+    void set_output_object_file(const String &p_path);
+    String get_output_object_file() const;
+    void set_input_object_file(const String &p_path);
+    String get_input_object_file() const;
+    void load_object_file();
     static GDTinyCC* _current_instance;
 
     bool connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);

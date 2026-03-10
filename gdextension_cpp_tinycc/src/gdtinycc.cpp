@@ -30,6 +30,7 @@
 #include <godot_cpp/classes/timer.hpp>
 #include <godot_cpp/classes/time.hpp>
 #include <godot_cpp/classes/image.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
 
 
 #ifdef _WIN32
@@ -84,7 +85,29 @@ void GDTinyCC::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_source_file"), &GDTinyCC::get_source_file);
     ClassDB::bind_method(D_METHOD("compile_file"), &GDTinyCC::compile_file);
 
-    ClassDB::add_property("GDTinyCC", PropertyInfo(Variant::STRING, "source_file", PROPERTY_HINT_FILE, "*.c"), "set_source_file", "get_source_file");
+    ClassDB::add_property(
+        "GDTinyCC", 
+        PropertyInfo(Variant::STRING, "source_file", PROPERTY_HINT_FILE, "*.c"), 
+        "set_source_file", 
+        "get_source_file"
+    );
+    ClassDB::bind_method(D_METHOD("set_output_object_file", "path"), &GDTinyCC::set_output_object_file);
+    ClassDB::bind_method(D_METHOD("get_output_object_file"), &GDTinyCC::get_output_object_file);
+    ClassDB::add_property(
+        "GDTinyCC",
+        PropertyInfo(Variant::STRING, "output_object_file", PROPERTY_HINT_FILE, "*.o"),
+        "set_output_object_file",
+        "get_output_object_file"
+    );
+    ClassDB::bind_method(D_METHOD("set_input_object_file", "path"), &GDTinyCC::set_input_object_file);
+    ClassDB::bind_method(D_METHOD("get_input_object_file"), &GDTinyCC::get_input_object_file);
+
+    ClassDB::add_property(
+        "GDTinyCC",
+        PropertyInfo(Variant::STRING, "input_object_file", PROPERTY_HINT_FILE, "*.o"),
+        "set_input_object_file",
+        "get_input_object_file"
+    );
 }
 
 
@@ -103,7 +126,11 @@ GDTinyCC::~GDTinyCC() {
 
 
 void GDTinyCC::_ready() {
-    compile_file();
+    if (!input_object_file.is_empty()) {
+        load_object_file();
+    } else {
+        compile_file();
+    }
     
     if (tcc_state) {
         using ReadyFunc = void(*)();
@@ -187,7 +214,12 @@ void GDTinyCC::compile_file() {
     tcc_set_error_func(s, nullptr, tcc_error_callback);
     tcc_set_lib_path(s, dll_path);
     
-    tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
+    if (!output_object_file.is_empty()) {
+        UtilityFunctions::print("compile_file - output_type to TCC_OUTPUT_OBJ");
+        tcc_set_output_type(s, TCC_OUTPUT_OBJ);
+    } else {
+        tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
+    }
     
     tcc_add_include_path(s, dll_path);
     tcc_add_sysinclude_path(s, dll_path);
@@ -242,6 +274,24 @@ void GDTinyCC::compile_file() {
         tcc_delete(s);
         return;
     }
+    if (!output_object_file.is_empty()) {
+        String path = output_object_file;
+
+        if (!path.begins_with("res://") && !path.begins_with("user://")) {
+            path = "res://" + path;
+        }
+
+        String abs_path = ProjectSettings::get_singleton()->globalize_path(path);
+
+        if (tcc_output_file(s, abs_path.utf8().get_data()) < 0) {
+            UtilityFunctions::print("error: could not write object file");
+        } else {
+            UtilityFunctions::print("object file saved: ", abs_path);
+        }
+
+        tcc_delete(s);
+        return;
+    }
 
     if (tcc_relocate(s) < 0) {
         UtilityFunctions::print("error: compile_file - relocationerror!");
@@ -260,6 +310,241 @@ void GDTinyCC::compile_file() {
         UtilityFunctions::print("error: compile_file - main-function not found!");
     }
 }
+
+void GDTinyCC::set_output_object_file(const String &p_path) {
+    output_object_file = p_path;
+}
+
+String GDTinyCC::get_output_object_file() const {
+    return output_object_file;
+}
+
+void GDTinyCC::set_input_object_file(const String &p_path) {
+    input_object_file = p_path;
+}
+
+String GDTinyCC::get_input_object_file() const {
+    return input_object_file;
+}
+void GDTinyCC::compile_to_object(const String &output_file) {
+
+    if (source_file.is_empty()) {
+        UtilityFunctions::print("no source file!");
+        return;
+    }
+
+    TCCState *s = tcc_new();
+    if (!s) return;
+
+    tcc_set_error_func(s, nullptr, tcc_error_callback);
+
+    // wichtig
+    tcc_set_output_type(s, TCC_OUTPUT_OBJ);
+
+    // includes wie bisher
+    char dll_path[1024];
+#ifdef _WIN32
+    HMODULE hModule;
+    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCSTR)&godot_print, &hModule);
+    GetModuleFileNameA(hModule, dll_path, sizeof(dll_path));
+#else
+    Dl_info info;
+    dladdr((void*)godot_print, &info);
+    strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
+#endif
+
+    tcc_add_include_path(s, dll_path);
+
+    String full_path = source_file;
+    if (!source_file.begins_with("res://"))
+        full_path = "res://" + source_file;
+
+    Ref<FileAccess> fa = FileAccess::open(full_path, FileAccess::READ);
+    if (fa.is_null()) {
+        UtilityFunctions::print("source open error");
+        tcc_delete(s);
+        return;
+    }
+
+    String source_code = fa->get_as_text();
+
+    if (tcc_compile_string(s, source_code.utf8().get_data()) < 0) {
+        UtilityFunctions::print("compile error");
+        tcc_delete(s);
+        return;
+    }
+
+    if (tcc_output_file(s, output_file.utf8().get_data()) < 0) {
+        UtilityFunctions::print("failed to write object file");
+    }
+
+    tcc_delete(s);
+
+    UtilityFunctions::print("compiled object saved: ", output_file);
+}
+
+
+void GDTinyCC::load_object(const String &object_file) {
+
+    TCCState *s = tcc_new();
+    if (!s) return;
+
+    tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
+
+    // Godot API wieder registrieren
+    tcc_add_symbol(s, "godot_print", (void*)godot_print);
+    tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
+    tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
+    tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
+    tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
+
+    if (tcc_add_file(s, object_file.utf8().get_data()) < 0) {
+        UtilityFunctions::print("failed to load object file");
+        tcc_delete(s);
+        return;
+    }
+
+    if (tcc_relocate(s) < 0) {
+        UtilityFunctions::print("relocation error");
+        tcc_delete(s);
+        return;
+    }
+
+    tcc_state = s;
+
+    using MainFunc = void(*)();
+    MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
+
+    if (main_func)
+        main_func();
+}
+
+
+void GDTinyCC::load_object_file() {
+    UtilityFunctions::print("load_object_file started");
+
+    if (input_object_file.is_empty()) {
+        UtilityFunctions::print("error: no input object file!");
+        return;
+    }
+
+    TCCState *s = tcc_new();
+    if (!s) {
+        UtilityFunctions::print("error: tcc_new failed");
+        return;
+    }
+    tcc_set_options(s, "-nostdlib");
+
+    tcc_set_error_func(s, nullptr, tcc_error_callback);
+    tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
+    tcc_add_symbol(s, "godot_print", (void*)godot_print);
+    tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
+    tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
+    tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
+    tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
+    tcc_add_symbol(s, "godot_instantiate", (void*)godot_instantiate);
+    tcc_add_symbol(s, "godot_create", (void*)godot_create);
+    tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
+    tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
+    tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
+    tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
+    tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
+    tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
+    tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
+    tcc_add_symbol(s, "snprintf", (void*)snprintf);
+
+    char dll_path[1024];
+
+#ifdef _WIN32
+    HMODULE hModule;
+    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                            (LPCSTR)&godot_print, &hModule)) {
+        UtilityFunctions::print("error: load_object_file - no dll handle");
+        return;
+    }
+    GetModuleFileNameA(hModule, dll_path, sizeof(dll_path));
+    char *p = strrchr(dll_path, '\\');
+#else
+    Dl_info info;
+    if (dladdr((void*)godot_print, &info) == 0) {
+        UtilityFunctions::print("error: load_object_file - no so handle");
+        return;
+    }
+    strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
+    char *p = strrchr(dll_path, '/');
+#endif
+
+    if (p) *p = '\0';
+
+    UtilityFunctions::print("dll_path = ", dll_path);
+
+
+    //tcc_set_lib_path(s, dll_path);
+    //String lib_path = String(dll_path) + "/lib";
+    //tcc_set_lib_path(s, lib_path.utf8().get_data());
+
+    String lib_path = String(dll_path) + "/lib";
+    tcc_set_lib_path(s, lib_path.utf8().get_data());
+    tcc_add_library_path(s, lib_path.utf8().get_data());
+
+    String libtcc1_path = String(dll_path) + "/lib/libtcc1.a";
+    libtcc1_path = libtcc1_path.replace("\\", "/");
+
+    UtilityFunctions::print("libtcc1_path = ", libtcc1_path);
+
+    FILE* f = fopen(libtcc1_path.utf8().get_data(), "rb");
+    UtilityFunctions::print(f ? "FILE OK" : "FILE NOT FOUND");
+    if (f) fclose(f);
+
+    //int ret1 = tcc_add_file(s, libtcc1_path.utf8().get_data());
+    //UtilityFunctions::print("tcc_add_file(libtcc1.a) returned: ", ret1);
+
+    tcc_add_file(s, libtcc1_path.utf8().get_data());
+    //if (ret1 < 0) {
+    //    UtilityFunctions::print("error: could not load libtcc1.a");
+    //    tcc_delete(s);
+    //    return;
+    //}
+
+    String abs_path = ProjectSettings::get_singleton()->globalize_path(input_object_file);
+    abs_path = abs_path.replace("\\", "/");
+
+    UtilityFunctions::print("object file = ", abs_path);
+
+    int ret2 = tcc_add_file(s, abs_path.utf8().get_data());
+    UtilityFunctions::print("tcc_add_file(object.o) returned: ", ret2);
+
+    if (ret2 < 0) {
+        UtilityFunctions::print("error loading object file");
+        tcc_delete(s);
+        return;
+    }
+
+    UtilityFunctions::print("Relocating now...");
+    int ret3 = tcc_relocate(s);
+    UtilityFunctions::print("tcc_relocate returned: ", ret3);
+
+    if (ret3 < 0) {
+        UtilityFunctions::print("relocation error");
+        tcc_delete(s);
+        return;
+    }
+
+    tcc_state = s;
+
+    using MainFunc = void(*)();
+    MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
+
+    if (main_func) {
+        UtilityFunctions::print("Calling main()...");
+        main_func();
+    } else {
+        UtilityFunctions::print("main() not found");
+    }
+}
+
+
 
 void tcc_error_callback(void *opaque, const char *msg) {
     UtilityFunctions::print("TCC Error: ", msg);
