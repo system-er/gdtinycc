@@ -9,7 +9,7 @@ GDTinyCC is a new node for godot that inherits from Node.
 WIP - programmed with godot 4.5, tinycc-mob   
 - _ready, _process, _physics_process and _input work.
 - signals work    
-- time to get out the old book from Kernighan/Ritchie ;-)    
+- time to get out the old bible of C from Kernighan/Ritchie ;-)    
 	
 three options:
 - compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
