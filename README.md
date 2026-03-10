@@ -20,7 +20,7 @@ three options:
   the input object-file must be in the bin-directory!     
    
 godot with the node GDTinyCC:    
-![Pic1](screenshot.jpg)
+![Pic1](gdextension_cpp_tinycc/screenshot.jpg)
 	   
 # docu:       
 godot_print(string)    
