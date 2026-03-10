@@ -1068,3 +1068,11 @@ void GDTinyCC::_unhandled_input(const Ref<InputEvent> &event) {
         if (f) f((void*)event.ptr());
     }
 }
+
+void GDTinyCC::_notification(int what) {
+    if (tcc_state) {
+        using Func = void(*)(int);
+        Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_notification");
+        if (f) f(what);
+    }
+}

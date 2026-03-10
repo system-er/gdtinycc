@@ -94,7 +94,7 @@ public:
     void _unhandled_input(const Ref<InputEvent> &event);
     void _enter_tree();
     void _exit_tree();
-
+    void _notification(int what);
 
     void compile_file();
     void compile_to_object(const String &output_file);
