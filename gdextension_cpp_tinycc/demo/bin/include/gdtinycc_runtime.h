@@ -3,6 +3,7 @@
 
 void godot_print(const char *msg);
 void* godot_get_node(const char *path);
+void* godot_get_parent(void* node_ptr);
 const char* godot_get_property(void* node, const char *property);
 
 typedef struct {
@@ -54,10 +55,19 @@ void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
 GDExtensionVariant godot_call(void* node, const char* method_name, int arg_count, GDExtensionVariant* args);
+GDExtensionVariant godot_call_object(void* node, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_queue_free(void* node);
 void godot_print_float(float f);
 const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node, const char* signal_name, int arg_count, GDExtensionVariant* args);
 void godot_connect(void* node, const char* signal_name, void* callback_func, void* user_data);
+long godot_get_ticks_msec();
+float godot_randf();
+int godot_randi();
+float godot_randf_range(float a, float b);
+int godot_randi_range(int a, int b);
+void godot_randomize();
+void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
+                     float r, float g, float b, float a, int filled);
 
 #endif
