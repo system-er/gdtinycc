@@ -264,7 +264,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
     tcc_add_symbol(s, "godot_randi", (void*)godot_randi);
-    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
 
@@ -433,7 +433,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
     tcc_add_symbol(s, "godot_randi", (void*)godot_randi);
-    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
 
@@ -497,7 +497,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
     tcc_add_symbol(s, "godot_randi", (void*)godot_randi);
-    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
 
