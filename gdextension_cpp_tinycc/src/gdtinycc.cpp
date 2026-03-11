@@ -59,6 +59,7 @@ godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
 
 void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
+void* godot_get_parent(void* node_ptr);
 void* godot_get_node(const char *path);
 const char* godot_get_property(void* node, const char *property);
 void godot_print_float(float f);
@@ -239,6 +240,7 @@ void GDTinyCC::compile_file() {
     
     tcc_add_library_path(s, dll_path);
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
+    tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
@@ -253,6 +255,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
+    tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
     if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
@@ -399,10 +402,22 @@ void GDTinyCC::load_object(const String &object_file) {
 
     // Godot API wieder registrieren
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
+    tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
     tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
+    tcc_add_symbol(s, "godot_instantiate", (void*)godot_instantiate);
+    tcc_add_symbol(s, "godot_create", (void*)godot_create);
+    tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
+    tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
+    tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
+    tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
+    tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
+    tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
+    tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
+    tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     if (tcc_add_file(s, object_file.utf8().get_data()) < 0) {
         UtilityFunctions::print("failed to load object file");
@@ -444,6 +459,7 @@ void GDTinyCC::load_object_file() {
     tcc_set_error_func(s, nullptr, tcc_error_callback);
     tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
+    tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
@@ -558,6 +574,20 @@ void tcc_error_callback(void *opaque, const char *msg) {
 
 void godot_print(const char *msg) {
     UtilityFunctions::print(msg);
+}
+
+void* godot_get_parent(void* node_ptr) {
+    if (GDTinyCC::_current_instance) {
+        godot::Node* node = static_cast<godot::Node*>(node_ptr);
+        godot::Node* parent = node->get_parent();
+        if (!parent){
+            UtilityFunctions::print("error: godot_get_parent - node not found ");
+        }
+        return static_cast<void*>(parent);
+    } else {
+        UtilityFunctions::print("error: godot_get_parent - no current instance found");
+        return nullptr;
+    }
 }
 
 void* godot_get_node(const char* path) {
@@ -888,6 +918,28 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
         case VARTYPE_COLOR:
             value = godot::Variant(godot::Color(ext.value.color.r, ext.value.color.g, ext.value.color.b, ext.value.color.a));
             break;
+        case VARTYPE_RECT2:
+            value = godot::Variant(godot::Rect2(ext.value.rect2.x, ext.value.rect2.y, ext.value.rect2.width, ext.value.rect2.height ));
+            break;
+        /*
+        case VARTYPE_OBJECT:
+            if (ext.value.ptr) {
+                return *(godot::Variant*)ext.value.ptr;
+            }
+            return godot::Variant();
+        case VARTYPE_ARRAY:
+            if (ext.value.ptr) {
+                godot::Array* arr = (godot::Array*)ext.value.ptr;
+                return godot::Variant(*arr);
+            }
+            return godot::Variant();
+        case VARTYPE_DICTIONARY:
+            if (ext.value.ptr) {
+                godot::Dictionary* dict = (godot::Dictionary*)ext.value.ptr;
+                return godot::Variant(*dict);
+            }
+            return godot::Variant();
+        */
         default:
             break;
     }
@@ -945,6 +997,42 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.color.a = c.a;
             break;
         }
+        case godot::Variant::RECT2: {
+            godot::Rect2 r = value;
+            result.type = VARTYPE_RECT2;
+            result.value.rect2.x      = r.position.x;
+            result.value.rect2.y      = r.position.y;
+            result.value.rect2.width  = r.size.x;
+            result.value.rect2.height = r.size.y;
+            break;
+        }
+        /*
+        case godot::Variant::OBJECT: {
+            if (value== Variant()) {
+                result.type = VARTYPE_NULL;
+            } else {
+                result.type = VARTYPE_OBJECT;
+                result.value.ptr = value;
+            }
+            break;
+        }
+        case godot::Variant::ARRAY: {
+            result.type = VARTYPE_ARRAY;
+            result.value.ptr = memnew(godot::Array(value));
+            break;
+        }
+        case godot::Variant::DICTIONARY: {
+            result.type = VARTYPE_DICTIONARY;
+            result.value.ptr = memnew(godot::Dictionary(value));
+            break;
+        }
+        */
+        //case godot::Variant::STRING_NAME: {
+        //    res.type = VARTYPE_STRING_NAME;
+        //    godot::StringName sn = v;
+        //    res.value.ptr = memnew(godot::StringName(sn));
+        //    break;
+        //}
         default:
             UtilityFunctions::print("godot_call: unhandled return type=", (int)value.get_type());
             break;
