@@ -38,6 +38,11 @@ godot_queue_free(node)
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(node, signal_name, callback_func, user_data)    
 godot_get_ticks_msec()    
+godot_randf()    
+godot_rand()     
+godot_randf_range(from, to)    
+godot_randi_range(from, to)    
+godot_randomize()    
 
 new var-type GDExtensionVariant    
 - VARTYPE_BOOL = 1,
