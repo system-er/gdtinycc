@@ -71,12 +71,18 @@ void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
 GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
+GDExtensionVariant godot_call_object(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_queue_free(void* node_ptr);
 const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args);
 long long godot_get_ticks_msec();
 void godot_print_int(int value);
 void godot_connect(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
+float godot_randf();
+int godot_randi();
+float godot_randf_range(float a, float b);
+int godot_randi_range(int a, int b);
+void godot_randomize();
 
 
 using namespace godot;
@@ -250,11 +256,18 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
+    tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
+    tcc_add_symbol(s, "godot_randi", (void*)godot_randi);
+    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
@@ -412,11 +425,18 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
+    tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
+    tcc_add_symbol(s, "godot_randi", (void*)godot_randi);
+    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     if (tcc_add_file(s, object_file.utf8().get_data()) < 0) {
@@ -469,11 +489,18 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
+    tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
+    tcc_add_symbol(s, "godot_randi", (void*)godot_randi);
+    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     char dll_path[1024];
@@ -1068,6 +1095,40 @@ GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_c
     return variant_to_ext(ret);
 }
 
+GDExtensionVariant godot_call_object(void* obj_ptr,
+                                     const char* method_name,
+                                     int arg_count,
+                                     GDExtensionVariant* args)
+{
+    GDExtensionVariant result = {VARTYPE_NULL, {0}};
+
+    if (!obj_ptr) {
+        godot::UtilityFunctions::print("godot_call_object: object is null");
+        return result;
+    }
+
+    godot::Object* obj = static_cast<godot::Object*>(obj_ptr);
+
+    godot::Variant ret;
+
+    if (arg_count == 0) {
+        ret = obj->call(method_name);
+    } else if (args) {
+        godot::Array call_args;
+
+        for (int i = 0; i < arg_count; i++) {
+            call_args.push_back(variant_from_ext(args[i]));
+        }
+
+        ret = obj->callv(method_name, call_args);
+    } else {
+        godot::UtilityFunctions::print("godot_call_object: args null but arg_count > 0");
+        return result;
+    }
+
+    return variant_to_ext(ret);
+}
+
 void godot_queue_free(void* node_ptr) {
     if (!node_ptr) {
         return;
@@ -1163,4 +1224,24 @@ void GDTinyCC::_notification(int what) {
         Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_notification");
         if (f) f(what);
     }
+}
+
+float godot_randf() {
+    return godot::UtilityFunctions::randf();
+}
+
+int godot_randi() {
+    return godot::UtilityFunctions::randi();
+}
+
+float godot_randf_range(float a, float b) {
+    return godot::UtilityFunctions::randf_range(a, b);
+}
+
+int godot_randi_range(int a, int b) {
+    return godot::UtilityFunctions::randi_range(a, b);
+}
+
+void godot_randomize(){
+    godot::UtilityFunctions::randomize();
 }
