@@ -25,6 +25,7 @@ godot with the node GDTinyCC:
 # docu:       
 godot_print(string)    
 godot_get_node(path)    
+godot_get_parent(node)    
 godot_instantiate(scenepath)    
 godot_create(classname)    
 godot_add_child(parent, child)    
