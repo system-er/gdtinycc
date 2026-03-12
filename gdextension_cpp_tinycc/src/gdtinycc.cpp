@@ -1,4 +1,6 @@
 #include "gdtinycc.h"
+#include "gdtinycc_drawer.h"
+
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/property_info.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -83,6 +85,12 @@ int godot_randi();
 float godot_randf_range(float a, float b);
 int godot_randi_range(int a, int b);
 void godot_randomize();
+void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
+                     float r, float g, float b, float a, int filled);
+void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
+                              float r, float g, float b, float a, int filled);
+void* godot_get_drawingnode();
+
 
 
 using namespace godot;
@@ -123,6 +131,7 @@ GDTinyCC::GDTinyCC() {
     tcc_state = nullptr;
     UtilityFunctions::print("GDTinyCC started.");
     set_process_input(true);
+    setup_drawing_layer();
 }
 
 GDTinyCC::~GDTinyCC() {
@@ -183,6 +192,39 @@ void GDTinyCC::_input(const Ref<InputEvent> &event) {
             input_func((void*)event.ptr());
         }
     }
+}
+
+void GDTinyCC::setup_drawing_layer() {
+    if (ui_canvas) {
+        return;
+    }
+
+    ui_canvas = memnew(CanvasLayer);
+    if (!ui_canvas) {
+        UtilityFunctions::print("Fehler: CanvasLayer konnte nicht erstellt werden");
+        return;
+    }
+
+    ui_canvas->set_layer(10);
+    ui_canvas->set_follow_viewport(true);
+    add_child(ui_canvas);
+
+    drawer = memnew(GDTinyCCDrawer);
+    if (!drawer) {
+        UtilityFunctions::print("Fehler: TinyCCDrawer konnte nicht erstellt werden");
+        return;
+    }
+
+    // drawer->set_position(Vector2(20, 20));
+    // drawer->set_scale(Vector2(0.3, 0.3));
+
+    ui_canvas->add_child(drawer);
+
+    if (tcc_state) {
+        tcc_add_symbol((TCCState*)tcc_state, "godot_drawing_node", (void*)drawer);
+    }
+
+    drawer->queue_redraw();
 }
 
 
@@ -267,7 +309,9 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-
+    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
@@ -436,7 +480,9 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-
+    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     if (tcc_add_file(s, object_file.utf8().get_data()) < 0) {
@@ -500,7 +546,9 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-
+    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     char dll_path[1024];
@@ -946,7 +994,7 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             value = godot::Variant(godot::Color(ext.value.color.r, ext.value.color.g, ext.value.color.b, ext.value.color.a));
             break;
         case VARTYPE_RECT2:
-            value = godot::Variant(godot::Rect2(ext.value.rect2.x, ext.value.rect2.y, ext.value.rect2.width, ext.value.rect2.height ));
+            value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
             break;
         /*
         case VARTYPE_OBJECT:
@@ -1027,10 +1075,10 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
         case godot::Variant::RECT2: {
             godot::Rect2 r = value;
             result.type = VARTYPE_RECT2;
-            result.value.rect2.x      = r.position.x;
-            result.value.rect2.y      = r.position.y;
-            result.value.rect2.width  = r.size.x;
-            result.value.rect2.height = r.size.y;
+            result.value.rect2.position.x = r.position.x;
+            result.value.rect2.position.y = r.position.y;
+            result.value.rect2.size.width = r.size.x;
+            result.value.rect2.size.height = r.size.y;
             break;
         }
         /*
@@ -1128,6 +1176,7 @@ GDExtensionVariant godot_call_object(void* obj_ptr,
 
     return variant_to_ext(ret);
 }
+
 
 void godot_queue_free(void* node_ptr) {
     if (!node_ptr) {
@@ -1244,4 +1293,11 @@ int godot_randi_range(int a, int b) {
 
 void godot_randomize(){
     godot::UtilityFunctions::randomize();
+}
+
+void* godot_get_drawingnode() {
+    if (GDTinyCC::_current_instance && GDTinyCC::_current_instance->drawer) {
+        return GDTinyCC::_current_instance->drawer;
+    }
+    return nullptr;
 }
