@@ -118,5 +118,6 @@ void _draw() {
         godot_print("No drawing node 2d available!\n");
         return;
     }
-    godot_draw_rect(drawingnode2d, 200.0f, 300.0f, 200.0f, 100.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
+    godot_draw_rect(drawingnode2d, 100.0f, 300.0f, 200.0f, 300.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
+    godot_draw_circle(drawingnode2d, 600.0f, 400.0f, 200.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1);
 }
