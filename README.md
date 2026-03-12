@@ -39,6 +39,7 @@ godot_queue_free(node)
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(node, signal_name, callback_func, user_data)    
 godot_get_ticks_msec()    
+- godot random-commands:    
 godot_randf()    
 godot_randi()     
 godot_randf_range(from, to)    
