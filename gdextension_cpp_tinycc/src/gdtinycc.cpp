@@ -23,6 +23,8 @@
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/character_body2d.hpp>
 #include <godot_cpp/classes/character_body3d.hpp>
+#include <godot_cpp/classes/csg_box3d.hpp>
+#include <godot_cpp/classes/csg_sphere3d.hpp>
 #include <godot_cpp/classes/area2d.hpp>
 #include <godot_cpp/classes/area3d.hpp>
 #include <godot_cpp/classes/static_body2d.hpp>
@@ -143,6 +145,8 @@ GDTinyCC::~GDTinyCC() {
     if (tcc_state) {
         tcc_delete((TCCState*)tcc_state);
         tcc_state = nullptr;
+        ui_canvas = nullptr;
+        drawer = nullptr;
     }
 }
 
@@ -191,8 +195,6 @@ void GDTinyCC::_input(const Ref<InputEvent> &event) {
         if (input_func) {
             input_func((void*)event.ptr());
         }
-        ui_canvas = nullptr;
-        drawer = nullptr;
     }
 }
 
@@ -961,6 +963,12 @@ void* godot_create(const char* class_name) {
         return static_cast<void*>(memnew(godot::Timer));
     }
     if (class_name_sn == godot::StringName("Image")) {
+        return static_cast<void*>(memnew(godot::Image));
+    }
+    if (class_name_sn == godot::StringName("CSGBox3D")) {
+        return static_cast<void*>(memnew(godot::Image));
+    }
+    if (class_name_sn == godot::StringName("CSGSphere3D")) {
         return static_cast<void*>(memnew(godot::Image));
     }
     
