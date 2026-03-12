@@ -191,6 +191,8 @@ void GDTinyCC::_input(const Ref<InputEvent> &event) {
         if (input_func) {
             input_func((void*)event.ptr());
         }
+        ui_canvas = nullptr;
+        drawer = nullptr;
     }
 }
 
