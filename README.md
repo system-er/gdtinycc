@@ -17,8 +17,8 @@ three options:
 - compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
 - save the compiled program in an objectfile (filename *.o in inspector in "Output Object File")    
 - load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File")    
-  the input object-file must be in the bin-directory!
-  if the objectfile is chosen, export the project as exe and it works.           
+  the input object-file must be in the bin-directory!    
+  if the objectfile is chosen, export the project and it works.           
    
 godot with the node GDTinyCC:    
 ![Pic1](gdextension_cpp_tinycc/screenshot.jpg)
