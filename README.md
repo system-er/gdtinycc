@@ -47,8 +47,8 @@ godot_randi_range(from, to)
 godot_randomize()    
 - the new drawinglayer is on top of CanvasLayer:       
 godot_get_drawingnode()    
-godot_draw_rect(canvas_item_ptr, x, y, width, height, r, g, b, a, filled)    
-godot_draw_circle(canvas_item_ptr, x, y, radius, r, g, b, a, filled)    
+godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
+godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 
 new var-type GDExtensionVariant    
 - VARTYPE_BOOL = 1,
