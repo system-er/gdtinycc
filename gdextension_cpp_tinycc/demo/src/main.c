@@ -1,6 +1,7 @@
-// GDTinyCC test-c-program https://github.com/system-er/gdtinycc/tree/main
+// GDTinyCC main.c https://github.com/system-er/gdtinycc/tree/main
 #include "stddef.h"
 #include "gdtinycc_runtime.h"
+
 
 
 // callfunction for button-signal
@@ -24,7 +25,13 @@ int benchmark() {
 
 // the c-main-function
 void main() {
-    godot_print("hello world from GDTinyCC.");
+    godot_print("hello world from GDTinyCC main.");
+
+}
+
+// _ready-function is called from godot
+void _ready() {
+    godot_print("GDTinyCC _ready called!");
 
     // get the parentnode
     void* parent = godot_get_node("/root/Main");
@@ -49,7 +56,7 @@ void main() {
     // set labeltext
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
-    snprintf(v.value.s, sizeof(v.value.s), "this is a label from GDTinyCC");
+    snprintf(v.value.s, sizeof(v.value.s), "hey - this is a label from GDTinyCC");
     godot_set_variant(label, "text", v);
     // set labelposition
     GDExtensionVariant va;
@@ -75,11 +82,6 @@ void main() {
     godot_set_variant(timer, "autostart", vt2);
     godot_connect(timer, "timeout", on_timeout, NULL);
     godot_add_child_deferred(parent, timer);
-}
-
-// _ready-function is called from godot
-void _ready() {
-    godot_print("GDTinyCC _ready called!");
 
     // stop time for benchmark
     long start_time = godot_get_ticks_msec();
@@ -90,6 +92,13 @@ void _ready() {
     snprintf(buffer, sizeof(buffer), "%ld", result);
     godot_print("GDTinyCC time to run in ms:");
     godot_print(buffer);
+
+    // test godot_rand random
+    float randi1 = godot_randi();
+    snprintf(buffer, sizeof(buffer), "%d", randi1);
+    godot_print("randomnumber:");
+    godot_print(buffer);
+    
 }
 
 void _process(double delta) {
@@ -101,4 +110,13 @@ void _physics_process(double delta) {
 void _input(void* event_ptr)
 {
     //godot_print("input event!");
+}
+
+void _draw() {
+        void* drawingnode2d = godot_get_drawingnode();
+    if (!drawingnode2d) {
+        godot_print("No drawing node 2d available!\n");
+        return;
+    }
+    godot_draw_rect(drawingnode2d, 200.0f, 300.0f, 200.0f, 100.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
 }
