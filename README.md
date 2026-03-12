@@ -176,7 +176,7 @@ void _input(void* event_ptr)
 }
 
 void _draw() {
-        void* drawingnode2d = godot_get_drawingnode();
+	void* drawingnode2d = godot_get_drawingnode();
     if (!drawingnode2d) {
         godot_print("No drawing node 2d available!\n");
         return;
