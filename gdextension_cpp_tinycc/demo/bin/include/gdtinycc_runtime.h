@@ -69,5 +69,6 @@ int godot_randi_range(int a, int b);
 void godot_randomize();
 void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
                      float r, float g, float b, float a, int filled);
+void* godot_get_drawingnode();
 
 #endif
