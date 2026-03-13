@@ -78,8 +78,6 @@ private:
 
     void *tcc_state;
     std::vector<SignalHandler*> signal_handlers;
-    static GDTinyCCDrawer* shared_drawer;
-    static CanvasLayer* shared_ui_canvas;
 
 protected:
     static void _bind_methods();
@@ -89,9 +87,6 @@ public:
     GDTinyCC();
     ~GDTinyCC();
 
-    //static GDTinyCCDrawer* get_shared_drawer() {
-    //    return shared_drawer;
-    //}
     void _ready();
     void _process(double delta);
     void _physics_process(double delta);
@@ -118,9 +113,10 @@ public:
 
     void setup_drawing_layer();
     void* get_tcc_state() const { return tcc_state; }
-    //static inline CanvasLayer* shared_ui_canvas = nullptr;
-    //static inline GDTinyCCDrawer* shared_drawer = nullptr;
-    //void add_shared_canvas_to_scene(); 
+    static GDTinyCCDrawer* shared_drawer;
+    static CanvasLayer* shared_ui_canvas;
+    static void* shared_tcc_state;
+
 };
 
 }

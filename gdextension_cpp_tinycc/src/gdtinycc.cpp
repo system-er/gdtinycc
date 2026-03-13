@@ -103,6 +103,9 @@ void* godot_get_drawingnode();
 
 using namespace godot;
 
+void* godot::GDTinyCC::shared_tcc_state = nullptr;
+
+
 void GDTinyCC::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_source_file", "path"), &GDTinyCC::set_source_file);
     ClassDB::bind_method(D_METHOD("get_source_file"), &GDTinyCC::get_source_file);
@@ -208,25 +211,24 @@ void GDTinyCC::_input(const Ref<InputEvent> &event) {
 
 void GDTinyCC::setup_drawing_layer() {
 
-    /*
-    if (ui_canvas) {
+    if (shared_ui_canvas) {
         return;
     }
 
-    ui_canvas = memnew(CanvasLayer);
-    if (!ui_canvas) {
+    shared_ui_canvas = memnew(CanvasLayer);
+    if (!shared_ui_canvas) {
         UtilityFunctions::print("error: CanvasLayer not created");
         return;
     }
 
-    ui_canvas->set_layer(10);
-    ui_canvas->set_follow_viewport(true);
-    add_child(ui_canvas);
+    shared_ui_canvas->set_layer(10);
+    shared_ui_canvas->set_follow_viewport(true);
+    add_child(shared_ui_canvas);
 
-    drawer = memnew(GDTinyCCDrawer);
-
+    shared_drawer = memnew(GDTinyCCDrawer);
+   
     //drawer->owner = this;
-    if (!drawer) {
+    if (!shared_drawer) {
         UtilityFunctions::print("error: TinyCCDrawer not created");
         return;
     }
@@ -234,14 +236,14 @@ void GDTinyCC::setup_drawing_layer() {
     // drawer->set_position(Vector2(20, 20));
     // drawer->set_scale(Vector2(0.3, 0.3));
 
-    ui_canvas->add_child(drawer);
+    shared_ui_canvas->add_child(shared_drawer);
 
     if (tcc_state) {
-        tcc_add_symbol((TCCState*)tcc_state, "godot_drawing_node", (void*)drawer);
+        tcc_add_symbol((TCCState*)tcc_state, "godot_drawing_node", (void*)shared_drawer);
     }
 
-    drawer->queue_redraw();
-    */
+    shared_drawer->queue_redraw();
+    
 }
 
 
@@ -444,6 +446,9 @@ void GDTinyCC::compile_file() {
     }
 
     tcc_state = s;
+    shared_tcc_state = tcc_state;
+    shared_drawer->init(tcc_state);
+ 
 
     using MainFunc = void(*)();
     MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
@@ -1405,9 +1410,9 @@ void godot_randomize(){
 }
 
 void* godot_get_drawingnode() {
-    //if (GDTinyCC::shared_drawer) {
-    //    return GDTinyCC::shared_drawer;
-    //}
-    //UtilityFunctions::print("Warning: No shared drawer available yet!");
+    if (GDTinyCC::shared_drawer) {
+        return GDTinyCC::shared_drawer;
+    }
+    UtilityFunctions::print("Warning: No shared drawer available yet!");
     return nullptr;
 }

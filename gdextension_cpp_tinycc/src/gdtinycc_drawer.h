@@ -18,6 +18,7 @@ class GDTinyCCDrawer : public Node2D {
 
 private:
     void* tcc_state;
+    void* raw_state;
 
 protected:
     static void _bind_methods();
@@ -26,6 +27,7 @@ protected:
 public:
     GDTinyCCDrawer();
     ~GDTinyCCDrawer();
+    void init(void* r_state);
     //GDTinyCC* owner = nullptr;  
     void* get_tcc_state() const { return tcc_state; }
     void _draw() override;

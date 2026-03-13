@@ -26,30 +26,24 @@ GDTinyCCDrawer::GDTinyCCDrawer() {
 GDTinyCCDrawer::~GDTinyCCDrawer() {
 }
 
+void GDTinyCCDrawer::init(void* r_state){
+    raw_state = r_state;
+}
+
 void GDTinyCCDrawer::_draw() {
-    draw_circle(Vector2(400, 300), 120, Color(1.0, 0.0, 0.0, 0.8));
+ 
+    //draw_circle(Vector2(400, 300), 100, Color(1, 0, 0)); //for test
 
-    UtilityFunctions::print("GDTinyCCDrawer::_draw() wurde von Godot aufgerufen!");
+    using DrawFunc = void (*)();
+    DrawFunc draw_func = (DrawFunc)tcc_get_symbol(
+        static_cast<TCCState*>(raw_state),
+        "_draw"
+    );
 
-    //if (!owner) {
-    //    UtilityFunctions::print("godot_draw_: no owner");
-    //    return;
-    //}
+    if (draw_func) {
+        draw_func();
+    }
 
-    //TCCState* state = (TCCState*)owner->get_tcc_state();
-    //if (!state) {
-    //    UtilityFunctions::print("godot_draw: no TCCState");
-    //    return;
-    //}
-
-    //using DrawFunc = void(*)();
-    //DrawFunc draw_func = (DrawFunc)tcc_get_symbol(state, "_draw");
-
-    //if (draw_func) {
-    //    draw_func();
-    //} else {
-    //    UtilityFunctions::print("godot_draw: no _draw-symbol found");
-    //}
 }
 
 void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
