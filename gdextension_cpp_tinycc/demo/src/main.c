@@ -30,11 +30,15 @@ void main() {
 }
 
 // _ready-function is called from godot
-void _ready() {
+void _ready(void* self) {
     godot_print("GDTinyCC _ready called!");
 
+    if(self){
+        godot_print("self found");
+    }
+    
     // get the parentnode
-    void* parent = godot_get_node("/root/Main");
+    void* parent = godot_get_node(self, "/root/Main");
     if (parent != NULL) {
         godot_print("GDTinyCC main: node found");
         GDExtensionVariant v = godot_get_variant(parent, "name");
@@ -67,8 +71,8 @@ void _ready() {
     godot_add_child_deferred(parent, label);
 
     // get an existing Button and connect the callfunction to the signal pressed
-    void* button = godot_get_node("/root/Main/Button");
-    godot_connect(button, "pressed", on_button_pressed, NULL);
+    void* button = godot_get_node(self, "/root/Main/Button");
+    godot_connect(self, button, "pressed", on_button_pressed, NULL);
 
     // create a timernode from code
     void* timer = godot_create("Timer");
@@ -80,7 +84,7 @@ void _ready() {
     vt2.type = VARTYPE_BOOL;
     vt2.value.f = 1;
     godot_set_variant(timer, "autostart", vt2);
-    godot_connect(timer, "timeout", on_timeout, NULL);
+    godot_connect(self, timer, "timeout", on_timeout, NULL);
     godot_add_child_deferred(parent, timer);
 
     // stop time for benchmark
@@ -98,26 +102,27 @@ void _ready() {
     snprintf(buffer, sizeof(buffer), "%d", randi1);
     godot_print("randomnumber:");
     godot_print(buffer);
-    
+
 }
 
-void _process(double delta) {
+void _process(void* self, double delta) {
 }
 
-void _physics_process(double delta) {
+void _physics_process(void* self,double delta) {
 }
 
-void _input(void* event_ptr)
+void _input(void* self,void* event_ptr)
 {
     //godot_print("input event!");
 }
 
 void _draw() {
-        void* drawingnode2d = godot_get_drawingnode();
-    if (!drawingnode2d) {
-        godot_print("No drawing node 2d available!\n");
+    godot_print("--------- _draw startet");
+    void* drawingnode = godot_get_drawingnode();
+    if (!drawingnode) {
+        godot_print("no godot_drawer 2d available!\n");
         return;
     }
-    godot_draw_rect(drawingnode2d, 100.0f, 300.0f, 200.0f, 300.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
-    godot_draw_circle(drawingnode2d, 600.0f, 400.0f, 200.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1);
+    godot_draw_rect(drawingnode, 100.0f, 300.0f, 200.0f, 300.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0);
+    godot_draw_circle(drawingnode, 600.0f, 400.0f, 200.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0);
 }
