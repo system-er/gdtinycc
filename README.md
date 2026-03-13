@@ -16,8 +16,10 @@ WIP (work in progress) - programmed with godot 4.5, tinycc-mob
 	
 three options:
 - compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
-- save the compiled program in an objectfile (filename *.o in inspector in "Output Object File")    
-- load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File")    
+- save the compiled program in an objectfile (filename *.o in inspector in "Output Object File" -    
+  dont forget to press return)    
+- load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File" -
+  dont forget to press return)       
   the input object-file must be in the bin-directory!    
   if the objectfile is chosen, export the project and it works.           
    
