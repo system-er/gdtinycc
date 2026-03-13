@@ -30,9 +30,8 @@ _input(self, event)
 and other methods    
     
 godot_print(string)    
-godot_get_node(path)    
-godot_get_parent(node)    
-godot_instantiate(scenepath)    
+godot_get_node(self, path)    
+godot_instantiate(self, scenepath)    
 godot_create(classname)    
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)    
@@ -45,7 +44,7 @@ godot_queue_free(node)
 godot_get_ticks_msec()   
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
-godot_connect(node, signal_name, callback_func, user_data)    
+godot_connect(self, node, signal_name, callback_func, user_data)    
 - godot random-commands:    
 godot_randf()    
 godot_randi()     
