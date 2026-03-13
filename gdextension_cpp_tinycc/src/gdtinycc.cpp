@@ -247,66 +247,6 @@ void GDTinyCC::setup_drawing_layer() {
 }
 
 
-/*
-void GDTinyCC::setup_drawing_layer() {
-    if (shared_drawer != nullptr) {
-        return;  // bereits erstellt
-    }
-
-    // Sicherheits-Check – sollte in _enter_tree() eigentlich nicht mehr nötig sein
-    if (!is_inside_tree() || !get_tree()) {
-        UtilityFunctions::printerr("setup_drawing_layer called too early - no SceneTree yet");
-        call_deferred("setup_drawing_layer");  // oder später erneut versuchen
-        return;
-    }
-
-    shared_ui_canvas = memnew(CanvasLayer);
-    shared_ui_canvas->set_layer(100);
-    shared_ui_canvas->set_name("TinyCC_Shared_UI");
-
-    shared_drawer = memnew(GDTinyCCDrawer);
-    //shared_drawer->owner = this;
-    shared_drawer->set_name("TinyCC_Shared_Drawer");
-
-    shared_ui_canvas->add_child(shared_drawer);
-
-    shared_drawer->set_visible(true);
-    shared_ui_canvas->set_visible(true);
-    shared_ui_canvas->set_layer(10);
-
-    Node* root = get_tree()->get_root();
-    if (root) {
-        root->call_deferred("add_child", shared_ui_canvas);
-        UtilityFunctions::print("Shared canvas added to root in _enter_tree()");
-    } else {
-        UtilityFunctions::printerr("No root node available even in _enter_tree()");
-    }
-}
-*/
-
-/*
-void GDTinyCC::add_shared_canvas_to_scene() {
-    if (!shared_ui_canvas) {
-        return;
-    }
-
-    SceneTree* tree = get_tree();
-    if (!tree) {
-        return;
-    }
-
-    Node* root = tree->get_root();
-    if (!root) {
-        return;
-    }
-
-    if (shared_ui_canvas->get_parent() == nullptr) {
-        root->add_child(shared_ui_canvas);
-        UtilityFunctions::print("Shared canvas deferred added to root.");
-    }
-}
-*/
-
 void GDTinyCC::set_source_file(const String &p_path) {
     source_file = p_path;
 }
@@ -714,6 +654,8 @@ void GDTinyCC::load_object_file() {
     }
 
     tcc_state = s;
+    shared_tcc_state = tcc_state;
+    shared_drawer->init(tcc_state);
 
     using MainFunc = void(*)();
     MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
