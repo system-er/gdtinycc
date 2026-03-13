@@ -8,7 +8,7 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
 GDTinyCC is a new node for godot that inherits from Node.     
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob       
 - _ready, _process, _physics_process, _input and _unhandled_input
-- _enter_tree, exit_tree, _notification, _draw     
+- _enter_tree, exit_tree, _notification       
 - signals work    
 - time to get out the old bible of C from Kernighan/Ritchie ;-)
 
@@ -24,6 +24,12 @@ godot with the node GDTinyCC:
 ![Pic1](gdextension_cpp_tinycc/screenshot.jpg)
 	   
 # docu:       
+_ready(self)    
+_process(self, double delta)    
+_physics_process(self, double delta)    
+_input(self, event)    
+and other methods    
+    
 godot_print(string)    
 godot_get_node(path)    
 godot_get_parent(node)    
@@ -47,10 +53,10 @@ godot_randi()
 godot_randf_range(from, to)    
 godot_randi_range(from, to)    
 godot_randomize()    
-- the new drawinglayer is on top of CanvasLayer:       
-godot_get_drawingnode()    
-godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
-godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
+- the new drawinglayer is on top of CanvasLayer: (out of order -in new construction)     
+//godot_get_drawingnode()    
+//godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
+//godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 
 new var-type GDExtensionVariant    
 - VARTYPE_BOOL = 1,
