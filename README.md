@@ -9,8 +9,7 @@ GDTinyCC is a new node for godot that inherits from Node.
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob       
 - _ready, _process, _physics_process, _input and _unhandled_input
 - _enter_tree, exit_tree, _notification, _draw        
-- signals     
-- now it should work if you use more than one GDTinyCC-nodes    
+- signals       
 - time to get out the old Kernighan/Ritchie's C-bible  ;-)
 
 	
