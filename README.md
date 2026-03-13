@@ -20,8 +20,6 @@ three options:
   the input object-file must be in the bin-directory!    
   if the objectfile is chosen, export the project and it works.           
    
-//godot with the node GDTinyCC:    
-//![Pic1](gdextension_cpp_tinycc/screenshot.jpg)
 	   
 # docu:       
 _ready(self)    
