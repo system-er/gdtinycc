@@ -5,7 +5,6 @@
 #include <godot_cpp/variant/rect2.hpp>
 #include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
-#include "gdtinycc.h"
 
 
 extern "C" {
@@ -28,24 +27,29 @@ GDTinyCCDrawer::~GDTinyCCDrawer() {
 }
 
 void GDTinyCCDrawer::_draw() {
-    if (!GDTinyCC::_current_instance) {
-        return;
-    }
+    draw_circle(Vector2(400, 300), 120, Color(1.0, 0.0, 0.0, 0.8));
 
-    void* raw_state = GDTinyCC::_current_instance->get_tcc_state();
-    if (!raw_state) {
-        return;
-    }
+    UtilityFunctions::print("GDTinyCCDrawer::_draw() wurde von Godot aufgerufen!");
 
-    using DrawFunc = void (*)();
-    DrawFunc draw_func = (DrawFunc)tcc_get_symbol(
-        static_cast<TCCState*>(raw_state),
-        "_draw"
-    );
+    //if (!owner) {
+    //    UtilityFunctions::print("godot_draw_: no owner");
+    //    return;
+    //}
 
-    if (draw_func) {
-        draw_func();
-    }
+    //TCCState* state = (TCCState*)owner->get_tcc_state();
+    //if (!state) {
+    //    UtilityFunctions::print("godot_draw: no TCCState");
+    //    return;
+    //}
+
+    //using DrawFunc = void(*)();
+    //DrawFunc draw_func = (DrawFunc)tcc_get_symbol(state, "_draw");
+
+    //if (draw_func) {
+    //    draw_func();
+    //} else {
+    //    UtilityFunctions::print("godot_draw: no _draw-symbol found");
+    //}
 }
 
 void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
@@ -82,7 +86,7 @@ void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
     if (filled == 1) {
         ci->draw_circle(center, radius, color);
     } else {
-        ci->draw_arc(center, radius, 0, Math_TAU, 32, color, 2.0f);
+        ci->draw_arc(center, radius, 0, Math_TAU, 64, color, 2.0f);
     }
 }
 

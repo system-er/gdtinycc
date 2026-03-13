@@ -1,3 +1,4 @@
+
 #include "gdtinycc.h"
 #include "gdtinycc_drawer.h"
 
@@ -35,6 +36,8 @@
 #include <godot_cpp/classes/time.hpp>
 #include <godot_cpp/classes/image.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/window.hpp>
 
 
 #ifdef _WIN32
@@ -56,21 +59,23 @@ extern "C" {
     #include "tinycc-mob/libtcc.h"
 }
 
-#include "gdtinycc.h"
+godot::GDTinyCCDrawer* godot::GDTinyCC::shared_drawer    = nullptr;
+godot::CanvasLayer*    godot::GDTinyCC::shared_ui_canvas = nullptr;
+
 
 typedef struct TCCState TCCState;
-godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
+//godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
 
 void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
-void* godot_get_parent(void* node_ptr);
-void* godot_get_node(const char *path);
+//void* godot_get_parent(void* node_ptr);
+void* godot_get_node(void* self, const char *path);
 const char* godot_get_property(void* node, const char *property);
 void godot_print_float(float f);
 
 GDExtensionVariant godot_get_variant(void* node, const char *property);
 void godot_set_variant(void* node, const char *property, GDExtensionVariant variant);
-void* godot_instantiate(const char* scene_path);
+void* godot_instantiate(void* self, const char* scene_path);
 void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
@@ -81,7 +86,7 @@ const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args);
 long long godot_get_ticks_msec();
 void godot_print_int(int value);
-void godot_connect(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
+void godot_connect(void* self, void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
 float godot_randf();
 int godot_randi();
 float godot_randf_range(float a, float b);
@@ -92,6 +97,7 @@ void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
 void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
 void* godot_get_drawingnode();
+
 
 
 
@@ -125,28 +131,29 @@ void GDTinyCC::_bind_methods() {
         "set_input_object_file",
         "get_input_object_file"
     );
+
+    //ClassDB::bind_method(D_METHOD("add_shared_canvas_to_scene"),
+    //                     &GDTinyCC::add_shared_canvas_to_scene);
 }
 
 
 GDTinyCC::GDTinyCC() {
-    _current_instance = this;
+    //_current_instance = this;
     tcc_state = nullptr;
     UtilityFunctions::print("GDTinyCC started.");
     set_process_input(true);
-    setup_drawing_layer();
+
 }
 
 GDTinyCC::~GDTinyCC() {
-    if (_current_instance == this) {
-        _current_instance = nullptr;
-    }
+    //if (_current_instance == this) {
+    //    _current_instance = nullptr;
+    //}
     disconnect_all_signals();
 
     if (tcc_state) {
         tcc_delete((TCCState*)tcc_state);
         tcc_state = nullptr;
-        ui_canvas = nullptr;
-        drawer = nullptr;
     }
 }
 
@@ -159,53 +166,56 @@ void GDTinyCC::_ready() {
     }
     
     if (tcc_state) {
-        using ReadyFunc = void(*)();
+        using ReadyFunc = void(*)(void*);
         ReadyFunc ready_func = (ReadyFunc)tcc_get_symbol((TCCState*)tcc_state, "_ready");
+
         if (ready_func) {
-            ready_func();
+            ready_func(this);
         }
     }
 }
 
 void GDTinyCC::_process(double delta) {
    if (tcc_state) {
-        using ProcessFunc = void(*)(double);
+        using ProcessFunc = void(*)(void*, double);
         ProcessFunc process_func = (ProcessFunc)tcc_get_symbol((TCCState*)tcc_state, "_process");
         if (process_func) {
-            process_func(delta);
+            process_func(this, delta);
         }
     }
 }
 
 void GDTinyCC::_physics_process(double delta) {
    if (tcc_state) {
-        using ProcessFunc = void(*)(double);
-        ProcessFunc pprocess_func = (ProcessFunc)tcc_get_symbol((TCCState*)tcc_state, "_physics_process");
+        using PPFunc = void(*)(void*, double);
+        PPFunc pprocess_func = (PPFunc)tcc_get_symbol((TCCState*)tcc_state, "_physics_process");
         if (pprocess_func) {
-            pprocess_func(delta);
+            pprocess_func(this, delta);
         }
     }
 }
 
 void GDTinyCC::_input(const Ref<InputEvent> &event) {
     if (tcc_state) {
-        using InputFunc = void(*)(void*);
+        using InputFunc = void(*)(void*, void*);
         InputFunc input_func = (InputFunc)tcc_get_symbol((TCCState*)tcc_state, "_input");
 
         if (input_func) {
-            input_func((void*)event.ptr());
+            input_func(this, (void*)event.ptr());
         }
     }
 }
 
 void GDTinyCC::setup_drawing_layer() {
+
+    /*
     if (ui_canvas) {
         return;
     }
 
     ui_canvas = memnew(CanvasLayer);
     if (!ui_canvas) {
-        UtilityFunctions::print("Fehler: CanvasLayer konnte nicht erstellt werden");
+        UtilityFunctions::print("error: CanvasLayer not created");
         return;
     }
 
@@ -214,8 +224,10 @@ void GDTinyCC::setup_drawing_layer() {
     add_child(ui_canvas);
 
     drawer = memnew(GDTinyCCDrawer);
+
+    //drawer->owner = this;
     if (!drawer) {
-        UtilityFunctions::print("Fehler: TinyCCDrawer konnte nicht erstellt werden");
+        UtilityFunctions::print("error: TinyCCDrawer not created");
         return;
     }
 
@@ -229,8 +241,69 @@ void GDTinyCC::setup_drawing_layer() {
     }
 
     drawer->queue_redraw();
+    */
 }
 
+
+/*
+void GDTinyCC::setup_drawing_layer() {
+    if (shared_drawer != nullptr) {
+        return;  // bereits erstellt
+    }
+
+    // Sicherheits-Check – sollte in _enter_tree() eigentlich nicht mehr nötig sein
+    if (!is_inside_tree() || !get_tree()) {
+        UtilityFunctions::printerr("setup_drawing_layer called too early - no SceneTree yet");
+        call_deferred("setup_drawing_layer");  // oder später erneut versuchen
+        return;
+    }
+
+    shared_ui_canvas = memnew(CanvasLayer);
+    shared_ui_canvas->set_layer(100);
+    shared_ui_canvas->set_name("TinyCC_Shared_UI");
+
+    shared_drawer = memnew(GDTinyCCDrawer);
+    //shared_drawer->owner = this;
+    shared_drawer->set_name("TinyCC_Shared_Drawer");
+
+    shared_ui_canvas->add_child(shared_drawer);
+
+    shared_drawer->set_visible(true);
+    shared_ui_canvas->set_visible(true);
+    shared_ui_canvas->set_layer(10);
+
+    Node* root = get_tree()->get_root();
+    if (root) {
+        root->call_deferred("add_child", shared_ui_canvas);
+        UtilityFunctions::print("Shared canvas added to root in _enter_tree()");
+    } else {
+        UtilityFunctions::printerr("No root node available even in _enter_tree()");
+    }
+}
+*/
+
+/*
+void GDTinyCC::add_shared_canvas_to_scene() {
+    if (!shared_ui_canvas) {
+        return;
+    }
+
+    SceneTree* tree = get_tree();
+    if (!tree) {
+        return;
+    }
+
+    Node* root = tree->get_root();
+    if (!root) {
+        return;
+    }
+
+    if (shared_ui_canvas->get_parent() == nullptr) {
+        root->add_child(shared_ui_canvas);
+        UtilityFunctions::print("Shared canvas deferred added to root.");
+    }
+}
+*/
 
 void GDTinyCC::set_source_file(const String &p_path) {
     source_file = p_path;
@@ -291,8 +364,9 @@ void GDTinyCC::compile_file() {
     tcc_add_sysinclude_path(s, tinycc_include.utf8().get_data());
     
     tcc_add_library_path(s, dll_path);
+
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
-    tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
+    //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
@@ -462,8 +536,9 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
 
     // Godot API wieder registrieren
+
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
-    tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
+    //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
@@ -528,8 +603,9 @@ void GDTinyCC::load_object_file() {
 
     tcc_set_error_func(s, nullptr, tcc_error_callback);
     tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
+
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
-    tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
+    //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
     tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
@@ -655,8 +731,14 @@ void godot_print(const char *msg) {
     UtilityFunctions::print(msg);
 }
 
-void* godot_get_parent(void* node_ptr) {
-    if (GDTinyCC::_current_instance) {
+/*
+void* godot_get_parent(void* self, void* node_ptr) {
+    if (!self) {
+        UtilityFunctions::print("godot_connect: missing self pointer");
+        return;
+    }
+    GDTinyCC* instance = static_cast<GDTinyCC*>(self);
+    if (instance) {
         godot::Node* node = static_cast<godot::Node*>(node_ptr);
         godot::Node* parent = node->get_parent();
         if (!parent){
@@ -668,11 +750,17 @@ void* godot_get_parent(void* node_ptr) {
         return nullptr;
     }
 }
+*/
 
-void* godot_get_node(const char* path) {
-    if (GDTinyCC::_current_instance) {
+void* godot_get_node(void* self, const char* path) {
+    if (!self) {
+        UtilityFunctions::print("godot_connect: missing self pointer");
+        return nullptr;
+    }
+    GDTinyCC* instance = static_cast<GDTinyCC*>(self);
+    if (instance) {
         godot::NodePath node_path(path);
-        godot::Node* node = GDTinyCC::_current_instance->get_node<godot::Node>(node_path);
+        godot::Node* node = instance->get_node<godot::Node>(node_path);
         if (!node){
             UtilityFunctions::print("error: godot_get_node - node not found ");
         }
@@ -842,8 +930,13 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
     node->set(property, value);
 }
 
-void* godot_instantiate(const char* scene_path) {
-    if (!GDTinyCC::_current_instance) {
+void* godot_instantiate(void* self, const char* scene_path) {
+    if (!self) {
+        UtilityFunctions::print("godot_connect: missing self pointer");
+        return nullptr;
+    }
+    GDTinyCC* instance = static_cast<GDTinyCC*>(self);
+    if (instance) {
         UtilityFunctions::print("godot_instantiate: no current instance");
         return nullptr;
     }
@@ -869,13 +962,13 @@ void* godot_instantiate(const char* scene_path) {
         return nullptr;
     }
     
-    godot::Node* instance = scene->instantiate();
-    if (!instance) {
+    godot::Node* instancenew = scene->instantiate();
+    if (!instancenew) {
         UtilityFunctions::print("godot_instantiate: instantiate returned null");
         return nullptr;
     }
     
-    return static_cast<void*>(instance);
+    return static_cast<void*>(instancenew);
 }
 
 void godot_add_child(void* parent_ptr, void* child_ptr) {
@@ -966,10 +1059,10 @@ void* godot_create(const char* class_name) {
         return static_cast<void*>(memnew(godot::Image));
     }
     if (class_name_sn == godot::StringName("CSGBox3D")) {
-        return static_cast<void*>(memnew(godot::Image));
+        return static_cast<void*>(memnew(godot::CSGBox3D));
     }
     if (class_name_sn == godot::StringName("CSGSphere3D")) {
-        return static_cast<void*>(memnew(godot::Image));
+        return static_cast<void*>(memnew(godot::CSGSphere3D));
     }
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
@@ -1247,9 +1340,14 @@ void GDTinyCC::disconnect_all_signals() {
     signal_handlers.clear();
 }
 
-void godot_connect(void* node_ptr, const char* signal_name, void* callback_func, void* user_data) {
-    if (GDTinyCC::_current_instance) {
-        GDTinyCC::_current_instance->connect_signal(node_ptr, signal_name, callback_func, user_data);
+void godot_connect(void* self, void* node_ptr, const char* signal_name, void* callback_func, void* user_data) {
+    if (!self) {
+        UtilityFunctions::print("godot_connect: missing self pointer");
+        return;
+    }
+    GDTinyCC* instance = static_cast<GDTinyCC*>(self);
+    if (instance) {
+        instance->connect_signal(node_ptr, signal_name, callback_func, user_data);
     }
 }
 
@@ -1259,6 +1357,7 @@ void GDTinyCC::_enter_tree() {
         Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_enter_tree");
         if (f) f();
     }
+    setup_drawing_layer();
 }
 
 void GDTinyCC::_exit_tree() {
@@ -1306,8 +1405,9 @@ void godot_randomize(){
 }
 
 void* godot_get_drawingnode() {
-    if (GDTinyCC::_current_instance && GDTinyCC::_current_instance->drawer) {
-        return GDTinyCC::_current_instance->drawer;
-    }
+    //if (GDTinyCC::shared_drawer) {
+    //    return GDTinyCC::shared_drawer;
+    //}
+    //UtilityFunctions::print("Warning: No shared drawer available yet!");
     return nullptr;
 }

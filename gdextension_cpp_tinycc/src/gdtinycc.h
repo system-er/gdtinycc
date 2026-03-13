@@ -1,30 +1,18 @@
 #ifndef GDTINYCC_H
 #define GDTINYCC_H
 
+
 #include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/node2d.hpp>
+#include <godot_cpp/classes/canvas_layer.hpp> 
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/callable.hpp>
 #include <vector>
 #include <string>
 
-typedef struct {
-    float x;
-    float y;
-} Vector2;
+#include "gdtinycc_drawer.h"
 
-typedef struct {
-    float x;
-    float y;
-    float z;
-} Vector3;
-
-typedef struct {
-    float r;
-    float g;
-    float b;
-    float a;
-} Color;
 
 typedef struct {
     int type;
@@ -33,9 +21,12 @@ typedef struct {
         float f;
         char s[256];
         int b;
-        Vector2 vec2;
-        Vector3 vec3;
-        Color color;
+        godot::Vector2 vec2;
+        godot::Vector3 vec3;
+        godot::Color color;
+        godot::Rect2 rect2;
+        //void* ptr;
+        //size_t size;
     } value;
 } GDExtensionVariant;
 
@@ -47,7 +38,15 @@ typedef enum {
     VARTYPE_STRING = 4,
     VARTYPE_VECTOR2 = 5,
     VARTYPE_VECTOR3 = 6,
-    VARTYPE_COLOR = 7
+    VARTYPE_COLOR = 7,
+    VARTYPE_RECT2 = 8,
+
+    VARTYPE_OBJECT       = 20,
+    VARTYPE_ARRAY        = 21,
+    VARTYPE_DICTIONARY   = 22,
+    //VARTYPE_CALLABLE     = 23,
+    //VARTYPE_STRING_NAME  = 24,
+    //VARTYPE_NODE_PATH    = 25,
 } GDExtensionVarType;
 
 namespace godot {
@@ -79,14 +78,20 @@ private:
 
     void *tcc_state;
     std::vector<SignalHandler*> signal_handlers;
+    static GDTinyCCDrawer* shared_drawer;
+    static CanvasLayer* shared_ui_canvas;
 
 protected:
     static void _bind_methods();
 
 public:
+
     GDTinyCC();
     ~GDTinyCC();
 
+    //static GDTinyCCDrawer* get_shared_drawer() {
+    //    return shared_drawer;
+    //}
     void _ready();
     void _process(double delta);
     void _physics_process(double delta);
@@ -106,10 +111,16 @@ public:
     void set_input_object_file(const String &p_path);
     String get_input_object_file() const;
     void load_object_file();
-    static GDTinyCC* _current_instance;
+    //static GDTinyCC* _current_instance;
 
     bool connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
     void disconnect_all_signals();
+
+    void setup_drawing_layer();
+    void* get_tcc_state() const { return tcc_state; }
+    //static inline CanvasLayer* shared_ui_canvas = nullptr;
+    //static inline GDTinyCCDrawer* shared_drawer = nullptr;
+    //void add_shared_canvas_to_scene(); 
 };
 
 }
