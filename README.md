@@ -11,7 +11,7 @@ WIP (work in progress) - programmed with godot 4.5, tinycc-mob
 - _enter_tree, exit_tree, _notification    
 - signals     
 - now it should work if you use more than one GDTinyCC-nodes    
-- time to get out the old bible of C from Kernighan/Ritchie ;-)
+- time to get out the old Kernighan/Ritchie's C-bible  ;-)
 
 	
 three options:
