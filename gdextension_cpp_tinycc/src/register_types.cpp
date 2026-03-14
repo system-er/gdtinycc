@@ -1,6 +1,7 @@
 #include "register_types.h"
 
 #include "gdtinycc.h"
+#include "gdtinycc_drawer.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -16,7 +17,7 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
 
     ClassDB::register_class<SignalHandler>();
     ClassDB::register_class<GDTinyCC>();
-    ClassDB::register_class<GDTinyCCDrawer>();
+    //ClassDB::register_class<GDTinyCCDrawer>();
 }
 
 void uninitialize_example_module(ModuleInitializationLevel p_level) {

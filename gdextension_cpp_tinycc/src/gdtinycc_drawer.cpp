@@ -33,7 +33,7 @@ void GDTinyCCDrawer::init(void* r_state){
 void GDTinyCCDrawer::_draw() {
  
     //draw_circle(Vector2(400, 300), 100, Color(1, 0, 0)); //for test
-
+    /*
     using DrawFunc = void (*)();
     DrawFunc draw_func = (DrawFunc)tcc_get_symbol(
         static_cast<TCCState*>(raw_state),
@@ -43,7 +43,7 @@ void GDTinyCCDrawer::_draw() {
     if (draw_func) {
         draw_func();
     }
-
+    */
 }
 
 void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
