@@ -52,10 +52,10 @@ godot_randi()
 godot_randf_range(from, to)    
 godot_randi_range(from, to)    
 godot_randomize()    
-- drawinglayer is on top of CanvasLayer:       
-godot_get_drawingnode()    
-godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
-godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
+- drawinglayer is on top of CanvasLayer:(*** out of order - under construction***)           
+//godot_get_drawingnode()    
+//godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
+//godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 
 new var-type GDExtensionVariant    
 - VARTYPE_BOOL = 1,
@@ -187,17 +187,6 @@ void _input(void* self,void* event_ptr)
 {
     //godot_print("input event!");
 }
-
-void _draw() {
-    void* drawingnode = godot_get_drawingnode();
-    if (!drawingnode) {
-        godot_print("no godot_drawer 2d available!\n");
-        return;
-    }
-    godot_draw_rect(drawingnode, 100.0f, 300.0f, 200.0f, 300.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
-    godot_draw_circle(drawingnode, 600.0f, 400.0f, 200.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1);
-}
-
 ```
 
 other examples:    
