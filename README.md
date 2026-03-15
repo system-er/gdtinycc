@@ -28,7 +28,10 @@ _ready(self)
 _process(self, double delta)    
 _physics_process(self, double delta)    
 _input(self, event)    
-and other methods    
+_unhandled_input(event)     
+_enter_tree()    
+_exit_tree()    
+_notification(what)     
 
 - output:    
 godot_print(string)
