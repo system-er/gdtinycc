@@ -213,13 +213,7 @@ example: GDExtensionVariant v = godot_get_variant(testnode, "name");
 ```
   
 ```
-//example: set labeltext
-GDExtensionVariant v;
-v.type = VARTYPE_STRING;
-snprintf(v.value.s, sizeof(v.value.s), "hello world");
-void *label = godot_get_node("/root/Main/Label");
-godot_set_variant(label, "text", v);
-```
+
 
 ```
 //example: set color
