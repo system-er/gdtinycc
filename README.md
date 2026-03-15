@@ -5,7 +5,7 @@ compile and execute C code directly (both very fast!).
 edit your c-files with the editor of your choice          
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
     
-GDTinyCC is a new node for godot that inherits from Node.     
+GDTinyCC is a new node for godot that inherits from Node.    
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob       
 - _ready, _process, _physics_process, _input and _unhandled_input
 - _enter_tree, exit_tree, _notification     
@@ -61,11 +61,7 @@ godot_randomize()
 godot_get_ticks_msec()     
 - inputevent commands:    
 godot_is_pressed(event)     
-godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...     
-- drawinglayer is on top of CanvasLayer:(*** out of order - under construction***)           
-//godot_get_drawingnode()    
-//godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
-//godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
+godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...         
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
@@ -227,6 +223,9 @@ v.value.color.g = 0.5f;
 v.value.color.b = 0.0f;
 v.value.color.a = 1.0f;
 ```
+
+# todo in future:
+- if _draw is needed a GDTinyCC_2D will inherit from Node2D...    
     
 # build:    
 copy tinycc-mob into src/tinycc-mob   
