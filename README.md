@@ -20,7 +20,7 @@ three options:
   if the objectfile is chosen, export the project and it works.           
    
 	   
-# docu:       
+# hello world:       
 _ready(self)    
 _process(self, double delta)    
 _physics_process(self, double delta)    
