@@ -16,6 +16,7 @@
 
 typedef struct {
     int type;
+    
     union {
         int i;
         float f;
@@ -25,9 +26,9 @@ typedef struct {
         godot::Vector3 vec3;
         godot::Color color;
         godot::Rect2 rect2;
-        //void* ptr;
-        //size_t size;
     } value;
+
+    void* ptr;
 } GDExtensionVariant;
 
 typedef enum {
@@ -41,9 +42,7 @@ typedef enum {
     VARTYPE_COLOR = 7,
     VARTYPE_RECT2 = 8,
 
-    VARTYPE_OBJECT       = 20,
-    VARTYPE_ARRAY        = 21,
-    VARTYPE_DICTIONARY   = 22,
+    VARTYPE_OBJECT = 24,
 
 } GDExtensionVarType;
 

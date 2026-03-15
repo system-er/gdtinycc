@@ -644,7 +644,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
-    
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     char dll_path[1024];
@@ -1115,14 +1115,19 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
         case VARTYPE_RECT2:
             value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
             break;
-    
 
-        /*
         case VARTYPE_OBJECT:
-            if (ext.value.ptr) {
-                return *(godot::Variant*)ext.value.ptr;
+        {
+            if (ext.ptr) {
+                godot::Object* obj = static_cast<godot::Object*>(ext.ptr);
+                value = godot::Variant(obj);
+            } else {
+                value = godot::Variant();
             }
-            return godot::Variant();
+        } break;
+    
+        /*
+
         case VARTYPE_ARRAY:
             if (ext.value.ptr) {
                 godot::Array* arr = (godot::Array*)ext.value.ptr;
@@ -1202,16 +1207,17 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.rect2.size.height = r.size.y;
             break;
         }
-        /*
+
         case godot::Variant::OBJECT: {
-            if (value== Variant()) {
-                result.type = VARTYPE_NULL;
-            } else {
-                result.type = VARTYPE_OBJECT;
-                result.value.ptr = value;
+            result.type = VARTYPE_OBJECT;
+
+            godot::Object* obj = value;
+            if (obj) {
+                result.ptr = obj;
             }
-            break;
-        }
+        } break;
+        /*
+
         case godot::Variant::ARRAY: {
             result.type = VARTYPE_ARRAY;
             result.value.ptr = memnew(godot::Array(value));
