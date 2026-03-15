@@ -115,16 +115,11 @@ int benchmark() {
 // the c-main-function
 void main() {
     godot_print("hello world from GDTinyCC main.");
-
 }
 
 // _ready-function is called from godot
 void _ready(void* self) {
     godot_print("GDTinyCC _ready called!");
-
-    if(self){
-        godot_print("self found");
-    }
     
     // get the parentnode
     void* parent = godot_get_node(self, "/root/Main");
