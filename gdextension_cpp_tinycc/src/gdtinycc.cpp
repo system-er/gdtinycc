@@ -1134,21 +1134,15 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             }
         } break;
 
-        /*
+        case VARTYPE_ARRAY: {
+            if (ext.ptr) {
+                godot::Array* arr_ptr = static_cast<godot::Array*>(ext.ptr);
+                value = godot::Variant(*arr_ptr);
+            } else {
+                value = godot::Variant(Array());
+            }
+        } break;
 
-        case VARTYPE_ARRAY:
-            if (ext.value.ptr) {
-                godot::Array* arr = (godot::Array*)ext.value.ptr;
-                return godot::Variant(*arr);
-            }
-            return godot::Variant();
-        case VARTYPE_DICTIONARY:
-            if (ext.value.ptr) {
-                godot::Dictionary* dict = (godot::Dictionary*)ext.value.ptr;
-                return godot::Variant(*dict);
-            }
-            return godot::Variant();
-        */
         default:
             break;
     }
@@ -1230,26 +1224,13 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             godot::Dictionary dict = value;
             result.ptr = memnew(godot::Dictionary(dict)); 
         } break;
-        
-        /*
 
         case godot::Variant::ARRAY: {
             result.type = VARTYPE_ARRAY;
-            result.value.ptr = memnew(godot::Array(value));
-            break;
-        }
-        case godot::Variant::DICTIONARY: {
-            result.type = VARTYPE_DICTIONARY;
-            result.value.ptr = memnew(godot::Dictionary(value));
-            break;
-        }
-        */
-        //case godot::Variant::STRING_NAME: {
-        //    res.type = VARTYPE_STRING_NAME;
-        //    godot::StringName sn = v;
-        //    res.value.ptr = memnew(godot::StringName(sn));
-        //    break;
-        //}
+            godot::Array arr = value;
+            result.ptr = memnew(godot::Array(arr));
+        } break;
+
         default:
             UtilityFunctions::print("godot_call: unhandled return type=", (int)value.get_type());
             break;
