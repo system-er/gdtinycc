@@ -43,6 +43,7 @@ typedef enum {
     VARTYPE_RECT2 = 8,
 
     VARTYPE_OBJECT = 24,
+    VARTYPE_DICTIONARY = 27,
 
 } GDExtensionVarType;
 

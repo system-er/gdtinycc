@@ -1116,8 +1116,7 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
             break;
 
-        case VARTYPE_OBJECT:
-        {
+        case VARTYPE_OBJECT: {
             if (ext.ptr) {
                 godot::Object* obj = static_cast<godot::Object*>(ext.ptr);
                 value = godot::Variant(obj);
@@ -1126,6 +1125,15 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             }
         } break;
     
+        case VARTYPE_DICTIONARY: {
+            if (ext.ptr) {
+                godot::Dictionary* dict_ptr = static_cast<godot::Dictionary*>(ext.ptr);
+                value = godot::Variant(*dict_ptr);
+            } else {
+                value = godot::Variant();
+            }
+        } break;
+
         /*
 
         case VARTYPE_ARRAY:
@@ -1216,6 +1224,13 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
                 result.ptr = obj;
             }
         } break;
+
+        case godot::Variant::DICTIONARY: {
+            result.type = VARTYPE_DICTIONARY;
+            godot::Dictionary dict = value;
+            result.ptr = memnew(godot::Dictionary(dict)); 
+        } break;
+        
         /*
 
         case godot::Variant::ARRAY: {
