@@ -52,7 +52,7 @@ godot_randi()
 godot_randf_range(from, to)    
 godot_randi_range(from, to)    
 godot_randomize()
-- event commands:
+- event commands:    
 godot_is_pressed(event)     
 - drawinglayer is on top of CanvasLayer:(*** out of order - under construction***)           
 //godot_get_drawingnode()    
@@ -192,7 +192,7 @@ void _process(void* self, double delta) {
 void _physics_process(void* self,double delta) {
 }
 
-void _input(void* self,void* event)
+void _input(void* self, void* event)
 {
     if (!event) {
         return;
