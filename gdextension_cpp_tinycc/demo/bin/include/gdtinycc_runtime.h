@@ -1,8 +1,10 @@
 #ifndef GDTINYCC_RUNTIME_H
 #define GDTINYCC_RUNTIME_H
 
+
+
 void godot_print(const char *msg);
-void* godot_get_node(const char *path);
+void* godot_get_node(void* self, const char *path);
 void* godot_get_parent(void* node_ptr);
 const char* godot_get_property(void* node, const char *property);
 
@@ -60,7 +62,7 @@ void godot_queue_free(void* node);
 void godot_print_float(float f);
 const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node, const char* signal_name, int arg_count, GDExtensionVariant* args);
-void godot_connect(void* node, const char* signal_name, void* callback_func, void* user_data);
+void godot_connect(void* self, void* node, const char* signal_name, void* callback_func, void* user_data);
 long godot_get_ticks_msec();
 float godot_randf();
 int godot_randi();
@@ -72,5 +74,6 @@ void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
 void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
 void* godot_get_drawingnode();
-
+int godot_is_pressed(void* event);
+int godot_eventcode(void* event_ptr);
 #endif
