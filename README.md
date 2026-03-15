@@ -66,16 +66,15 @@ godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=m
 //godot_get_drawingnode()    
 //godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 //godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
-
-new var-type GDExtensionVariant    
-- VARTYPE_BOOL = 1,
-- VARTYPE_INT = 2,    
-- VARTYPE_FLOAT = 3,    
-- VARTYPE_STRING = 4,    
-- VARTYPE_VECTOR2 = 5,    
-- VARTYPE_VECTOR3 = 6,     
-- VARTYPE_COLOR = 7,
-- VARTYPE_RECT2 = 8,        
+- new var-type GDExtensionVariant:    
+VARTYPE_BOOL = 1,
+VARTYPE_INT = 2,    
+VARTYPE_FLOAT = 3,    
+VARTYPE_STRING = 4,    
+VARTYPE_VECTOR2 = 5,    
+VARTYPE_VECTOR3 = 6,     
+VARTYPE_COLOR = 7,
+VARTYPE_RECT2 = 8,        
 
 
 # example src/main.c   
