@@ -30,16 +30,11 @@ int benchmark() {
 // the c-main-function
 void main() {
     godot_print("hello world from GDTinyCC main.");
-
 }
 
 // _ready-function is called from godot
 void _ready(void* self) {
     godot_print("GDTinyCC _ready called!");
-
-    if(self){
-        godot_print("self found");
-    }
     
     // get the parentnode
     void* parent = godot_get_node(self, "/root/Main");
@@ -64,7 +59,7 @@ void _ready(void* self) {
     // set labeltext
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
-    snprintf(v.value.s, sizeof(v.value.s), "hey - this is a label from GDTinyCC");
+    snprintf(v.value.s, sizeof(v.value.s), "this is a label from GDTinyCC");
     godot_set_variant(label, "text", v);
     // set labelposition
     GDExtensionVariant va;
