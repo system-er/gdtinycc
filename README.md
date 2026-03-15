@@ -223,9 +223,6 @@ v.value.color.g = 0.5f;
 v.value.color.b = 0.0f;
 v.value.color.a = 1.0f;
 ```
-
-# todo in future:
-- if _draw is needed a GDTinyCC_2D will inherit from Node2D...    
     
 # build:    
 copy tinycc-mob into src/tinycc-mob   
@@ -233,3 +230,8 @@ copy all files from src/tinycc-mob/include to demo/bin/include
 copy libtcc1.a into demo/bin/lib (compile from src/tinycc-mob/lib or copy from a tinycc-mob release...)    
 copy godot-cpp version 4.5 to directory godot-cpp    
 start scons    
+
+
+
+# todo in future:    
+- if _draw is needed a GDTinyCC_2D will inherit from Node2D...    
