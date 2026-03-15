@@ -53,7 +53,8 @@ godot_randf_range(from, to)
 godot_randi_range(from, to)    
 godot_randomize()
 - event commands:    
-godot_is_pressed(event)     
+godot_is_pressed(event)
+godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...     
 - drawinglayer is on top of CanvasLayer:(*** out of order - under construction***)           
 //godot_get_drawingnode()    
 //godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
