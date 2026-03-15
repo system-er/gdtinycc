@@ -54,7 +54,7 @@ godot_randi()
 godot_randf_range(from, to)    
 godot_randi_range(from, to)    
 godot_randomize()
-- time:
+- time:    
 godot_get_ticks_msec()     
 - inputevent commands:    
 godot_is_pressed(event)     
