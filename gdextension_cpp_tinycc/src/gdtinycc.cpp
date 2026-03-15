@@ -95,10 +95,10 @@ int godot_randi();
 float godot_randf_range(float a, float b);
 int godot_randi_range(int a, int b);
 void godot_randomize();
-void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
-                     float r, float g, float b, float a, int filled);
-void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
-                              float r, float g, float b, float a, int filled);
+//void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
+//                     float r, float g, float b, float a, int filled);
+//void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
+//                              float r, float g, float b, float a, int filled);
 //void* godot_get_drawingnode();
 int godot_is_pressed(void* evt);
 int godot_eventcode(void* event_ptr);
@@ -392,8 +392,8 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
-    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    //tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    //tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
@@ -570,8 +570,8 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
-    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    //tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    //tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
@@ -640,8 +640,8 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
-    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    //tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    //tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);

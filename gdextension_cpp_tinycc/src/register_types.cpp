@@ -1,7 +1,7 @@
 #include "register_types.h"
 
 #include "gdtinycc.h"
-#include "gdtinycc_drawer.h"
+//#include "gdtinycc_drawer.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>

@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 
-#include "gdtinycc_drawer.h"
+//#include "gdtinycc_drawer.h"
 
 
 typedef struct {
