@@ -209,13 +209,6 @@ void _input(void* self, void* event)
 other examples:    
 
 ```
-example: GDExtensionVariant v = godot_get_variant(testnode, "name");
-```
-  
-```
-
-
-```
 //example: set color
 GDExtensionVariant v;
 v.type = VARTYPE_COLOR;
