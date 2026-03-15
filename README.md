@@ -51,7 +51,9 @@ godot_randf()
 godot_randi()     
 godot_randf_range(from, to)    
 godot_randi_range(from, to)    
-godot_randomize()    
+godot_randomize()
+- event commands:
+godot_is_pressed(event)     
 - drawinglayer is on top of CanvasLayer:(*** out of order - under construction***)           
 //godot_get_drawingnode()    
 //godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
@@ -72,8 +74,12 @@ new var-type GDExtensionVariant
 ```
 // GDTinyCC main.c https://github.com/system-er/gdtinycc/tree/main
 #include "stddef.h"
+#include "tgmath.h" // for sin, cos in process
 #include "gdtinycc_runtime.h"
 
+
+float timepassed = 0;
+void* sprite = NULL;
 
 
 // callfunction for button-signal
@@ -169,24 +175,35 @@ void _ready(void* self) {
     godot_print("GDTinyCC time to run in ms:");
     godot_print(buffer);
 
-    // test godot_rand random
-    float randi1 = godot_randi();
-    snprintf(buffer, sizeof(buffer), "%d", randi1);
-    godot_print("randomnumber:");
-    godot_print(buffer);
+    // test sprite2d
+    sprite = godot_get_node(self, "Sprite2D");
 
 }
 
 void _process(void* self, double delta) {
+    timepassed += delta;
+    GDExtensionVariant v;
+    v.type = VARTYPE_VECTOR2;
+    v.value.vec2.x = 10.0 + (10.0 * sin(timepassed * 2.0));
+    v.value.vec2.y = 10.0 + (10.0 * cos(timepassed * 1.5));
+    godot_set_variant(sprite, "position", v);
 }
 
 void _physics_process(void* self,double delta) {
 }
 
-void _input(void* self,void* event_ptr)
+void _input(void* self,void* event)
 {
-    //godot_print("input event!");
+    if (!event) {
+        return;
+    }
+
+    if(godot_is_pressed(event)){
+        godot_print("input event");
+    }
 }
+
+
 ```
 
 other examples:    
@@ -202,15 +219,6 @@ v.type = VARTYPE_STRING;
 snprintf(v.value.s, sizeof(v.value.s), "hello world");
 void *label = godot_get_node("/root/Main/Label");
 godot_set_variant(label, "text", v);
-```
-
-```
-//example: set vector2
-GDExtensionVariant v;
-v.type = VARTYPE_VECTOR2;
-v.value.vec2.x = 100.0f;
-v.value.vec2.y = 200.0f;
-godot_set_variant(sprite, "position", v);
 ```
 
 ```
