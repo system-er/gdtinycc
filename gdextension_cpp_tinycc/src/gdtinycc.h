@@ -44,9 +44,7 @@ typedef enum {
     VARTYPE_OBJECT       = 20,
     VARTYPE_ARRAY        = 21,
     VARTYPE_DICTIONARY   = 22,
-    //VARTYPE_CALLABLE     = 23,
-    //VARTYPE_STRING_NAME  = 24,
-    //VARTYPE_NODE_PATH    = 25,
+
 } GDExtensionVarType;
 
 namespace godot {
@@ -116,7 +114,8 @@ public:
     static GDTinyCCDrawer* shared_drawer;
     static CanvasLayer* shared_ui_canvas;
     static void* shared_tcc_state;
-
+    int godot_input_event_is_pressed(void* evt);
+    int godot_get_eventcode(void* event_ptr);
 };
 
 }

@@ -1,6 +1,6 @@
 
 #include "gdtinycc.h"
-#include "gdtinycc_drawer.h"
+//#include "gdtinycc_drawer.h"
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/property_info.hpp>
@@ -38,6 +38,9 @@
 #include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/window.hpp>
+#include <godot_cpp/classes/input_event_key.hpp>
+#include <godot_cpp/classes/input_event_mouse_button.hpp>
+#include <godot_cpp/classes/input_event.hpp>   
 
 
 #ifdef _WIN32
@@ -97,8 +100,8 @@ void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
 void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
 void* godot_get_drawingnode();
-
-
+int godot_is_pressed(void* evt);
+int godot_get_eventcode(void* event_ptr);
 
 
 using namespace godot;
@@ -391,6 +394,10 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
+
+    //tcc_add_symbol(s, "godot_get_eventcode",(void*)godot_get_eventcode);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
@@ -566,6 +573,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     if (tcc_add_file(s, object_file.utf8().get_data()) < 0) {
@@ -633,6 +641,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     char dll_path[1024];
@@ -1103,6 +1112,8 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
         case VARTYPE_RECT2:
             value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
             break;
+    
+
         /*
         case VARTYPE_OBJECT:
             if (ext.value.ptr) {
@@ -1408,10 +1419,46 @@ void godot_randomize(){
     godot::UtilityFunctions::randomize();
 }
 
+
 void* godot_get_drawingnode() {
     if (GDTinyCC::shared_drawer) {
         return GDTinyCC::shared_drawer;
     }
     UtilityFunctions::print("Warning: No shared drawer available yet!");
     return nullptr;
+}
+
+int godot_is_pressed(void* evt) {
+    if (!evt) return 0;
+    auto* ev = static_cast<godot::InputEvent*>(evt);
+    return ev->is_pressed() ? 1 : 0;
+}
+
+int godot_get_eventcode(void* event_ptr)
+{
+    if (!event_ptr) {
+        return -1;
+    }
+
+    godot::Object* obj = static_cast<godot::Object*>(event_ptr);
+
+    if (obj->is_class("InputEventKey"))
+    {
+        auto* key_event = static_cast<godot::InputEventKey*>(event_ptr);
+        if (key_event->is_pressed() || key_event->is_released()) {
+            return key_event->get_keycode();
+        }
+        return -1;
+    }
+
+    if (obj->is_class("InputEventMouseButton"))
+    {
+        auto* mb_event = static_cast<godot::InputEventMouseButton*>(event_ptr);
+        if (mb_event->is_pressed() || mb_event->is_released()) {
+            return mb_event->get_button_index();   // 1 = left, 2 = right, 3 = middle, ...
+        }
+        return -1;
+    }
+
+    return -1;
 }
