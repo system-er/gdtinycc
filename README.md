@@ -76,7 +76,8 @@ VARTYPE_VECTOR3 = 6,
 VARTYPE_COLOR = 7,    
 VARTYPE_RECT2 = 8,    
 VARTYPE_OBJECT = 24,     
-VARTYPE_DICTIONARY = 27,       
+VARTYPE_DICTIONARY = 27,
+VARTYPE_ARRAY = 28,        
 
 
 # example src/main.c   
