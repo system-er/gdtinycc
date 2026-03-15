@@ -1116,6 +1116,15 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
             break;
 
+        case VARTYPE_STRING_NAME: {
+            if (ext.ptr) {
+                godot::StringName* sn_ptr = static_cast<godot::StringName*>(ext.ptr);
+                value = godot::Variant(*sn_ptr);
+            } else {
+                value = godot::Variant();
+            }
+        } break;
+
         case VARTYPE_OBJECT: {
             if (ext.ptr) {
                 godot::Object* obj = static_cast<godot::Object*>(ext.ptr);
@@ -1168,11 +1177,11 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.type = VARTYPE_FLOAT;
             result.value.f = (float)(double)value;
             break;
-        case 4:   // STRING
-        case 21:  // STRING (Godot 4)
+        case godot::Variant::STRING: {
             result.type = VARTYPE_STRING;
-            snprintf(result.value.s, sizeof(result.value.s), "%s", ((godot::String)value).utf8().get_data());
-            break;
+            godot::String str = value;
+            snprintf(result.value.s, sizeof(result.value.s), "%s", str.utf8().get_data());
+        } break;
         case 5:  // VECTOR2
         {
             godot::Vector2 v = value;
@@ -1190,6 +1199,12 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec3.z = v.z;
             break;
         }
+        case godot::Variant::STRING_NAME: {
+            result.type = VARTYPE_STRING_NAME;
+            godot::StringName sn = value;
+            result.ptr = memnew(godot::StringName(sn));   // oder: einfach Pointer übernehmen, wenn möglich
+        } break;
+
         case 29:  // COLOR (Godot 4)
         {
             godot::Color c = value;
