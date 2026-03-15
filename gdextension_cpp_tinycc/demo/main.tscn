@@ -1,12 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://dsnp5a6lr43ug"]
+[gd_scene load_steps=3 format=3 uid="uid://dsnp5a6lr43ug"]
 
-[ext_resource type="Script" uid="uid://k5a8mdnbdxy0" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://0x3iokej32ay" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://y1upjevh24jt" path="res://icon.svg" id="2_0xm2m"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_ig7tw")
-
-[node name="GDTinyCC" type="GDTinyCC" parent="."]
-input_object_file = "res://bin/test.o"
 
 [node name="Button" type="Button" parent="."]
 offset_left = 30.0
@@ -15,3 +13,11 @@ offset_right = 247.0
 offset_bottom = 138.0
 theme_override_font_sizes/font_size = 28
 text = "click me"
+
+[node name="GDTinyCC" type="GDTinyCC" parent="."]
+source_file = "res://src/main.c"
+
+[node name="Sprite2D" type="Sprite2D" parent="GDTinyCC"]
+texture = ExtResource("2_0xm2m")
+centered = false
+offset = Vector2(300, 100)
