@@ -111,11 +111,11 @@ public:
     bool connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
     void disconnect_all_signals();
 
-    void setup_drawing_layer();
+    //void setup_drawing_layer();
     void* get_tcc_state() const { return tcc_state; }
-    static GDTinyCCDrawer* shared_drawer;
-    static CanvasLayer* shared_ui_canvas;
-    static void* shared_tcc_state;
+    //static GDTinyCCDrawer* shared_drawer;
+    //static CanvasLayer* shared_ui_canvas;
+    //static void* shared_tcc_state;
     int godot_input_event_is_pressed(void* evt);
     int godot_get_eventcode(void* event_ptr);
 };
