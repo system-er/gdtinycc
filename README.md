@@ -200,7 +200,11 @@ void _input(void* self, void* event)
     }
 
     if(godot_is_pressed(event)){
-        godot_print("input event");
+        godot_print("input event:");
+        int code = godot_eventcode(event);
+        char buffer[32];
+        snprintf(buffer, sizeof(buffer), "%d", code);
+        godot_print(buffer);
     }
 }
 
