@@ -29,8 +29,10 @@ _process(self, double delta)
 _physics_process(self, double delta)    
 _input(self, event)    
 and other methods    
-    
-godot_print(string)    
+
+- output:    
+godot_print(string)
+- nodes:        
 godot_get_node(self, path)    
 godot_instantiate(self, scenepath)    
 godot_create(classname)    
@@ -42,7 +44,7 @@ godot_set_variant(node, property, GDExtensionVariant)
 GDExtensionVariant godot_call(node, method_name, arg_count, args)    
 GDExtensionVariant godot_call(object, method_name, arg_count, args)    
 godot_queue_free(node)    
-godot_get_ticks_msec()   
+  
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(self, node, signal_name, callback_func, user_data)    
@@ -52,6 +54,8 @@ godot_randi()
 godot_randf_range(from, to)    
 godot_randi_range(from, to)    
 godot_randomize()
+- time:
+godot_get_ticks_msec()     
 - inputevent commands:    
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...     
