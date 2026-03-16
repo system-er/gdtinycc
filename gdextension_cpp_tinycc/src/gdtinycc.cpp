@@ -38,6 +38,7 @@
 #include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/window.hpp>
+#include <godot_cpp/classes/viewport.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
 #include <godot_cpp/classes/input_event.hpp>   
@@ -102,6 +103,7 @@ void godot_randomize();
 //void* godot_get_drawingnode();
 int godot_is_pressed(void* evt);
 int godot_eventcode(void* event_ptr);
+GDExtensionVariant godot_get_global_mouse_position(void* self);
 
 
 using namespace godot;
@@ -397,6 +399,7 @@ void GDTinyCC::compile_file() {
     //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
+    tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -575,6 +578,7 @@ void GDTinyCC::load_object(const String &object_file) {
     //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
+    tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -645,6 +649,7 @@ void GDTinyCC::load_object_file() {
     //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
+    tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -953,7 +958,7 @@ void* godot_instantiate(void* self, const char* scene_path) {
         return nullptr;
     }
     GDTinyCC* instance = static_cast<GDTinyCC*>(self);
-    if (instance) {
+    if (!instance) {
         UtilityFunctions::print("godot_instantiate: no current instance");
         return nullptr;
     }
@@ -1485,4 +1490,23 @@ int godot_eventcode(void* event_ptr)
     }
 
     return -1;
+}
+
+GDExtensionVariant godot_get_global_mouse_position(void* self) {
+    GDExtensionVariant result = {VARTYPE_VECTOR2, {0}, nullptr};
+    
+    godot::Vector2 pos(0, 0);
+    if (self) {
+        GDTinyCC* instance = static_cast<GDTinyCC*>(self);
+        if (instance) {
+            godot::Viewport* viewport = instance->get_viewport();
+            if (viewport) {
+                pos = viewport->get_mouse_position();
+            }
+        }
+    }
+    
+    result.value.vec2.x = pos.x;
+    result.value.vec2.y = pos.y;
+    return result;
 }
