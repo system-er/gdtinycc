@@ -37,6 +37,9 @@ typedef struct {
         Vector3 vec3;
         Color color;
     } value;
+
+    void* ptr;
+
 } GDExtensionVariant;
 
 typedef enum {
@@ -48,6 +51,11 @@ typedef enum {
     VARTYPE_VECTOR2 = 5,
     VARTYPE_VECTOR3 = 6,
     VARTYPE_COLOR = 7,
+
+    VARTYPE_STRING_NAME = 21,
+    VARTYPE_OBJECT = 24,
+    VARTYPE_DICTIONARY = 27,
+    VARTYPE_ARRAY = 28,
 
 } GDExtensionVarType;
 
@@ -78,4 +86,6 @@ void* godot_get_drawingnode();
 int godot_is_pressed(void* event);
 int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
+void* godot_load_resource(const char* path, const char* type_hint);
+const char* godot_get_class_name(void* obj);
 #endif
