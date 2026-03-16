@@ -114,6 +114,11 @@ void _ready(void* self) {
         godot_print("failed to create Sprite2D");
         return;
     }
+    GDExtensionVariant off;
+    off.type = VARTYPE_VECTOR2;
+    off.value.vec2.x = 300;
+    off.value.vec2.y = 200;
+    godot_set_variant(sprite, "offset", off);
     godot_add_child_deferred(parent, sprite);
     //godot_print(godot_get_class_name(sprite));
     //sprite = godot_get_node(self, "Sprite2D");
