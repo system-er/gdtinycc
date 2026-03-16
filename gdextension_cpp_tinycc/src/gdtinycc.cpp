@@ -3,6 +3,7 @@
 //#include "gdtinycc_drawer.h"
 
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/core/property_info.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/engine.hpp>
@@ -14,6 +15,7 @@
 #include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/classes/object.hpp>
 #include <godot_cpp/classes/control.hpp>
+#include <godot_cpp/classes/texture_rect.hpp>
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/button.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
@@ -35,6 +37,7 @@
 #include <godot_cpp/classes/timer.hpp>
 #include <godot_cpp/classes/time.hpp>
 #include <godot_cpp/classes/image.hpp>
+#include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/window.hpp>
@@ -66,6 +69,8 @@ extern "C" {
 //godot::GDTinyCCDrawer* godot::GDTinyCC::shared_drawer    = nullptr;
 //godot::CanvasLayer*    godot::GDTinyCC::shared_ui_canvas = nullptr;
 
+
+using namespace godot;
 
 typedef struct TCCState TCCState;
 //godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
@@ -104,9 +109,11 @@ void godot_randomize();
 int godot_is_pressed(void* evt);
 int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
+void* godot_load_resource(const char* path, const char* type_hint);
+const char* godot_get_class_name(void* obj);
 
 
-using namespace godot;
+//using namespace godot;
 
 //void* godot::GDTinyCC::shared_tcc_state = nullptr;
 
@@ -400,6 +407,8 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
+    tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
+    tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -579,6 +588,8 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
+    tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
+    tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -650,6 +661,8 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
+    tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
+    tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -944,6 +957,12 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
         case VARTYPE_COLOR:
             value = godot::Variant(godot::Color(variant.value.color.r, variant.value.color.g, variant.value.color.b, variant.value.color.a));
             break;
+        case VARTYPE_OBJECT:
+            UtilityFunctions::print("set_variant: VARTYPE_OBJECT, ptr=", (uint64_t)variant.ptr);
+            if (variant.ptr) {
+                value = godot::Variant(static_cast<godot::Object*>(variant.ptr));
+            }
+            break;
         default:
             UtilityFunctions::print("godot_set_variant: unknown type ", variant.type);
             return;
@@ -1085,6 +1104,9 @@ void* godot_create(const char* class_name) {
     }
     if (class_name_sn == godot::StringName("CSGSphere3D")) {
         return static_cast<void*>(memnew(godot::CSGSphere3D));
+    }
+    if (class_name_sn == godot::StringName("TextureRect")) {
+        return static_cast<void*>(memnew(godot::TextureRect));
     }
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
@@ -1509,4 +1531,41 @@ GDExtensionVariant godot_get_global_mouse_position(void* self) {
     result.value.vec2.x = pos.x;
     result.value.vec2.y = pos.y;
     return result;
+}
+
+static std::vector<godot::Variant> g_loaded_resources;
+
+void* godot_load_resource(const char* path, const char* type_hint) {
+    godot::String s(path);
+    if (!s.begins_with("res://") && !s.begins_with("user://")) {
+        s = "res://" + s;
+    }
+    
+    godot::Variant loaded;
+    godot::String h(type_hint);
+    
+    loaded = godot::ResourceLoader::get_singleton()->load(s, h, godot::ResourceLoader::CACHE_MODE_REUSE);
+    
+    if (loaded.get_type() == godot::Variant::OBJECT) {
+        godot::Object* obj = loaded;
+        
+        // Variant speichern damit die Ref nicht freed wird
+        g_loaded_resources.push_back(loaded);
+        
+        return static_cast<void*>(obj);
+    }
+    return nullptr;
+}
+
+
+const char* godot_get_class_name(void* obj) {
+    static char buf[64] = "";
+    if (!obj) {
+        buf[0] = '\0';
+        return buf;
+    }
+    godot::Object* o = static_cast<godot::Object*>(obj);
+    godot::String cls = o->get_class();
+    snprintf(buf, sizeof(buf), "%s", cls.utf8().get_data());
+    return buf;
 }
