@@ -48,7 +48,7 @@ godot_queue_free(node)
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(self, node, signal_name, callback_func, user_data)    
-- godot random-commands:    
+- godot random:    
 godot_randf()    
 godot_randi()     
 godot_randf_range(from, to)    
@@ -56,7 +56,7 @@ godot_randi_range(from, to)
 godot_randomize()
 - time:    
 godot_get_ticks_msec()     
-- input commands:    
+- input:    
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
 godot_get_global_mouse_position(self)        
