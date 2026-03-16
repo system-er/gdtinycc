@@ -1546,7 +1546,6 @@ void* godot_load_resource(const char* path, const char* type_hint) {
     if (loaded.get_type() == godot::Variant::OBJECT) {
         godot::Object* obj = loaded;
         
-        // Variant speichern damit die Ref nicht freed wird
         g_loaded_resources.push_back(loaded);
         
         return static_cast<void*>(obj);
