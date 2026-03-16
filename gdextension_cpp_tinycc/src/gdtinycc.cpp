@@ -79,9 +79,6 @@ void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *msg);
 //void* godot_get_parent(void* node_ptr);
 void* godot_get_node(void* self, const char *path);
-const char* godot_get_property(void* node, const char *property);
-void godot_print_float(float f);
-
 GDExtensionVariant godot_get_variant(void* node, const char *property);
 void godot_set_variant(void* node, const char *property, GDExtensionVariant variant);
 void* godot_instantiate(void* self, const char* scene_path);
@@ -382,7 +379,6 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
     //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
-    tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
     tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
     tcc_add_symbol(s, "godot_instantiate", (void*)godot_instantiate);
@@ -563,7 +559,6 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
     //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
-    tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
     tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
     tcc_add_symbol(s, "godot_instantiate", (void*)godot_instantiate);
@@ -636,7 +631,6 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
     //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
-    tcc_add_symbol(s, "godot_get_property", (void*)godot_get_property);
     tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
     tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
     tcc_add_symbol(s, "godot_instantiate", (void*)godot_instantiate);
@@ -806,36 +800,6 @@ void* godot_get_node(void* self, const char* path) {
     }
 }
 
-const char* godot_get_property(void* node_ptr, const char* property) {
-    static char buffer[256] = "";
-    if (!node_ptr) {
-        buffer[0] = '\0';
-        return buffer;
-    }
-    
-    godot::Node* node = static_cast<godot::Node*>(node_ptr);
-    godot::Variant value = node->get(property);
-    
-    switch (value.get_type()) {
-        case godot::Variant::STRING:
-            snprintf(buffer, sizeof(buffer), "%s", ((godot::String)value).utf8().get_data());
-            break;
-        case godot::Variant::INT:
-            snprintf(buffer, sizeof(buffer), "%d", (int)value);
-            break;
-        case godot::Variant::FLOAT:
-            snprintf(buffer, sizeof(buffer), "%f", (double)value);
-            break;
-        case godot::Variant::BOOL:
-            snprintf(buffer, sizeof(buffer), "%s", (bool)value ? "true" : "false");
-            break;
-        default:
-            snprintf(buffer, sizeof(buffer), "[%s]", ((godot::String)value).utf8().get_data());
-            break;
-    }
-    return buffer;
-}
-
 
 
 GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
@@ -895,6 +859,29 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.color.g = c.g;
             result.value.color.b = c.b;
             result.value.color.a = c.a;
+            break;
+        }
+        case godot::Variant::OBJECT:
+        {
+            godot::Object* obj = value;
+            if (obj) {
+                result.type = VARTYPE_OBJECT;
+                result.ptr = obj;
+            }
+            break;
+        }
+        case godot::Variant::DICTIONARY:
+        {
+            godot::Dictionary dict = value;
+            result.type = VARTYPE_DICTIONARY;
+            result.ptr = memnew(godot::Dictionary(dict));
+            break;
+        }
+        case godot::Variant::ARRAY:
+        {
+            godot::Array arr = value;
+            result.type = VARTYPE_ARRAY;
+            result.ptr = memnew(godot::Array(arr));
             break;
         }
         default:
@@ -961,6 +948,16 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
             UtilityFunctions::print("set_variant: VARTYPE_OBJECT, ptr=", (uint64_t)variant.ptr);
             if (variant.ptr) {
                 value = godot::Variant(static_cast<godot::Object*>(variant.ptr));
+            }
+            break;
+        case VARTYPE_DICTIONARY:
+            if (variant.ptr) {
+                value = godot::Variant(*static_cast<godot::Dictionary*>(variant.ptr));
+            }
+            break;
+        case VARTYPE_ARRAY:
+            if (variant.ptr) {
+                value = godot::Variant(*static_cast<godot::Array*>(variant.ptr));
             }
             break;
         default:
