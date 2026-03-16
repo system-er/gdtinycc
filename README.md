@@ -56,9 +56,10 @@ godot_randi_range(from, to)
 godot_randomize()
 - time:    
 godot_get_ticks_msec()     
-- inputevent commands:    
+- input commands:    
 godot_is_pressed(event)     
-godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...         
+godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
+godot_get_global_mouse_position(self)        
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
@@ -103,6 +104,18 @@ int benchmark() {
 		sum = sum + 1;
     }
 	return sum;
+}
+
+void print_int(int i){
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%d", i);
+    godot_print(buffer);
+}
+
+void print_float(float f){
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%.2f", f);
+    godot_print(buffer);
 }
 
 // the c-main-function
@@ -200,9 +213,16 @@ void _input(void* self, void* event)
     if(godot_is_pressed(event)){
         godot_print("input event:");
         int code = godot_eventcode(event);
-        char buffer[32];
-        snprintf(buffer, sizeof(buffer), "%d", code);
-        godot_print(buffer);
+        print_int(code);
+
+        if(code < 9){ //mousebutton
+            GDExtensionVariant v;
+            v.type = VARTYPE_VECTOR2;
+            v = godot_get_global_mouse_position(self);
+            char buffer[32];
+            snprintf(buffer, sizeof(buffer), "x: %.2f, y: %.2f", v.value.vec2.x, v.value.vec2.y);
+            godot_print(buffer);
+        }
     }
 }
 
