@@ -144,7 +144,7 @@ void _ready(void* self) {
     // create a label from code
     void *label = godot_create("Label");
     if (!label) {
-        godot_print("failed to create label");
+        godot_print("failed to create Label");
         return;
     }
     // set labeltext
@@ -190,7 +190,7 @@ void _ready(void* self) {
     // test sprite2d
     sprite = godot_create("Sprite2D");
     if (!sprite) {
-        godot_print("failed to create label");
+        godot_print("failed to create Sprite2D");
         return;
     }
     godot_add_child_deferred(parent, sprite);
