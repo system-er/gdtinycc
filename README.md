@@ -193,7 +193,7 @@ void _ready(void* self) {
     GDExtensionVariant texvar;
     texvar.type = VARTYPE_OBJECT;
     void* tex = godot_load_resource("res://icon.svg", "Texture2D");
-    godot_print(godot_get_class_name(sprite));
+    godot_print(godot_get_class_name(tex));
     texvar.ptr = tex;
     godot_set_variant(sprite, "texture", texvar);
 
