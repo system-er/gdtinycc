@@ -4,7 +4,7 @@ integrates tinycc(aka TCC) into Godot with gdextension c++.
 compile and execute C code directly (both very fast!).    
 GDTinyCC is a new node for godot that inherits from Node.    
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob       
-time to get out the old Kernighan/Ritchie's C-bible  ;-)    
+time to get out the old Kernighan/Ritchie C-bible  ;-)    
     
     
 edit your c-files with the editor of your choice          
