@@ -15,8 +15,3 @@ text = "click me"
 
 [node name="GDTinyCC" type="GDTinyCC" parent="."]
 source_file = "res://src/main.c"
-
-[node name="Sprite2D" type="Sprite2D" parent="GDTinyCC"]
-position = Vector2(7.1424737, 18.429493)
-centered = false
-offset = Vector2(300, 100)
