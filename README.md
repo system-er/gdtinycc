@@ -42,7 +42,8 @@ godot_get_property(node, property)
 GDExtensionVariant godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
 GDExtensionVariant godot_call(node, method_name, arg_count, args)    
-GDExtensionVariant godot_call_object(object, method_name, arg_count, args)    
+GDExtensionVariant godot_call_object(object, method_name, arg_count, args)
+godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
   
 - signals:    
@@ -189,6 +190,12 @@ void _ready(void* self) {
 
     // test sprite2d
     sprite = godot_get_node(self, "Sprite2D");
+    GDExtensionVariant texvar;
+    texvar.type = VARTYPE_OBJECT;
+    void* tex = godot_load_resource("res://icon.svg", "Texture2D");
+    godot_print(godot_get_class_name(sprite));
+    texvar.ptr = tex;
+    godot_set_variant(sprite, "texture", texvar);
 
 }
 
