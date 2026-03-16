@@ -47,7 +47,8 @@ typedef enum {
     VARTYPE_STRING = 4,
     VARTYPE_VECTOR2 = 5,
     VARTYPE_VECTOR3 = 6,
-    VARTYPE_COLOR = 7
+    VARTYPE_COLOR = 7,
+
 } GDExtensionVarType;
 
 GDExtensionVariant godot_get_variant(void* node, const char* property);
@@ -76,4 +77,5 @@ void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
 void* godot_get_drawingnode();
 int godot_is_pressed(void* event);
 int godot_eventcode(void* event_ptr);
+GDExtensionVariant godot_get_global_mouse_position(void* self);
 #endif
