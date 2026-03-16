@@ -42,7 +42,7 @@ godot_get_property(node, property)
 GDExtensionVariant godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
 GDExtensionVariant godot_call(node, method_name, arg_count, args)    
-GDExtensionVariant godot_call(object, method_name, arg_count, args)    
+GDExtensionVariant godot_call_object(object, method_name, arg_count, args)    
 godot_queue_free(node)    
   
 - signals:    
