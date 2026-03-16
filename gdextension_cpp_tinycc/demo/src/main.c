@@ -109,11 +109,18 @@ void _ready(void* self) {
     godot_print(buffer);
 
     // test sprite2d
-    sprite = godot_get_node(self, "Sprite2D");
+    sprite = godot_create("Sprite2D");
+    if (!sprite) {
+        godot_print("failed to create label");
+        return;
+    }
+    godot_add_child_deferred(parent, sprite);
+    //godot_print(godot_get_class_name(sprite));
+    //sprite = godot_get_node(self, "Sprite2D");
     GDExtensionVariant texvar;
     texvar.type = VARTYPE_OBJECT;
     void* tex = godot_load_resource("res://icon.svg", "Texture2D");
-    godot_print(godot_get_class_name(sprite));
+    godot_print(godot_get_class_name(tex));
     texvar.ptr = tex;
     godot_set_variant(sprite, "texture", texvar);
 
