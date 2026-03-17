@@ -264,4 +264,5 @@ start scons
 
 
 # todo in future:    
-- if _draw is needed a GDTinyCC_2D will inherit from Node2D...    
+- if _draw is needed a GDTinyCC_2D will inherit from Node2D
+  or a node2d is added for drawing at start        
