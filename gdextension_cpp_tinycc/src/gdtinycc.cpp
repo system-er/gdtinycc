@@ -371,7 +371,11 @@ void GDTinyCC::compile_file() {
     tcc_add_include_path(s, include_path.utf8().get_data());
     tcc_add_sysinclude_path(s, include_path.utf8().get_data());
     
+#ifdef _WIN32
     String tinycc_include = String(dll_path) + PATH_SEPARATOR ".." PATH_SEPARATOR ".." PATH_SEPARATOR "src" PATH_SEPARATOR "tinycc-mob" PATH_SEPARATOR "win32" PATH_SEPARATOR "include";
+#else
+    String tinycc_include = String(dll_path) + PATH_SEPARATOR ".." PATH_SEPARATOR ".." PATH_SEPARATOR "src" PATH_SEPARATOR "tinycc-mob" PATH_SEPARATOR "include";
+#endif
     tcc_add_sysinclude_path(s, tinycc_include.utf8().get_data());
     
     tcc_add_library_path(s, dll_path);
@@ -690,12 +694,11 @@ void GDTinyCC::load_object_file() {
     //String lib_path = String(dll_path) + "/lib";
     //tcc_set_lib_path(s, lib_path.utf8().get_data());
 
-    String lib_path = String(dll_path) + "/lib";
+    String lib_path = String(dll_path) + PATH_SEPARATOR "lib";
     tcc_set_lib_path(s, lib_path.utf8().get_data());
     tcc_add_library_path(s, lib_path.utf8().get_data());
 
-    String libtcc1_path = String(dll_path) + "/lib/libtcc1.a";
-    libtcc1_path = libtcc1_path.replace("\\", "/");
+    String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
 
     UtilityFunctions::print("libtcc1_path = ", libtcc1_path);
 
@@ -945,7 +948,7 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
             value = godot::Variant(godot::Color(variant.value.color.r, variant.value.color.g, variant.value.color.b, variant.value.color.a));
             break;
         case VARTYPE_OBJECT:
-            UtilityFunctions::print("set_variant: VARTYPE_OBJECT, ptr=", (uint64_t)variant.ptr);
+            //UtilityFunctions::print("set_variant: VARTYPE_OBJECT, ptr=", (uint64_t)variant.ptr);
             if (variant.ptr) {
                 value = godot::Variant(static_cast<godot::Object*>(variant.ptr));
             }
