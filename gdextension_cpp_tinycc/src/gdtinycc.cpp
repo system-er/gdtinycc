@@ -1230,7 +1230,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
         case godot::Variant::STRING_NAME: {
             result.type = VARTYPE_STRING_NAME;
             godot::StringName sn = value;
-            result.ptr = memnew(godot::StringName(sn));   // oder: einfach Pointer übernehmen, wenn möglich
+            result.ptr = memnew(godot::StringName(sn));
         } break;
 
         case 29:  // COLOR (Godot 4)
