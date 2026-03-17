@@ -18,9 +18,14 @@ env.Append(CPPPATH=["src/tinycc-mob"])
 
 env.Append(CPPDEFINES=[
     "ONE_SOURCE", 
-    "TCC_TARGET_PE", 
     "TCC_TARGET_X86_64"
 ])
+
+if env["platform"] == "linux":
+    env.Append(LIBPATH=["demo/bin/lib"])
+    env.Append(LIBS=["tcc1"])
+elif env["platform"] == "windows":
+    env.Append(CPPDEFINES=["TCC_TARGET_PE"])
 
 sources = Glob("src/*.cpp")
 sources.append("src/tinycc-mob/libtcc.c")
