@@ -259,7 +259,7 @@ copy tinycc-mob into src/tinycc-mob
 copy all files from src/tinycc-mob/include to demo/bin/include    
 build tinycc for your OS...   
 for linux: if libtcc1.a is after build in src/tinycc-mob copy to src/tinycc-mob/lib    
-for windows: copy libtcc1.a into demo/bin/lib (compile from src/tinycc-mob/lib or copy from a tinycc-mob release...)    
+for windows: copy libtcc1.a into demo/bin/lib (from  build or copy from a tinycc-mob release...)    
 copy godot-cpp version 4.5 to directory godot-cpp    
 start scons    
 
