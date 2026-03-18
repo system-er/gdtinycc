@@ -11,7 +11,8 @@ edit your c-files with the editor of your choice
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
 	
 three options:
-- compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
+- compile and run c-source-file just in time (filename *.c in inspector in "Source File")
+  new for v0.2: more than one filename separated with comma    
 - save the compiled program in an objectfile (filename *.o in inspector in "Output Object File" -    
   dont forget to press return)    
 - load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File" -
