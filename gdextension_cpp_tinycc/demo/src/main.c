@@ -1,7 +1,7 @@
 // GDTinyCC main.c https://github.com/system-er/gdtinycc/tree/main
 #include "stddef.h"
-#include "tgmath.h" // for sin, cos in process
 #include "gdtinycc_runtime.h"
+//#include "src/add.h"
 
 
 float timepassed = 0;
@@ -42,7 +42,11 @@ void print_float(float f){
 // the c-main-function
 void main() {
     godot_print("hello world from GDTinyCC main.");
+
+    godot_print("add 2+3:");
+    print_int(add(2, 3));
 }
+
 
 // _ready-function is called from godot
 void _ready(void* self) {
@@ -132,11 +136,13 @@ void _ready(void* self) {
 }
 
 void _process(void* self, double delta) {
-    timepassed += delta;
+    timepassed += delta*10;
     GDExtensionVariant v;
     v.type = VARTYPE_VECTOR2;
-    v.value.vec2.x = 10.0 + (10.0 * sin(timepassed * 2.0));
-    v.value.vec2.y = 10.0 + (10.0 * cos(timepassed * 1.5));
+    v.value.vec2.x = timepassed*10;
+    if(timepassed>100){
+        timepassed = 0;
+    }
     godot_set_variant(sprite, "position", v);
 }
 
