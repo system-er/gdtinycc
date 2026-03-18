@@ -1,6 +1,5 @@
 
 #include "gdtinycc.h"
-//#include "gdtinycc_drawer.h"
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/variant.hpp>
@@ -417,27 +416,39 @@ void GDTinyCC::compile_file() {
         UtilityFunctions::print("error: compile_file - could not load libtcc1.a");
     }
  
-    String full_path = source_file;
-    if (!source_file.begins_with("res://")) {
-        full_path = "res://" + source_file;
-    }
-    
-    Ref<FileAccess> fa = FileAccess::open(full_path, FileAccess::READ);
-    if (fa.is_null()) {
-        UtilityFunctions::print("error: compile_file - file open error: ", full_path);
-        tcc_delete(s);
-        return;
-    }
-    
-    String source_code = fa->get_as_text();
+    PackedStringArray files_array = source_file.split(",");
+    bool first_file = true;
 
-    UtilityFunctions::print("compile: ", full_path);
-    
-    if (tcc_compile_string(s, source_code.utf8().get_data()) < 0) {
-        UtilityFunctions::print("error: compile_file - compileerror!");
-        tcc_delete(s);
-        return;
+    for (int i = 0; i < files_array.size(); i++) {
+        String file = files_array[i].strip_edges();
+        if (file.is_empty()) continue;
+
+        String full_path = file;
+        if (!file.begins_with("res://")) {
+            full_path = "res://" + file;
+        }
+
+        Ref<FileAccess> fa = FileAccess::open(full_path, FileAccess::READ);
+        if (fa.is_null()) {
+            UtilityFunctions::print("error: compile_file - file open error: ", full_path);
+            tcc_delete(s);
+            return;
+        }
+
+        String source_code = fa->get_as_text();
+        UtilityFunctions::print("compile: ", full_path);
+
+        if (first_file) {
+            first_file = false;
+        }
+
+        if (tcc_compile_string(s, source_code.utf8().get_data()) < 0) {
+            UtilityFunctions::print("error: compile_file - compileerror!");
+            tcc_delete(s);
+            return;
+        }
     }
+
     if (!output_object_file.is_empty()) {
         String path = output_object_file;
 
@@ -710,24 +721,33 @@ void GDTinyCC::load_object_file() {
     //UtilityFunctions::print("tcc_add_file(libtcc1.a) returned: ", ret1);
 
     tcc_add_file(s, libtcc1_path.utf8().get_data());
+    
+    int libm_ret = tcc_add_library(s, "libm");
+    UtilityFunctions::print("tcc_add_library(libm) returned: ", libm_ret);
     //if (ret1 < 0) {
     //    UtilityFunctions::print("error: could not load libtcc1.a");
     //    tcc_delete(s);
     //    return;
     //}
 
-    String abs_path = ProjectSettings::get_singleton()->globalize_path(input_object_file);
-    abs_path = abs_path.replace("\\", "/");
+    PackedStringArray object_files = input_object_file.split(",");
+    for (int i = 0; i < object_files.size(); i++) {
+        String obj_file = object_files[i].strip_edges();
+        if (obj_file.is_empty()) continue;
 
-    UtilityFunctions::print("object file = ", abs_path);
+        String abs_path = ProjectSettings::get_singleton()->globalize_path(obj_file);
+        abs_path = abs_path.replace("\\", "/");
 
-    int ret2 = tcc_add_file(s, abs_path.utf8().get_data());
-    UtilityFunctions::print("tcc_add_file(object.o) returned: ", ret2);
+        UtilityFunctions::print("object file = ", abs_path);
 
-    if (ret2 < 0) {
-        UtilityFunctions::print("error loading object file");
-        tcc_delete(s);
-        return;
+        int ret2 = tcc_add_file(s, abs_path.utf8().get_data());
+        UtilityFunctions::print("tcc_add_file(object.o) returned: ", ret2);
+
+        if (ret2 < 0) {
+            UtilityFunctions::print("error loading object file");
+            tcc_delete(s);
+            return;
+        }
     }
 
     UtilityFunctions::print("Relocating now...");
@@ -752,8 +772,6 @@ void GDTinyCC::load_object_file() {
         UtilityFunctions::print("main() not found");
     }
 }
-
-
 
 void tcc_error_callback(void *opaque, const char *msg) {
     UtilityFunctions::print("TCC Error: ", msg);
