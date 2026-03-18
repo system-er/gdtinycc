@@ -43,8 +43,8 @@ void print_float(float f){
 void main() {
     godot_print("hello world from GDTinyCC main.");
 
-    godot_print("add 2+3:");
-    print_int(add(2, 3));
+    //godot_print("add 2+3:");
+    //print_int(add(2, 3));
 }
 
 
