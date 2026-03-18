@@ -1,5 +1,5 @@
-#ifndef RECHNEN_H
-#define RECHNEN_H
+#ifndef ADD_H
+#define ADD_H
 
 // declaration of function
 int add(int a, int b);
