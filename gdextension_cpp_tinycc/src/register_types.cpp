@@ -16,7 +16,6 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
 
     ClassDB::register_class<SignalHandler>();
     ClassDB::register_class<GDTinyCC>();
-    //ClassDB::register_class<GDTinyCCDrawer>();
 }
 
 void uninitialize_example_module(ModuleInitializationLevel p_level) {
@@ -26,7 +25,6 @@ void uninitialize_example_module(ModuleInitializationLevel p_level) {
 }
 
 extern "C" {
-// Initialization.
 GDExtensionBool GDE_EXPORT gdtinycc_library_init(GDExtensionInterfaceGetProcAddress p_get_proc_address, const GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
     godot::GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
 

@@ -54,6 +54,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <cmath>
 
 #ifdef _WIN32
 #define PATH_SEPARATOR "\\"
@@ -216,104 +217,6 @@ void GDTinyCC::_input(const Ref<InputEvent> &event) {
     }
 }
 
-/*
-void GDTinyCC::setup_drawing_layer() {
-
-    if (shared_ui_canvas) {
-        return;
-    }
-
-    shared_ui_canvas = memnew(CanvasLayer);
-    if (!shared_ui_canvas) {
-        UtilityFunctions::print("error: CanvasLayer not created");
-        return;
-    }
-
-    shared_ui_canvas->set_layer(10);
-    shared_ui_canvas->set_follow_viewport(true);
-    add_child(shared_ui_canvas);
-
-    shared_drawer = memnew(GDTinyCCDrawer);
-   
-    //drawer->owner = this;
-    if (!shared_drawer) {
-        UtilityFunctions::print("error: TinyCCDrawer not created");
-        return;
-    }
-
-    // drawer->set_position(Vector2(20, 20));
-    // drawer->set_scale(Vector2(0.3, 0.3));
-
-    shared_ui_canvas->add_child(shared_drawer);
-
-    if (tcc_state) {
-        tcc_add_symbol((TCCState*)tcc_state, "godot_drawing_node", (void*)shared_drawer);
-    }
-
-    shared_drawer->queue_redraw();
-    
-}
-*/
-
-/*
-void GDTinyCC::setup_drawing_layer() {
-    if (shared_drawer != nullptr) {
-        return;  // bereits erstellt
-    }
-
-    // Sicherheits-Check – sollte in _enter_tree() eigentlich nicht mehr nötig sein
-    if (!is_inside_tree() || !get_tree()) {
-        UtilityFunctions::printerr("setup_drawing_layer called too early - no SceneTree yet");
-        call_deferred("setup_drawing_layer");  // oder später erneut versuchen
-        return;
-    }
-
-    shared_ui_canvas = memnew(CanvasLayer);
-    shared_ui_canvas->set_layer(100);
-    shared_ui_canvas->set_name("TinyCC_Shared_UI");
-
-    shared_drawer = memnew(GDTinyCCDrawer);
-    //shared_drawer->owner = this;
-    shared_drawer->set_name("TinyCC_Shared_Drawer");
-
-    shared_ui_canvas->add_child(shared_drawer);
-
-    shared_drawer->set_visible(true);
-    shared_ui_canvas->set_visible(true);
-    shared_ui_canvas->set_layer(10);
-
-    Node* root = get_tree()->get_root();
-    if (root) {
-        root->call_deferred("add_child", shared_ui_canvas);
-        UtilityFunctions::print("Shared canvas added to root in _enter_tree()");
-    } else {
-        UtilityFunctions::printerr("No root node available even in _enter_tree()");
-    }
-}
-*/
-
-/*
-void GDTinyCC::add_shared_canvas_to_scene() {
-    if (!shared_ui_canvas) {
-        return;
-    }
-
-    SceneTree* tree = get_tree();
-    if (!tree) {
-        return;
-    }
-
-    Node* root = tree->get_root();
-    if (!root) {
-        return;
-    }
-
-    if (shared_ui_canvas->get_parent() == nullptr) {
-        root->add_child(shared_ui_canvas);
-        UtilityFunctions::print("Shared canvas deferred added to root.");
-    }
-}
-*/
 
 void GDTinyCC::set_source_file(const String &p_path) {
     source_file = p_path;
@@ -409,7 +312,11 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
+    tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
+    tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
+
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
     if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
@@ -601,6 +508,9 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
+    tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
+    tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     if (tcc_add_file(s, object_file.utf8().get_data()) < 0) {
@@ -673,6 +583,9 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
+    tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
+    tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
     char dll_path[1024];
@@ -721,6 +634,9 @@ void GDTinyCC::load_object_file() {
     //UtilityFunctions::print("tcc_add_file(libtcc1.a) returned: ", ret1);
 
     tcc_add_file(s, libtcc1_path.utf8().get_data());
+    
+    //tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
+    //tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
     
     int libm_ret = tcc_add_library(s, "libm");
     UtilityFunctions::print("tcc_add_library(libm) returned: ", libm_ret);
