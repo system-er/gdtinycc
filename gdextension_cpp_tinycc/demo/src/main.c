@@ -42,8 +42,8 @@ void print_float(float f){
 void main() {
     godot_print("hello world from GDTinyCC main.");
 
-    godot_print("add 1+2:");
-    print_int(add(1, 2));
+    //godot_print("add 1+2:");
+    //print_int(add(1, 2));
 }
 
 
@@ -167,6 +167,7 @@ void _input(void* self,void* event) {
     }
 }
 
+// check "Enable 2D Drawing" in GDTinyCC-node in inspector 
 void _draw(void* self) {
     godot_print("started _draw()");
     void* drawingnode = godot_get_drawingnode(self);
