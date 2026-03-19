@@ -1,7 +1,6 @@
 // GDTinyCC main.c https://github.com/system-er/gdtinycc/tree/main
 #include "stddef.h"
 #include "gdtinycc_runtime.h"
-//#include "src/add.h"
 
 
 float timepassed = 0;
@@ -136,13 +135,11 @@ void _ready(void* self) {
 }
 
 void _process(void* self, double delta) {
-    timepassed += delta*10;
+    timepassed += delta;
     GDExtensionVariant v;
     v.type = VARTYPE_VECTOR2;
-    v.value.vec2.x = timepassed*10;
-    if(timepassed>100){
-        timepassed = 0;
-    }
+    v.value.vec2.x = 10.0f + (10.0f * sin(timepassed * 2.0f));
+    v.value.vec2.y = 10.0f + (10.0f * cos(timepassed * 1.5f));
     godot_set_variant(sprite, "position", v);
 }
 
