@@ -247,6 +247,7 @@ void _input(void* self, void* event)
     }
 }
 
+// check "Enable 2D Drawing" in GDTinyCC-node in inspector 
 void _draw(void* self) {
     godot_print("started _draw()");
     void* drawingnode = godot_get_drawingnode(self);
