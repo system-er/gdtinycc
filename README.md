@@ -30,7 +30,7 @@ _unhandled_input(event)
 _enter_tree()    
 _exit_tree()    
 _notification(what)     
-v02: _draw()    
+v02: _draw(self)    
 
 - output:    
 godot_print(string)
