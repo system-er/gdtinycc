@@ -12,6 +12,10 @@
 #include <string>
 
 
+extern "C" {
+    #include "tinycc-mob/libtcc.h"
+}
+
 
 typedef struct {
     int type;
@@ -50,6 +54,7 @@ typedef enum {
 
 namespace godot {
 
+
 class SignalHandler : public Node {
     GDCLASS(SignalHandler, Node)
 public:
@@ -78,8 +83,14 @@ private:
     void *tcc_state;
     std::vector<SignalHandler*> signal_handlers;
 
+    bool enable_2d_drawing = false;
+    CanvasLayer* drawing_canvas = nullptr;
+    Node2D* drawing_node = nullptr;
+
+
 protected:
     static void _bind_methods();
+
 
 public:
 
@@ -105,20 +116,42 @@ public:
     void set_input_object_file(const String &p_path);
     String get_input_object_file() const;
     void load_object_file();
-    //static GDTinyCC* _current_instance;
-
     bool connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
     void disconnect_all_signals();
-
-    //void setup_drawing_layer();
     void* get_tcc_state() const { return tcc_state; }
-    //static GDTinyCCDrawer* shared_drawer;
-    //static CanvasLayer* shared_ui_canvas;
-    //static void* shared_tcc_state;
     int godot_input_event_is_pressed(void* evt);
     int godot_get_eventcode(void* event_ptr);
+
+    void set_enable_2d_drawing(bool enabled);
+    bool get_enable_2d_drawing() const { return enable_2d_drawing; }
+    Node2D* get_drawingnode() const { return drawing_node; }
 };
 
+
+class GDTinyCCDrawer : public Node2D {
+    GDCLASS(GDTinyCCDrawer, Node2D)
+public:
+    GDTinyCC* parent_tcc = nullptr;
+
+    void _draw() override {
+        if (!parent_tcc || !parent_tcc->get_tcc_state()) return;
+        //draw_circle(Vector2(400, 300), 100, Color(1, 0, 0)); //for test
+
+        using DrawFunc = void (*)(void*, void*);
+        auto draw_func = reinterpret_cast<DrawFunc>(
+            tcc_get_symbol((TCCState*)parent_tcc->get_tcc_state(), "_draw")
+        );
+
+        if (draw_func) {
+            draw_func(parent_tcc, this);
+        }
+    }
+
+    static void _bind_methods() {}
+};
+
+
 }
+
 
 #endif

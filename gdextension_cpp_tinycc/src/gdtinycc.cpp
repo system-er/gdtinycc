@@ -62,15 +62,17 @@
 #define PATH_SEPARATOR "/"
 #endif
 
-extern "C" {
-    #include "tinycc-mob/libtcc.h"
-}
+//extern "C" {
+//    #include "tinycc-mob/libtcc.h"
+//}
 
 //godot::GDTinyCCDrawer* godot::GDTinyCC::shared_drawer    = nullptr;
 //godot::CanvasLayer*    godot::GDTinyCC::shared_ui_canvas = nullptr;
 
 
 using namespace godot;
+
+
 
 typedef struct TCCState TCCState;
 //godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
@@ -98,11 +100,11 @@ int godot_randi();
 float godot_randf_range(float a, float b);
 int godot_randi_range(int a, int b);
 void godot_randomize();
-//void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
-//                     float r, float g, float b, float a, int filled);
-//void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
-//                              float r, float g, float b, float a, int filled);
-//void* godot_get_drawingnode();
+void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
+                     float r, float g, float b, float a, int filled);
+void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
+                              float r, float g, float b, float a, int filled);
+void* godot_get_drawingnode(void* self);
 int godot_is_pressed(void* evt);
 int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
@@ -144,8 +146,12 @@ void GDTinyCC::_bind_methods() {
         "get_input_object_file"
     );
 
-    //ClassDB::bind_method(D_METHOD("add_shared_canvas_to_scene"),
-    //                     &GDTinyCC::add_shared_canvas_to_scene);
+    ClassDB::bind_method(D_METHOD("set_enable_2d_drawing", "enabled"), &GDTinyCC::set_enable_2d_drawing);
+    ClassDB::bind_method(D_METHOD("get_enable_2d_drawing"), &GDTinyCC::get_enable_2d_drawing);
+    ClassDB::add_property("GDTinyCC",
+        PropertyInfo(Variant::BOOL, "enable_2d_drawing"), 
+        "set_enable_2d_drawing", "get_enable_2d_drawing");
+    
 }
 
 
@@ -217,6 +223,18 @@ void GDTinyCC::_input(const Ref<InputEvent> &event) {
     }
 }
 
+/*
+void GDTinyCC::_draw() {
+    if (tcc_state && enable_2d_drawing) {
+        using DrawFunc = void(*)(void*);
+        DrawFunc draw_func = (DrawFunc)tcc_get_symbol((TCCState*)tcc_state, "_draw");
+
+        if (draw_func) {
+            draw_func(this);
+        }
+    }
+}
+*/
 
 void GDTinyCC::set_source_file(const String &p_path) {
     source_file = p_path;
@@ -303,9 +321,9 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-    //tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
-    //tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
-    //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
@@ -499,9 +517,9 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-    //tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
-    //tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
-    //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
@@ -574,9 +592,9 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
     tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
     tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
-    //tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
-    //tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
-    //tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
@@ -1349,6 +1367,18 @@ void godot_connect(void* self, void* node_ptr, const char* signal_name, void* ca
 }
 
 void GDTinyCC::_enter_tree() {
+    if (enable_2d_drawing && !drawing_node) {
+        drawing_canvas = memnew(CanvasLayer);
+        drawing_canvas->set_layer(100);
+        this->add_child(drawing_canvas);
+
+        drawing_node = memnew(GDTinyCCDrawer);
+        static_cast<GDTinyCCDrawer*>(drawing_node)->parent_tcc = this;
+        drawing_canvas->add_child(drawing_node);
+        
+        // opt: drawing_node->set_position(Vector2(0,0));
+    }
+
     if (tcc_state) {
         using Func = void(*)();
         Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_enter_tree");
@@ -1358,6 +1388,15 @@ void GDTinyCC::_enter_tree() {
 }
 
 void GDTinyCC::_exit_tree() {
+    if (drawing_node) {
+        drawing_node->queue_free();
+        drawing_node = nullptr;
+    }
+    if (drawing_canvas) {
+        drawing_canvas->queue_free();
+        drawing_canvas = nullptr;
+    }
+
     if (tcc_state) {
         using Func = void(*)();
         Func f = (Func)tcc_get_symbol((TCCState*)tcc_state, "_exit_tree");
@@ -1501,4 +1540,51 @@ const char* godot_get_class_name(void* obj) {
     godot::String cls = o->get_class();
     snprintf(buf, sizeof(buf), "%s", cls.utf8().get_data());
     return buf;
+}
+
+
+void GDTinyCC::set_enable_2d_drawing(bool enabled) {
+    if (enabled == enable_2d_drawing) {
+        return;
+    }
+
+    enable_2d_drawing = enabled;
+
+}
+
+void* godot_get_drawingnode(void* self) {
+    //GDTinyCC* tcc = static_cast<GDTinyCC*>(self);
+    //return tcc ? tcc->get_drawingnode() : nullptr;
+    GDTinyCC* instance = static_cast<GDTinyCC*>(self);
+    return instance->get_drawingnode();
+}
+
+void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
+                     float r, float g, float b, float a, int filled) {
+    if (!canvas_item_ptr) {
+        return;
+    }
+    CanvasItem* ci = static_cast<CanvasItem*>(canvas_item_ptr);
+    Rect2 rect(x, y, w, h);
+    Color color(r, g, b, a);
+    if (filled==1) {
+        ci->draw_rect(rect, color, true);
+    } else {
+        ci->draw_rect(rect, color, false, 2.0f);
+    }
+}
+
+void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
+                       float r, float g, float b, float a, int filled) {
+    if (!canvas_item_ptr) {
+        return;
+    }
+    CanvasItem* ci = static_cast<CanvasItem*>(canvas_item_ptr);
+    Vector2 center(x, y);
+    Color color(r, g, b, a);
+    if (filled == 1) {
+        ci->draw_circle(center, radius, color);
+    } else {
+        ci->draw_arc(center, radius, 0, Math_TAU, 64, color, 2.0f);
+    }
 }

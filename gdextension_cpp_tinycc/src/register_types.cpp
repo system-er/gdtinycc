@@ -16,6 +16,7 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
 
     ClassDB::register_class<SignalHandler>();
     ClassDB::register_class<GDTinyCC>();
+    ClassDB::register_class<GDTinyCCDrawer>();
 }
 
 void uninitialize_example_module(ModuleInitializationLevel p_level) {
