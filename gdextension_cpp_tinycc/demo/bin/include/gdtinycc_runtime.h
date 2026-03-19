@@ -88,4 +88,9 @@ int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
 void* godot_load_resource(const char* path, const char* type_hint);
 const char* godot_get_class_name(void* obj);
+double sin(double x);
+double cos(double x);
+
+int add(int a, int b);
+
 #endif
