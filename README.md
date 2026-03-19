@@ -17,7 +17,7 @@ three options:
   dont forget to press return)    
 - load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File" -
   dont forget to press return)       
-  the input object-file must be in the bin-directory!    
+  the input object-file must be in the bin-directory (or use a path)        
   if the objectfile is chosen, export the project and it works.           
    
 	   
