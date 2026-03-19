@@ -60,7 +60,10 @@ godot_get_ticks_msec()
 - input:    
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
-godot_get_global_mouse_position(self)        
+godot_get_global_mouse_position(self)
+- math:
+sin()    
+cos()    
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
@@ -209,10 +212,8 @@ void _process(void* self, double delta) {
     timepassed += delta;
     GDExtensionVariant v;
     v.type = VARTYPE_VECTOR2;
-    v.value.vec2.x = timepassed*10;
-    if(timepassed>100){
-        timepassed = 0;
-    }
+    v.value.vec2.x = 10.0f + (10.0f * sin(timepassed * 2.0f));
+    v.value.vec2.y = 10.0f + (10.0f * cos(timepassed * 1.5f));
     godot_set_variant(sprite, "position", v);
 }
 
