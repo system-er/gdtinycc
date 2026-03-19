@@ -63,7 +63,11 @@ godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=m
 godot_get_global_mouse_position(self)
 - math:    
 v0.2: sin()    
-v0.2: cos()    
+v0.2: cos()
+- 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
+godot_get_drawingnode(self)    
+godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
+godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
