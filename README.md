@@ -247,6 +247,18 @@ void _input(void* self, void* event)
     }
 }
 
+void _draw(void* self) {
+    godot_print("started _draw()");
+    void* drawingnode = godot_get_drawingnode(self);
+    if(drawingnode) {
+        godot_draw_rect(drawingnode, 500.0f, 200.0f, 200.0f, 100.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1);
+        godot_draw_circle(drawingnode, 800.0f, 400.0f, 100.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
+    }
+    else {
+        godot_print("error: drawingnode not found");
+    }
+}
+
 
 ```
 
