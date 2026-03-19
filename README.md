@@ -61,9 +61,9 @@ godot_get_ticks_msec()
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
 godot_get_global_mouse_position(self)
-- math:
-sin()    
-cos()    
+- math:    
+v0.2: sin()    
+v0.2: cos()    
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
