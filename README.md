@@ -3,7 +3,6 @@
 integrates tinycc(aka TCC) into a Godot node with gdextension c++.     
 compile and execute C code directly (both very fast!).    
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob     
-now tested on Linux (Ubuntu 24.4) and Windows (11).    
 time to get out the old Kernighan/Ritchie C-bible  ;-)    
     
     
