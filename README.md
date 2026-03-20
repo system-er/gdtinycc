@@ -9,7 +9,7 @@ time to get out the old Kernighan/Ritchie C-bible  ;-)
 edit your c-files with the editor of your choice          
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
 	
-three options:
+
 - compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
   new for v0.2: more than one filename separated with comma, the main-file first (for example "res://src/main.c,res://src/add.c" - the add.h is included in add.c - projects with modularization possible )    
 - save the compiled program in an objectfile (filename *.o in inspector in "Output Object File" -    
@@ -17,7 +17,8 @@ three options:
 - load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File" -
   dont forget to press return)       
   the input object-file must be in the bin-directory (or use a path)        
-  if the objectfile is chosen, export the project and it works.           
+  if the objectfile is chosen, export the project and it works.
+- check the "Enable 2D Drawing" in GDTinyCC-node in inspector if you need _draw        
    
 	   
 # hello world:       
