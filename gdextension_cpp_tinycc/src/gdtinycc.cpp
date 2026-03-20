@@ -44,6 +44,7 @@
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
 #include <godot_cpp/classes/input_event.hpp>   
+#include <godot_cpp/godot.hpp>
 
 
 #ifdef _WIN32
@@ -110,6 +111,8 @@ int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
 void* godot_load_resource(const char* path, const char* type_hint);
 const char* godot_get_class_name(void* obj);
+
+static std::vector<godot::Variant> g_loaded_resources;
 
 
 //using namespace godot;
@@ -933,7 +936,7 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
 
 void* godot_instantiate(void* self, const char* scene_path) {
     if (!self) {
-        UtilityFunctions::print("godot_connect: missing self pointer");
+        UtilityFunctions::print("godot_instantiate: missing self pointer");
         return nullptr;
     }
     GDTinyCC* instance = static_cast<GDTinyCC*>(self);
@@ -942,35 +945,50 @@ void* godot_instantiate(void* self, const char* scene_path) {
         return nullptr;
     }
     
-    godot::ResourceLoader* loader = godot::ResourceLoader::get_singleton();
     godot::String path(scene_path);
+    if (!path.begins_with("res://") && !path.begins_with("user://")) {
+        path = "res://" + path;
+    }
     
-    godot::Variant loaded = loader->load(path);
+    godot::Variant loaded = godot::ResourceLoader::get_singleton()->load(
+        path, 
+        "PackedScene",
+        godot::ResourceLoader::CACHE_MODE_REUSE
+    );
+    
+    g_loaded_resources.push_back(loaded);
+    
     if (loaded.get_type() == godot::Variant::NIL) {
         UtilityFunctions::print("godot_instantiate: failed to load scene: ", scene_path);
         return nullptr;
     }
     
-    if (loaded.get_type() != godot::Variant::OBJECT) {
-        UtilityFunctions::print("godot_instantiate: not an object: ", scene_path);
-        return nullptr;
+    if (loaded.get_type() == godot::Variant::OBJECT) {
+        godot::Object* obj = loaded;
+        if (!obj) {
+            UtilityFunctions::print("godot_instantiate: obj is null");
+            return nullptr;
+        }
+        
+        godot::PackedScene* scene = godot::Object::cast_to<godot::PackedScene>(obj);
+        if (!scene) {
+            UtilityFunctions::print("godot_instantiate: not a packed scene: ", scene_path);
+            return nullptr;
+        }
+        
+        godot::Node* instancenew = scene->instantiate();
+        if (!instancenew) {
+            UtilityFunctions::print("godot_instantiate: instantiate returned null");
+            return nullptr;
+        }
+        
+        return static_cast<void*>(instancenew);
     }
     
-    godot::Object* obj = (godot::Object*)loaded;
-    godot::PackedScene* scene = godot::Object::cast_to<godot::PackedScene>(obj);
-    if (!scene) {
-        UtilityFunctions::print("godot_instantiate: not a packed scene: ", scene_path);
-        return nullptr;
-    }
-    
-    godot::Node* instancenew = scene->instantiate();
-    if (!instancenew) {
-        UtilityFunctions::print("godot_instantiate: instantiate returned null");
-        return nullptr;
-    }
-    
-    return static_cast<void*>(instancenew);
+    UtilityFunctions::print("godot_instantiate: not an object: ", scene_path);
+    return nullptr;
 }
+
 
 void godot_add_child(void* parent_ptr, void* child_ptr) {
     if (!parent_ptr || !child_ptr) {
@@ -1513,8 +1531,6 @@ GDExtensionVariant godot_get_global_mouse_position(void* self) {
     result.value.vec2.y = pos.y;
     return result;
 }
-
-static std::vector<godot::Variant> g_loaded_resources;
 
 void* godot_load_resource(const char* path, const char* type_hint) {
     godot::String s(path);
