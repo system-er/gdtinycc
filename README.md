@@ -266,4 +266,7 @@ copy godot-cpp version 4.5 to directory godot-cpp
 start scons    
 (tested on ubuntu 24.4 and windows 11)    
 
+# changelog:    
+v0.3: instantiate works    
+
     
