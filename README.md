@@ -263,6 +263,6 @@ if libtcc1.a is after build in src/tinycc-mob copy to src/tinycc-mob/lib
 copy libtcc1.a into demo/bin/lib (from  build or copy from a tinycc-mob release...)    
 copy godot-cpp version 4.5 to directory godot-cpp    
 start scons    
-(atm tested on ubuntu and windows 11)    
+(atm tested on ubuntu 24.4 and windows 11)    
 
     
