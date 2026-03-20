@@ -23,7 +23,7 @@ env.Append(CPPDEFINES=[
 
 if env["platform"] == "linux":
     env.Append(LIBPATH=["src/tinycc-mob/lib"])
-    env.Append(LIBS=["tcc1"])
+    #env.Append(LIBS=["tcc1"])
 elif env["platform"] == "windows":
     env.Append(CPPDEFINES=["TCC_TARGET_PE"])
 
