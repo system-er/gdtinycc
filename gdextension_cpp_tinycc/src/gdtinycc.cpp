@@ -268,6 +268,7 @@ void GDTinyCC::compile_file() {
     }
     strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
     char *p = strrchr(dll_path, '/');
+    tcc_add_library_path(s, "/usr/lib/x86_64-linux-gnu");
 #endif
     if (p) *p = '\0';
 
@@ -335,12 +336,19 @@ void GDTinyCC::compile_file() {
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
-
+#ifdef _WIN32
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
     if (tcc_add_file(s, libtcc1_path.utf8().get_data()) < 0) {
         UtilityFunctions::print("error: compile_file - could not load libtcc1.a");
     }
- 
+ #else
+    String full_path = String(dll_path) + "/lib/libtcc1.a";
+    if (tcc_add_file(s, full_path.utf8().get_data()) < 0) {
+        UtilityFunctions::print("error: could not load libtcc1.a");
+    }
+    String lib_path = String(dll_path) + "/lib";
+    tcc_add_library_path(s, lib_path.utf8().get_data());
+ #endif
     PackedStringArray files_array = source_file.split(",");
     bool first_file = true;
 
