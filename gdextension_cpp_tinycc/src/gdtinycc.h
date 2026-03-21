@@ -8,6 +8,9 @@
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/callable.hpp>
+#include <godot_cpp/variant/vector2i.hpp>
+#include <godot_cpp/variant/vector3i.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
 #include <vector>
 #include <string>
 
@@ -27,6 +30,8 @@ typedef struct {
         int b;
         godot::Vector2 vec2;
         godot::Vector3 vec3;
+        godot::Vector2i vec2i;
+        godot::Vector3i vec3i;
         godot::Color color;
         godot::Rect2 rect2;
     } value;
@@ -49,6 +54,9 @@ typedef enum {
     VARTYPE_OBJECT = 24,
     VARTYPE_DICTIONARY = 27,
     VARTYPE_ARRAY = 28,
+    VARTYPE_VECTOR2I = 20,
+    VARTYPE_VECTOR3I = 22,
+    VARTYPE_PACKED_BYTE_ARRAY = 23,
 
 } GDExtensionVarType;
 

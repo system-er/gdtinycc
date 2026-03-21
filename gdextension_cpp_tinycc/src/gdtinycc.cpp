@@ -820,6 +820,30 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.vec3.z = v.z;
             break;
         }
+        case 20:  // VECTOR2I
+        {
+            godot::Vector2i v = value;
+            result.type = VARTYPE_VECTOR2I;
+            result.value.vec2i.x = v.x;
+            result.value.vec2i.y = v.y;
+            break;
+        }
+        case 22:  // VECTOR3I
+        {
+            godot::Vector3i v = value;
+            result.type = VARTYPE_VECTOR3I;
+            result.value.vec3i.x = v.x;
+            result.value.vec3i.y = v.y;
+            result.value.vec3i.z = v.z;
+            break;
+        }
+        case 23:  // PACKED_BYTE_ARRAY
+        {
+            godot::PackedByteArray arr = value;
+            result.type = VARTYPE_PACKED_BYTE_ARRAY;
+            result.ptr = memnew(godot::PackedByteArray(arr));
+            break;
+        }
         case 29:  // COLOR (Godot 4)
         {
             godot::Color c = value;
@@ -870,7 +894,10 @@ const char* godot_get_type_name(int type) {
         case VARTYPE_STRING: return "STRING";
         case VARTYPE_VECTOR2: return "VECTOR2";
         case VARTYPE_VECTOR3: return "VECTOR3";
+        case VARTYPE_VECTOR2I: return "VECTOR2I";
+        case VARTYPE_VECTOR3I: return "VECTOR3I";
         case VARTYPE_COLOR: return "COLOR";
+        case VARTYPE_PACKED_BYTE_ARRAY: return "PACKED_BYTE_ARRAY";
         default: return "UNKNOWN";
     }
 }
@@ -909,6 +936,17 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
             break;
         case VARTYPE_VECTOR3:
             value = godot::Variant(godot::Vector3(variant.value.vec3.x, variant.value.vec3.y, variant.value.vec3.z));
+            break;
+        case VARTYPE_VECTOR2I:
+            value = godot::Variant(godot::Vector2i(variant.value.vec2i.x, variant.value.vec2i.y));
+            break;
+        case VARTYPE_VECTOR3I:
+            value = godot::Variant(godot::Vector3i(variant.value.vec3i.x, variant.value.vec3i.y, variant.value.vec3i.z));
+            break;
+        case VARTYPE_PACKED_BYTE_ARRAY:
+            if (variant.ptr) {
+                value = godot::Variant(*static_cast<godot::PackedByteArray*>(variant.ptr));
+            }
             break;
         case VARTYPE_COLOR:
             value = godot::Variant(godot::Color(variant.value.color.r, variant.value.color.g, variant.value.color.b, variant.value.color.a));
@@ -1118,6 +1156,19 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
         case VARTYPE_VECTOR3:
             value = godot::Variant(godot::Vector3(ext.value.vec3.x, ext.value.vec3.y, ext.value.vec3.z));
             break;
+        case VARTYPE_VECTOR2I:
+            value = godot::Variant(godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y));
+            break;
+        case VARTYPE_VECTOR3I:
+            value = godot::Variant(godot::Vector3i(ext.value.vec3i.x, ext.value.vec3i.y, ext.value.vec3i.z));
+            break;
+        case VARTYPE_PACKED_BYTE_ARRAY: {
+            if (ext.ptr) {
+                value = godot::Variant(*static_cast<godot::PackedByteArray*>(ext.ptr));
+            } else {
+                value = godot::Variant(godot::PackedByteArray());
+            }
+        } break;
         case VARTYPE_COLOR:
             value = godot::Variant(godot::Color(ext.value.color.r, ext.value.color.g, ext.value.color.b, ext.value.color.a));
             break;
@@ -1206,6 +1257,30 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec3.x = v.x;
             result.value.vec3.y = v.y;
             result.value.vec3.z = v.z;
+            break;
+        }
+        case 20:  // VECTOR2I
+        {
+            godot::Vector2i v = value;
+            result.type = VARTYPE_VECTOR2I;
+            result.value.vec2i.x = v.x;
+            result.value.vec2i.y = v.y;
+            break;
+        }
+        case 22:  // VECTOR3I
+        {
+            godot::Vector3i v = value;
+            result.type = VARTYPE_VECTOR3I;
+            result.value.vec3i.x = v.x;
+            result.value.vec3i.y = v.y;
+            result.value.vec3i.z = v.z;
+            break;
+        }
+        case 23:  // PACKED_BYTE_ARRAY
+        {
+            result.type = VARTYPE_PACKED_BYTE_ARRAY;
+            godot::PackedByteArray arr = value;
+            result.ptr = memnew(godot::PackedByteArray(arr));
             break;
         }
         case godot::Variant::STRING_NAME: {
