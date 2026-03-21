@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://drudk1pjdaxnu"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 22.0
+offset_top = 19.0
+offset_right = 425.0
+offset_bottom = 88.0
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.54901963)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 3
+theme_override_constants/shadow_outline_size = 1
+theme_override_font_sizes/font_size = 30
+text = "this is an instantiated scene"
+
+[node name="CheckBox" type="CheckBox" parent="."]
+offset_left = 20.0
+offset_top = 56.0
+offset_right = 108.0
+offset_bottom = 106.0
+button_pressed = true
+text = "Yes"
+
+[node name="CheckBox2" type="CheckBox" parent="."]
+offset_left = 91.0
+offset_top = 65.0
+offset_right = 151.0
+offset_bottom = 98.0
+text = "No"
