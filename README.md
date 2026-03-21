@@ -140,6 +140,10 @@ void _ready(void* self) {
         godot_print("GDTinyCC main: node not found");
     }
 
+	// test instantiate
+    void* scene = godot_instantiate(self, "res://scene_label.tscn");
+    godot_add_child_deferred(parent, scene);
+
     // create a label from code
     void *label = godot_create("Label");
     if (!label) {
