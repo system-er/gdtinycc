@@ -41,7 +41,7 @@ void main() {
 // _ready-function is called from godot
 void _ready(void* self) {
     godot_print("GDTinyCC _ready called!");
-    
+
     // get the parentnode
     void* parent = godot_get_node(self, "/root/Main");
     if (parent != NULL) {
@@ -56,6 +56,10 @@ void _ready(void* self) {
         godot_print("GDTinyCC main: node not found");
     }
 
+    // test instantiate
+    void* scene = godot_instantiate(self, "res://scene_label.tscn");
+    godot_add_child_deferred(parent, scene);
+
     // create a label from code
     void *label = godot_create("Label");
     if (!label) {
@@ -65,12 +69,12 @@ void _ready(void* self) {
     // set labeltext
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
-    snprintf(v.value.s, sizeof(v.value.s), "this is a label from GDTinyCC");
+    snprintf(v.value.s, sizeof(v.value.s), "this is a label created from code");
     godot_set_variant(label, "text", v);
     // set labelposition
     GDExtensionVariant va;
     va.type = VARTYPE_VECTOR2;
-    va.value.vec2.x = 200.0f;
+    va.value.vec2.x = 600.0f;
     va.value.vec2.y = 20.0f;
     godot_set_variant(label, "position", va);
     godot_add_child_deferred(parent, label);
