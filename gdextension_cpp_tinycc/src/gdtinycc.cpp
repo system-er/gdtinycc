@@ -844,6 +844,16 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.ptr = memnew(godot::PackedByteArray(arr));
             break;
         }
+        case 19:  // RECT2I
+        {
+            godot::Rect2i r = value;
+            result.type = VARTYPE_RECT2I;
+            result.value.rect2i.position.x = r.position.x;
+            result.value.rect2i.position.y = r.position.y;
+            result.value.rect2i.size.x = r.size.x;
+            result.value.rect2i.size.y = r.size.y;
+            break;
+        }
         case 29:  // COLOR (Godot 4)
         {
             godot::Color c = value;
@@ -898,6 +908,7 @@ const char* godot_get_type_name(int type) {
         case VARTYPE_VECTOR3I: return "VECTOR3I";
         case VARTYPE_COLOR: return "COLOR";
         case VARTYPE_PACKED_BYTE_ARRAY: return "PACKED_BYTE_ARRAY";
+        case VARTYPE_RECT2I: return "RECT2I";
         default: return "UNKNOWN";
     }
 }
@@ -947,6 +958,9 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
             if (variant.ptr) {
                 value = godot::Variant(*static_cast<godot::PackedByteArray*>(variant.ptr));
             }
+            break;
+        case VARTYPE_RECT2I:
+            value = godot::Variant(godot::Rect2i(variant.value.rect2i.position.x, variant.value.rect2i.position.y, variant.value.rect2i.size.x, variant.value.rect2i.size.y));
             break;
         case VARTYPE_COLOR:
             value = godot::Variant(godot::Color(variant.value.color.r, variant.value.color.g, variant.value.color.b, variant.value.color.a));
@@ -1175,6 +1189,9 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
         case VARTYPE_RECT2:
             value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
             break;
+        case VARTYPE_RECT2I:
+            value = godot::Variant(godot::Rect2i(ext.value.rect2i.position.x, ext.value.rect2i.position.y, ext.value.rect2i.size.x, ext.value.rect2i.size.y));
+            break;
 
         case VARTYPE_STRING_NAME: {
             if (ext.ptr) {
@@ -1281,6 +1298,16 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.type = VARTYPE_PACKED_BYTE_ARRAY;
             godot::PackedByteArray arr = value;
             result.ptr = memnew(godot::PackedByteArray(arr));
+            break;
+        }
+        case 19:  // RECT2I
+        {
+            godot::Rect2i r = value;
+            result.type = VARTYPE_RECT2I;
+            result.value.rect2i.position.x = r.position.x;
+            result.value.rect2i.position.y = r.position.y;
+            result.value.rect2i.size.x = r.size.x;
+            result.value.rect2i.size.y = r.size.y;
             break;
         }
         case godot::Variant::STRING_NAME: {

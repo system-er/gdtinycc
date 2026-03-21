@@ -11,6 +11,7 @@
 #include <godot_cpp/variant/vector2i.hpp>
 #include <godot_cpp/variant/vector3i.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/rect2i.hpp>
 #include <vector>
 #include <string>
 
@@ -34,6 +35,7 @@ typedef struct {
         godot::Vector3i vec3i;
         godot::Color color;
         godot::Rect2 rect2;
+        godot::Rect2i rect2i;
     } value;
 
     void* ptr;
@@ -57,6 +59,7 @@ typedef enum {
     VARTYPE_VECTOR2I = 20,
     VARTYPE_VECTOR3I = 22,
     VARTYPE_PACKED_BYTE_ARRAY = 23,
+    VARTYPE_RECT2I = 19,
 
 } GDExtensionVarType;
 
