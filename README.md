@@ -36,7 +36,7 @@ v02: _draw(self)
 godot_print(string)
 - nodes:        
 godot_get_node(self, path)    
-godot_instantiate(self, scenepath)    
+v03: godot_instantiate(self, scenepath)    
 godot_create(classname)    
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)       
@@ -266,7 +266,6 @@ copy godot-cpp version 4.5 to directory godot-cpp
 start scons    
 (tested on ubuntu 24.4 and windows 11)    
 
-# changelog:    
-v0.3: instantiate works    
+
 
     
