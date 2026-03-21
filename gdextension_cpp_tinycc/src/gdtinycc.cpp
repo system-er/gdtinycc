@@ -271,7 +271,7 @@ void GDTinyCC::compile_file() {
     }
     strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
     char *p = strrchr(dll_path, '/');
-    tcc_add_library_path(s, "/usr/lib/x86_64-linux-gnu");
+    //tcc_add_library_path(s, "/usr/lib/x86_64-linux-gnu");
 #endif
     if (p) *p = '\0';
 
