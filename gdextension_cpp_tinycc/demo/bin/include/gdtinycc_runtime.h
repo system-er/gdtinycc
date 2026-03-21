@@ -32,6 +32,19 @@ typedef struct {
 } Vector3i;
 
 typedef struct {
+    Vector2 end;
+    Vector2 position;
+    Vector2 size;
+} Rect2;
+
+typedef struct {
+    Vector2i end;
+    Vector2i position;
+    Vector2i size;
+} Rect2i;
+
+
+typedef struct {
     float r;
     float g;
     float b;
@@ -51,6 +64,8 @@ typedef struct {
         Vector2i vec2i;
         Vector3i vec3i;
         Color color;
+        Rect2 rect2;
+        Rect2i rect2i;
     } value;
 
     void* ptr;
@@ -66,6 +81,7 @@ typedef enum {
     VARTYPE_VECTOR2 = 5,
     VARTYPE_VECTOR3 = 6,
     VARTYPE_COLOR = 7,
+    VARTYPE_RECT2 = 8,
 
     VARTYPE_STRING_NAME = 21,
     VARTYPE_OBJECT = 24,
@@ -74,6 +90,7 @@ typedef enum {
     VARTYPE_VECTOR2I = 20,
     VARTYPE_VECTOR3I = 22,
     VARTYPE_PACKED_BYTE_ARRAY = 23,
+    VARTYPE_RECT2I = 19,
 
 } GDExtensionVarType;
 
