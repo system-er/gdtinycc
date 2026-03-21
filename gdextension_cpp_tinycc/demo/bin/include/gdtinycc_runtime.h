@@ -8,6 +8,7 @@ void* godot_get_node(void* self, const char *path);
 void* godot_get_parent(void* node_ptr);
 const char* godot_get_property(void* node, const char *property);
 
+
 typedef struct {
     float x;
     float y;
@@ -20,11 +21,23 @@ typedef struct {
 } Vector3;
 
 typedef struct {
+    int x;
+    int y;
+} Vector2i;
+
+typedef struct {
+    int x;
+    int y;
+    int z;
+} Vector3i;
+
+typedef struct {
     float r;
     float g;
     float b;
     float a;
 } Color;
+
 
 typedef struct {
     int type;
@@ -35,6 +48,8 @@ typedef struct {
         int b;
         Vector2 vec2;
         Vector3 vec3;
+        Vector2i vec2i;
+        Vector3i vec3i;
         Color color;
     } value;
 
@@ -56,6 +71,9 @@ typedef enum {
     VARTYPE_OBJECT = 24,
     VARTYPE_DICTIONARY = 27,
     VARTYPE_ARRAY = 28,
+    VARTYPE_VECTOR2I = 20,
+    VARTYPE_VECTOR3I = 22,
+    VARTYPE_PACKED_BYTE_ARRAY = 23,
 
 } GDExtensionVarType;
 
