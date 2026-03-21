@@ -277,7 +277,10 @@ void GDTinyCC::compile_file() {
 
     TCCState *s = tcc_new();
     if (!s) return;
+#ifdef _WIN32
+#else
     tcc_add_library_path(s, "/usr/lib/x86_64-linux-gnu");
+#endif
     tcc_set_error_func(s, nullptr, tcc_error_callback);
     tcc_set_lib_path(s, dll_path);
     
