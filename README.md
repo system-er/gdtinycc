@@ -153,7 +153,7 @@ void _ready(void* self) {
     // set labeltext
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
-    snprintf(v.value.s, sizeof(v.value.s), "this is a label from GDTinyCC");
+    snprintf(v.value.s, sizeof(v.value.s), "this is a label created from code");
     godot_set_variant(label, "text", v);
     // set labelposition
     GDExtensionVariant va;
