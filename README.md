@@ -11,7 +11,7 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
 	
 
 - compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
-  new for v0.2: more than one filename separated with comma, the main-file first (for example "res://src/main.c,res://src/add.c" - the add.h is included in add.c - projects with modularization possible )    
+  more than one filename separated with comma, the main-file first (for example "res://src/main.c,res://src/add.c" - the add.h is included in add.c - projects with modularization possible )    
 - save the compiled program in an objectfile (filename *.o in inspector in "Output Object File" -    
   dont forget to press return)    
 - load and run the saved program from an objectfile (filename *.o in inspector in "Input Object File" -
@@ -30,13 +30,13 @@ _unhandled_input(event)
 _enter_tree()    
 _exit_tree()    
 _notification(what)     
-v02: _draw(self)    
+_draw(self)    
 
 - output:    
 godot_print(string)
 - nodes:        
 godot_get_node(self, path)    
-v03: godot_instantiate(self, scenepath)    
+godot_instantiate(self, scenepath)    
 godot_create(classname)    
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)       
@@ -63,12 +63,12 @@ godot_is_pressed(event)
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
 godot_get_global_mouse_position(self)
 - math:    
-v0.2: sin()    
-v0.2: cos()
-- v02: 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
-v02: godot_get_drawingnode(self)    
-v02: godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
-v02: godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
+sin()    
+cos()
+- 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
+godot_get_drawingnode(self)    
+godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
+godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
