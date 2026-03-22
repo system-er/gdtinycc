@@ -33,7 +33,7 @@ _notification(what)
 _draw(self)    
 
 - output:    
-godot_print(string)
+v0.3.1:godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);    
 - nodes:        
 godot_get_node(self, path)    
 godot_instantiate(self, scenepath)    
@@ -122,27 +122,31 @@ void print_float(float f){
 // the c-main-function
 void main() {
     godot_print("hello world from GDTinyCC main.");
+
+    //godot_print("add 1+2:");
+    //print_int(add(1, 2));
 }
+
 
 // _ready-function is called from godot
 void _ready(void* self) {
     godot_print("GDTinyCC _ready called!");
-    
+
     // get the parentnode
     void* parent = godot_get_node(self, "/root/Main");
     if (parent != NULL) {
         godot_print("GDTinyCC main: node found");
         GDExtensionVariant v = godot_get_variant(parent, "name");
         // show the type of the name
-        godot_print(godot_get_type_name(v.type));
+        //godot_print(godot_get_type_name(v.type));
         // show the name of the parentnode
-        godot_print(v.value.s);
+        godot_print("parentname: %s", v.value.s);
     }
     else {
         godot_print("GDTinyCC main: node not found");
     }
 
-	// test instantiate
+    // test instantiate
     void* scene = godot_instantiate(self, "res://scene_label.tscn");
     godot_add_child_deferred(parent, scene);
 
@@ -152,7 +156,7 @@ void _ready(void* self) {
         godot_print("failed to create Label");
         return;
     }
-
+    
     // test godot_call
     GDExtensionVariant args[1];
     args[0].type = VARTYPE_STRING;
@@ -161,8 +165,7 @@ void _ready(void* self) {
     GDExtensionVariant vl;
     vl.type = VARTYPE_STRING;
     vl = godot_get_variant(label, "name");
-    godot_print("label name:");
-    godot_print(vl.value.s);
+    godot_print("label name: %s", vl.value.s);
 
     // set labeltext
     GDExtensionVariant v;
@@ -172,7 +175,7 @@ void _ready(void* self) {
     // set labelposition
     GDExtensionVariant va;
     va.type = VARTYPE_VECTOR2;
-    va.value.vec2.x = 200.0f;
+    va.value.vec2.x = 600.0f;
     va.value.vec2.y = 20.0f;
     godot_set_variant(label, "position", va);
     godot_add_child_deferred(parent, label);
@@ -200,6 +203,11 @@ void _ready(void* self) {
         godot_print("failed to create Sprite2D");
         return;
     }
+    GDExtensionVariant off;
+    off.type = VARTYPE_VECTOR2;
+    off.value.vec2.x = 300;
+    off.value.vec2.y = 200;
+    godot_set_variant(sprite, "offset", off);
     godot_add_child_deferred(parent, sprite);
     //godot_print(godot_get_class_name(sprite));
     //sprite = godot_get_node(self, "Sprite2D");
@@ -224,16 +232,14 @@ void _process(void* self, double delta) {
 void _physics_process(void* self,double delta) {
 }
 
-void _input(void* self, void* event)
-{
+void _input(void* self,void* event) {
     if (!event) {
         return;
     }
 
     if(godot_is_pressed(event)){
-        godot_print("input event:");
         int code = godot_eventcode(event);
-        print_int(code);
+        godot_print("input event: %d", code);
 
         if(code < 9){ //mousebutton
             GDExtensionVariant v;
@@ -258,7 +264,6 @@ void _draw(void* self) {
         godot_print("error: drawingnode not found");
     }
 }
-
 
 ```
 
