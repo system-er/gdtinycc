@@ -17,24 +17,10 @@ void on_timeout(void* user_data) {
     godot_print("callfunction timer");
 }
 
-void print_int(int i){
-    char buffer[32];
-    snprintf(buffer, sizeof(buffer), "%d", i);
-    godot_print(buffer);
-}
-
-void print_float(float f){
-    char buffer[32];
-    snprintf(buffer, sizeof(buffer), "%.2f", f);
-    godot_print(buffer);
-}
-
 // the c-main-function
 void main() {
     godot_print("hello world from GDTinyCC main.");
 
-    //godot_print("add 1+2:");
-    //print_int(add(1, 2));
 }
 
 
@@ -48,9 +34,9 @@ void _ready(void* self) {
         godot_print("GDTinyCC main: node found");
         GDExtensionVariant v = godot_get_variant(parent, "name");
         // show the type of the name
-        godot_print(godot_get_type_name(v.type));
+        //godot_print(godot_get_type_name(v.type));
         // show the name of the parentnode
-        godot_print(v.value.s);
+        godot_print("parentname: %s", v.value.s);
     }
     else {
         godot_print("GDTinyCC main: node not found");
@@ -66,6 +52,17 @@ void _ready(void* self) {
         godot_print("failed to create Label");
         return;
     }
+    
+    // test godot_call
+    GDExtensionVariant args[1];
+    args[0].type = VARTYPE_STRING;
+    snprintf(args[0].value.s, sizeof(args[0].value.s), "new_labelname_from_code");
+    godot_call(label, "set_name", 1, args);
+    GDExtensionVariant vl;
+    vl.type = VARTYPE_STRING;
+    vl = godot_get_variant(label, "name");
+    godot_print("label name: %s", vl.value.s);
+
     // set labeltext
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
@@ -137,17 +134,14 @@ void _input(void* self,void* event) {
     }
 
     if(godot_is_pressed(event)){
-        godot_print("input event:");
         int code = godot_eventcode(event);
-        print_int(code);
+        godot_print("input event: %d", code);
 
         if(code < 9){ //mousebutton
             GDExtensionVariant v;
             v.type = VARTYPE_VECTOR2;
             v = godot_get_global_mouse_position(self);
-            char buffer[32];
-            snprintf(buffer, sizeof(buffer), "x: %.2f, y: %.2f", v.value.vec2.x, v.value.vec2.y);
-            godot_print(buffer);
+            godot_print("mousepos: %.2f, %.2f", v.value.vec2.x, v.value.vec2.y);
         }
     }
 }
