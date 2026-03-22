@@ -3,7 +3,7 @@
 
 
 
-void godot_print(const char *msg);
+void godot_print(const char *format, ...);
 void* godot_get_node(void* self, const char *path);
 void* godot_get_parent(void* node_ptr);
 const char* godot_get_property(void* node, const char *property);
