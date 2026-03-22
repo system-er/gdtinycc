@@ -111,8 +111,7 @@ void on_timeout(void* user_data) {
 void main() {
     godot_print("hello world from GDTinyCC main.");
 
-    //godot_print("add 1+2:");
-    //godot_print("result add:%d", add(1, 2));
+    //godot_print("add 1+2 - result add:%d", add(1, 2));
 }
 
 
