@@ -148,7 +148,7 @@ void _ready(void* self) {
     // test godot_call
     GDExtensionVariant args[1];
     args[0].type = VARTYPE_STRING;
-    snprintf(args[0].value.s, sizeof(args[0].value.s), "new labelname from code");
+    snprintf(args[0].value.s, sizeof(args[0].value.s), "new_labelname_from_code");
     godot_call(label, "set_name", 1, args);
     GDExtensionVariant vl;
     vl.type = VARTYPE_STRING;
