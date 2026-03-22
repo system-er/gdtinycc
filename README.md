@@ -42,8 +42,7 @@ godot_add_child(parent, child)
 godot_add_child_deferred(parent, child)       
 GDExtensionVariant godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
-GDExtensionVariant godot_call(node, method_name, arg_count, args)    
-GDExtensionVariant godot_call_object(object, method_name, arg_count, args)
+GDExtensionVariant godot_call(object, method_name, arg_count, args)    
 godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
   
@@ -153,6 +152,18 @@ void _ready(void* self) {
         godot_print("failed to create Label");
         return;
     }
+
+    // test godot_call
+    GDExtensionVariant args[1];
+    args[0].type = VARTYPE_STRING;
+    snprintf(args[0].value.s, sizeof(args[0].value.s), "new labelname from code");
+    godot_call(label, "set_name", 1, args);
+    GDExtensionVariant vl;
+    vl.type = VARTYPE_STRING;
+    vl = godot_get_variant(label, "name");
+    godot_print("label name:");
+    godot_print(vl.value.s);
+
     // set labeltext
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
