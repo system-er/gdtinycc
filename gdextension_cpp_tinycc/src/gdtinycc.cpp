@@ -1250,19 +1250,19 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
         return result;
     }
     
-    switch ((int)value.get_type()) {
-        case 0:  // NIL
+    switch (value.get_type()) {
+        case godot::Variant::NIL:
             result.type = VARTYPE_NULL;
             break;
-        case 1:  // BOOL
+        case godot::Variant::BOOL:
             result.type = VARTYPE_BOOL;
             result.value.b = (bool)value ? 1 : 0;
             break;
-        case 2:  // INT
+        case godot::Variant::INT:
             result.type = VARTYPE_INT;
             result.value.i = (int)value;
             break;
-        case 3:  // FLOAT
+        case godot::Variant::FLOAT:
             result.type = VARTYPE_FLOAT;
             result.value.f = (float)(double)value;
             break;
@@ -1271,7 +1271,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             godot::String str = value;
             snprintf(result.value.s, sizeof(result.value.s), "%s", str.utf8().get_data());
         } break;
-        case 5:  // VECTOR2
+        case godot::Variant::VECTOR2:
         {
             godot::Vector2 v = value;
             result.type = VARTYPE_VECTOR2;
@@ -1279,7 +1279,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec2.y = v.y;
             break;
         }
-        case 6:  // VECTOR3
+        case godot::Variant::VECTOR3:
         {
             godot::Vector3 v = value;
             result.type = VARTYPE_VECTOR3;
@@ -1288,17 +1288,15 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec3.z = v.z;
             break;
         }
-        case 20:  // VECTOR2I
+        case godot::Variant::VECTOR2I:
         {
-            //UtilityFunctions::print("variant_to_ext: handling VECTOR2I");
             godot::Vector2i v = value;
             result.type = VARTYPE_VECTOR2I;
             result.value.vec2i.x = v.x;
             result.value.vec2i.y = v.y;
-            //UtilityFunctions::print("variant_to_ext: VECTOR2I done");
             break;
         }
-        case 22:  // VECTOR3I
+        case godot::Variant::VECTOR3I:
         {
             godot::Vector3i v = value;
             result.type = VARTYPE_VECTOR3I;
@@ -1307,14 +1305,14 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec3i.z = v.z;
             break;
         }
-        case 23:  // PACKED_BYTE_ARRAY
+        case godot::Variant::PACKED_BYTE_ARRAY:
         {
             result.type = VARTYPE_PACKED_BYTE_ARRAY;
             godot::PackedByteArray arr = value;
             result.ptr = memnew(godot::PackedByteArray(arr));
             break;
         }
-        case 19:  // RECT2I
+        case godot::Variant::RECT2I:
         {
             godot::Rect2i r = value;
             result.type = VARTYPE_RECT2I;
@@ -1330,7 +1328,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.ptr = memnew(godot::StringName(sn));
         } break;
 
-        case 29:  // COLOR (Godot 4)
+        case godot::Variant::COLOR:
         {
             godot::Color c = value;
             result.type = VARTYPE_COLOR;
