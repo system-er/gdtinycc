@@ -89,7 +89,7 @@ void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
 GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
-GDExtensionVariant godot_call_object(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
+//GDExtensionVariant godot_call_object(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_queue_free(void* node_ptr);
 const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args);
@@ -317,7 +317,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
-    tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
+    //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
@@ -520,7 +520,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
-    tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
+    //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
@@ -595,7 +595,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
-    tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
+    //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
@@ -1171,7 +1171,9 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             value = godot::Variant(godot::Vector3(ext.value.vec3.x, ext.value.vec3.y, ext.value.vec3.z));
             break;
         case VARTYPE_VECTOR2I:
+            UtilityFunctions::print("variant_from_ext: VECTOR2I");
             value = godot::Variant(godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y));
+            UtilityFunctions::print("variant_from_ext: VECTOR2I done");
             break;
         case VARTYPE_VECTOR3I:
             value = godot::Variant(godot::Vector3i(ext.value.vec3i.x, ext.value.vec3i.y, ext.value.vec3i.z));
@@ -1238,6 +1240,11 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
 GDExtensionVariant variant_to_ext(const godot::Variant& value) {
     GDExtensionVariant result = {VARTYPE_NULL, {0}};
     
+    if (!value.get_type()) {
+        UtilityFunctions::print("variant_to_ext: NIL type, returning NULL");
+        return result;
+    }
+    
     switch ((int)value.get_type()) {
         case 0:  // NIL
             result.type = VARTYPE_NULL;
@@ -1278,10 +1285,12 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
         }
         case 20:  // VECTOR2I
         {
+            UtilityFunctions::print("variant_to_ext: handling VECTOR2I");
             godot::Vector2i v = value;
             result.type = VARTYPE_VECTOR2I;
             result.value.vec2i.x = v.x;
             result.value.vec2i.y = v.y;
+            UtilityFunctions::print("variant_to_ext: VECTOR2I done");
             break;
         }
         case 22:  // VECTOR3I
@@ -1364,6 +1373,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
     return result;
 }
 
+/*
 GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args) {
     GDExtensionVariant result = {VARTYPE_NULL, {0}};
     
@@ -1376,13 +1386,19 @@ GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_c
     
     godot::Variant ret;
     if (arg_count == 0) {
+        UtilityFunctions::print("godot_call: calling ", method_name, " with 0 args");
         ret = node->call(method_name);
     } else if (args) {
+        UtilityFunctions::print("godot_call: calling ", method_name, " with ", arg_count, " args");
         godot::Variant* variant_args = new godot::Variant[arg_count];
         for (int i = 0; i < arg_count; i++) {
             variant_args[i] = variant_from_ext(args[i]);
+            godot::String type_name = godot_get_type_name(args[i].type);
+            UtilityFunctions::print("  arg[", i, "] type=", type_name.utf8().get_data());
         }
+        UtilityFunctions::print("godot_call: invoking node->call...");
         ret = node->call(method_name, variant_args, arg_count);
+        UtilityFunctions::print("godot_call: call returned");
         delete[] variant_args;
     } else {
         UtilityFunctions::print("godot_call: args is null but arg_count > 0");
@@ -1391,8 +1407,9 @@ GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_c
     
     return variant_to_ext(ret);
 }
+*/
 
-GDExtensionVariant godot_call_object(void* obj_ptr,
+GDExtensionVariant godot_call(void* obj_ptr,
                                      const char* method_name,
                                      int arg_count,
                                      GDExtensionVariant* args)
