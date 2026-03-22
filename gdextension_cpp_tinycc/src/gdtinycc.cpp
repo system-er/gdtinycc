@@ -79,7 +79,7 @@ typedef struct TCCState TCCState;
 //godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
 
 void tcc_error_callback(void *opaque, const char *msg);
-void godot_print(const char *msg);
+void godot_print(const char *format, ...);
 //void* godot_get_parent(void* node_ptr);
 void* godot_get_node(void* self, const char *path);
 GDExtensionVariant godot_get_variant(void* node, const char *property);
@@ -725,8 +725,13 @@ void tcc_error_callback(void *opaque, const char *msg) {
     UtilityFunctions::print("TCC Error: ", msg);
 }
 
-void godot_print(const char *msg) {
-    UtilityFunctions::print(msg);
+void godot_print(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    UtilityFunctions::print(buffer);
 }
 
 /*
@@ -1171,9 +1176,9 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             value = godot::Variant(godot::Vector3(ext.value.vec3.x, ext.value.vec3.y, ext.value.vec3.z));
             break;
         case VARTYPE_VECTOR2I:
-            UtilityFunctions::print("variant_from_ext: VECTOR2I");
+            //UtilityFunctions::print("variant_from_ext: VECTOR2I");
             value = godot::Variant(godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y));
-            UtilityFunctions::print("variant_from_ext: VECTOR2I done");
+            //UtilityFunctions::print("variant_from_ext: VECTOR2I done");
             break;
         case VARTYPE_VECTOR3I:
             value = godot::Variant(godot::Vector3i(ext.value.vec3i.x, ext.value.vec3i.y, ext.value.vec3i.z));
@@ -1241,7 +1246,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
     GDExtensionVariant result = {VARTYPE_NULL, {0}};
     
     if (!value.get_type()) {
-        UtilityFunctions::print("variant_to_ext: NIL type, returning NULL");
+        //UtilityFunctions::print("variant_to_ext: NIL type, returning NULL");
         return result;
     }
     
@@ -1285,12 +1290,12 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
         }
         case 20:  // VECTOR2I
         {
-            UtilityFunctions::print("variant_to_ext: handling VECTOR2I");
+            //UtilityFunctions::print("variant_to_ext: handling VECTOR2I");
             godot::Vector2i v = value;
             result.type = VARTYPE_VECTOR2I;
             result.value.vec2i.x = v.x;
             result.value.vec2i.y = v.y;
-            UtilityFunctions::print("variant_to_ext: VECTOR2I done");
+            //UtilityFunctions::print("variant_to_ext: VECTOR2I done");
             break;
         }
         case 22:  // VECTOR3I
@@ -1373,41 +1378,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
     return result;
 }
 
-/*
-GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args) {
-    GDExtensionVariant result = {VARTYPE_NULL, {0}};
-    
-    if (!node_ptr) {
-        UtilityFunctions::print("godot_call: node is null");
-        return result;
-    }
-    
-    godot::Node* node = static_cast<godot::Node*>(node_ptr);
-    
-    godot::Variant ret;
-    if (arg_count == 0) {
-        UtilityFunctions::print("godot_call: calling ", method_name, " with 0 args");
-        ret = node->call(method_name);
-    } else if (args) {
-        UtilityFunctions::print("godot_call: calling ", method_name, " with ", arg_count, " args");
-        godot::Variant* variant_args = new godot::Variant[arg_count];
-        for (int i = 0; i < arg_count; i++) {
-            variant_args[i] = variant_from_ext(args[i]);
-            godot::String type_name = godot_get_type_name(args[i].type);
-            UtilityFunctions::print("  arg[", i, "] type=", type_name.utf8().get_data());
-        }
-        UtilityFunctions::print("godot_call: invoking node->call...");
-        ret = node->call(method_name, variant_args, arg_count);
-        UtilityFunctions::print("godot_call: call returned");
-        delete[] variant_args;
-    } else {
-        UtilityFunctions::print("godot_call: args is null but arg_count > 0");
-        return result;
-    }
-    
-    return variant_to_ext(ret);
-}
-*/
+
 
 GDExtensionVariant godot_call(void* obj_ptr,
                                      const char* method_name,
