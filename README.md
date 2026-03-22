@@ -233,9 +233,7 @@ void _input(void* self,void* event) {
             GDExtensionVariant v;
             v.type = VARTYPE_VECTOR2;
             v = godot_get_global_mouse_position(self);
-            char buffer[32];
-            snprintf(buffer, sizeof(buffer), "x: %.2f, y: %.2f", v.value.vec2.x, v.value.vec2.y);
-            godot_print(buffer);
+			godot_print("mousepos: %.2f, %.2f", v.value.vec2.x, v.value.vec2.y);
         }
     }
 }
