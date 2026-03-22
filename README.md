@@ -107,18 +107,6 @@ void on_timeout(void* user_data) {
     godot_print("callfunction timer");
 }
 
-void print_int(int i){
-    char buffer[32];
-    snprintf(buffer, sizeof(buffer), "%d", i);
-    godot_print(buffer);
-}
-
-void print_float(float f){
-    char buffer[32];
-    snprintf(buffer, sizeof(buffer), "%.2f", f);
-    godot_print(buffer);
-}
-
 // the c-main-function
 void main() {
     godot_print("hello world from GDTinyCC main.");
