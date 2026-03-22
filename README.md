@@ -42,7 +42,7 @@ godot_add_child(parent, child)
 godot_add_child_deferred(parent, child)       
 GDExtensionVariant godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
-GDExtensionVariant godot_call(object, method_name, arg_count, args)    
+v0.3.1:GDExtensionVariant godot_call(object, method_name, arg_count, args)    
 godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
   
