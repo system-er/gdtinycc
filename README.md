@@ -56,7 +56,8 @@ godot_randf_range(from, to)
 godot_randi_range(from, to)    
 godot_randomize()
 - time:    
-godot_get_ticks_msec()     
+godot_get_ticks_msec()
+v3.0.2 godot_delay_msec(milliseconds)    
 - input:    
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
