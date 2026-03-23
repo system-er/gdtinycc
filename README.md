@@ -33,7 +33,7 @@ _notification(what)
 _draw(self)    
 
 - output:    
-v0.3.1:godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);    
+godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);    
 - nodes:        
 godot_get_node(self, path)    
 godot_instantiate(self, scenepath)    
@@ -42,7 +42,7 @@ godot_add_child(parent, child)
 godot_add_child_deferred(parent, child)       
 GDExtensionVariant godot_get_variant(node, property)    
 godot_set_variant(node, property, GDExtensionVariant)    
-v0.3.1:GDExtensionVariant godot_call(object, method_name, arg_count, args)    
+GDExtensionVariant godot_call(object, method_name, arg_count, args)    
 godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
   
@@ -57,15 +57,15 @@ godot_randi_range(from, to)
 godot_randomize()
 - time:    
 godot_get_ticks_msec()
-v3.0.2 godot_delay_msec(milliseconds)    
+godot_delay_msec(milliseconds)    
 - input:    
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
 godot_get_global_mouse_position(self)
 - math:    
 sin()    
-cos()
-v0.3.2 abs()    
+cos()    
+abs()    
 - 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
 godot_get_drawingnode(self)    
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
@@ -83,10 +83,10 @@ VARTYPE_STRING_NAME = 21,
 VARTYPE_OBJECT = 24,     
 VARTYPE_DICTIONARY = 27,    
 VARTYPE_ARRAY = 28,        
-v0.3.1:VARTYPE_VECTOR2I = 20,    
-v0.3.1:VARTYPE_VECTOR3I = 22,    
-v0.3.1:VARTYPE_PACKED_BYTE_ARRAY = 23,    
-v0.3.1:VARTYPE_RECT2I = 19,    
+VARTYPE_VECTOR2I = 20,    
+VARTYPE_VECTOR3I = 22,    
+VARTYPE_PACKED_BYTE_ARRAY = 23,    
+VARTYPE_RECT2I = 19,    
 
 # example src/main.c   
 ```
