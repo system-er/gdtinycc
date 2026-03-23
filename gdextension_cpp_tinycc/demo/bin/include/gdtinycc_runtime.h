@@ -108,6 +108,7 @@ const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node, const char* signal_name, int arg_count, GDExtensionVariant* args);
 void godot_connect(void* self, void* node, const char* signal_name, void* callback_func, void* user_data);
 long godot_get_ticks_msec();
+void godot_delay_msec(int msec);
 float godot_randf();
 int godot_randi();
 float godot_randf_range(float a, float b);
