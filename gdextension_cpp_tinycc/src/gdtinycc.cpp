@@ -94,6 +94,7 @@ void godot_queue_free(void* node_ptr);
 const char* godot_get_type_name(int type);
 void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args);
 long long godot_get_ticks_msec();
+void godot_delay_msec(int msec);
 void godot_print_int(int value);
 void godot_connect(void* self, void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
 float godot_randf();
@@ -321,6 +322,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
+    tcc_add_symbol(s, "godot_delay_msec", (void*)godot_delay_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -339,6 +341,7 @@ void GDTinyCC::compile_file() {
 
     tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
     tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
+    tcc_add_symbol(s, "abs", (void*)(double(*)(double))std::abs);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -524,6 +527,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
+    tcc_add_symbol(s, "godot_delay_msec", (void*)godot_delay_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -542,6 +546,7 @@ void GDTinyCC::load_object(const String &object_file) {
 
     tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
     tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
+    tcc_add_symbol(s, "abs", (void*)(double(*)(double))std::abs);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -599,6 +604,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
     tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
+    tcc_add_symbol(s, "godot_delay_msec", (void*)godot_delay_msec);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -617,6 +623,7 @@ void GDTinyCC::load_object_file() {
 
     tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
     tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
+    tcc_add_symbol(s, "abs", (void*)(double(*)(double))std::abs);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
@@ -920,6 +927,10 @@ const char* godot_get_type_name(int type) {
 
 long long godot_get_ticks_msec() {
     return godot::Time::get_singleton()->get_ticks_msec();
+}
+
+void godot_delay_msec(int msec) {
+    godot::OS::get_singleton()->delay_msec(msec);
 }
 
 void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {

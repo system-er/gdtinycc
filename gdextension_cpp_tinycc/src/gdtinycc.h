@@ -12,6 +12,7 @@
 #include <godot_cpp/variant/vector3i.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/rect2i.hpp>
+#include <godot_cpp/classes/os.hpp>
 #include <vector>
 #include <string>
 
