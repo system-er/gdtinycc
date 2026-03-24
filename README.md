@@ -227,6 +227,7 @@ void _ready(void* self) {
     godot_set_variant(sprite, "texture", texvar);
 
     // test godot_get_rendering_server and godot_call
+    GDExtensionVariant args[1];
     void* rs = godot_get_rendering_server();
     args[0].type = VARTYPE_COLOR;
     args[0].value.color.r = 0.0f;
