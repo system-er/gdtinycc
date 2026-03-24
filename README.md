@@ -167,16 +167,6 @@ void _ready(void* self) {
         godot_print("failed to create Label");
         return;
     }
-    
-    // test godot_call
-    GDExtensionVariant args[1];
-    args[0].type = VARTYPE_STRING;
-    snprintf(args[0].value.s, sizeof(args[0].value.s), "new_labelname_from_code");
-    godot_call(label, "set_name", 1, args);
-    GDExtensionVariant vl;
-    vl.type = VARTYPE_STRING;
-    vl = godot_get_variant(label, "name");
-    godot_print("label name: %s", vl.value.s);
 
     // set labeltext
     GDExtensionVariant v;
@@ -236,7 +226,7 @@ void _ready(void* self) {
     texvar.ptr = tex;
     godot_set_variant(sprite, "texture", texvar);
 
-	// test godot_get_rendering_server
+    // test godot_get_rendering_server and godot_call
     void* rs = godot_get_rendering_server();
     args[0].type = VARTYPE_COLOR;
     args[0].value.color.r = 0.0f;
