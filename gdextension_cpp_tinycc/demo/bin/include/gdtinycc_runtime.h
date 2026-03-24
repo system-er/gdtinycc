@@ -8,49 +8,24 @@ void* godot_get_node(void* self, const char *path);
 void* godot_get_parent(void* node_ptr);
 const char* godot_get_property(void* node, const char *property);
 
+typedef struct { float x, y; } tcc_Vector2;
+typedef struct { float x, y, z; } tcc_Vector3;
+typedef struct { int x, y; } tcc_Vector2i;
+typedef struct { int x, y, z; } tcc_Vector3i;
 
 typedef struct {
-    float x;
-    float y;
-} Vector2;
+    float r, g, b, a;
+} tcc_Color;
 
 typedef struct {
-    float x;
-    float y;
-    float z;
-} Vector3;
+    tcc_Vector2 position;
+    tcc_Vector2 size;
+} tcc_Rect2;
 
 typedef struct {
-    int x;
-    int y;
-} Vector2i;
-
-typedef struct {
-    int x;
-    int y;
-    int z;
-} Vector3i;
-
-typedef struct {
-    Vector2 end;
-    Vector2 position;
-    Vector2 size;
-} Rect2;
-
-typedef struct {
-    Vector2i end;
-    Vector2i position;
-    Vector2i size;
-} Rect2i;
-
-
-typedef struct {
-    float r;
-    float g;
-    float b;
-    float a;
-} Color;
-
+    tcc_Vector2i position;
+    tcc_Vector2i size;
+} tcc_Rect2i;
 
 typedef struct {
     int type;
@@ -59,18 +34,18 @@ typedef struct {
         float f;
         char s[256];
         int b;
-        Vector2 vec2;
-        Vector3 vec3;
-        Vector2i vec2i;
-        Vector3i vec3i;
-        Color color;
-        Rect2 rect2;
-        Rect2i rect2i;
+        tcc_Vector2 vec2;
+        tcc_Vector3 vec3;
+        tcc_Vector2i vec2i;
+        tcc_Vector3i vec3i;
+        tcc_Color color;
+        tcc_Rect2 rect2;
+        tcc_Rect2i rect2i;
     } value;
 
     void* ptr;
-
 } GDExtensionVariant;
+
 
 typedef enum {
     VARTYPE_NULL = 0,
@@ -124,9 +99,21 @@ int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
 void* godot_load_resource(const char* path, const char* type_hint);
 const char* godot_get_class_name(void* obj);
+void* godot_get_rendering_server();
+void* godot_get_engine();
+void* godot_get_display_server();
 double sin(double x);
 double cos(double x);
 double abs(double x);
+double tan(double x);
+double atan(double x);
+double atan2(double x);
+double sqrt(double x);
+double pow(double x);
+double floor(double x);
+double ceil(double x);
+double fabs(double x);
+double fmod(double x);
 
 int add(int a, int b);
 
