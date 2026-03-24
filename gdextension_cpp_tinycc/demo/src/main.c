@@ -21,6 +21,7 @@ void on_timeout(void* user_data) {
 void main() {
     godot_print("hello world from GDTinyCC main.");
 
+    //godot_print("add 1+2 - result add:%d", add(1, 2));
 }
 
 
@@ -33,8 +34,6 @@ void _ready(void* self) {
     if (parent != NULL) {
         godot_print("GDTinyCC main: node found");
         GDExtensionVariant v = godot_get_variant(parent, "name");
-        // show the type of the name
-        //godot_print(godot_get_type_name(v.type));
         // show the name of the parentnode
         godot_print("parentname: %s", v.value.s);
     }
@@ -75,6 +74,14 @@ void _ready(void* self) {
     va.value.vec2.y = 20.0f;
     godot_set_variant(label, "position", va);
     godot_add_child_deferred(parent, label);
+    // test color
+    va.type = VARTYPE_COLOR;
+    va.value.color.r = 0.0f;
+    va.value.color.g = 1.0f;
+    va.value.color.b = 0.0f;
+    va.value.color.a = 1.0f;
+    godot_set_variant(label, "modulate", va);
+
 
     // get an existing Button and connect the callfunction to the signal pressed
     void* button = godot_get_node(self, "/root/Main/Button");
@@ -113,6 +120,7 @@ void _ready(void* self) {
     godot_print(godot_get_class_name(tex));
     texvar.ptr = tex;
     godot_set_variant(sprite, "texture", texvar);
+
 
 }
 
