@@ -918,10 +918,10 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
         {
             godot::Color c = value;
             result.type = VARTYPE_COLOR;
-            result.value.color.r = c.r;
-            result.value.color.g = c.g;
-            result.value.color.b = c.b;
-            result.value.color.a = c.a;
+            result.value.color.r = c[0];
+            result.value.color.g = c[1];
+            result.value.color.b = c[2];
+            result.value.color.a = c[3];
             break;
         }
         case godot::Variant::OBJECT:
@@ -1038,9 +1038,15 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
         case VARTYPE_RECT2I:
             value = godot::Variant(godot::Rect2i(variant.value.rect2i.position.x, variant.value.rect2i.position.y, variant.value.rect2i.size.x, variant.value.rect2i.size.y));
             break;
-        case VARTYPE_COLOR:
-            value = godot::Variant(godot::Color(variant.value.color.r, variant.value.color.g, variant.value.color.b, variant.value.color.a));
+        case VARTYPE_COLOR: {
+            godot::Color c;
+            c.r = variant.value.color.r;
+            c.g = variant.value.color.g;
+            c.b = variant.value.color.b;
+            c.a = variant.value.color.a;
+            value = godot::Variant(c);
             break;
+        }
         case VARTYPE_OBJECT:
             //UtilityFunctions::print("set_variant: VARTYPE_OBJECT, ptr=", (uint64_t)variant.ptr);
             if (variant.ptr) {
@@ -1241,15 +1247,17 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             value = godot::Variant(godot::String(ext.value.s));
             break;
         case VARTYPE_VECTOR2:
-            value = godot::Variant(godot::Vector2(ext.value.vec2.x, ext.value.vec2.y));
+            return godot::Vector2(ext.value.vec2.x, ext.value.vec2.y);
+            //value = godot::Variant(godot::Vector2(ext.value.vec2.x, ext.value.vec2.y));
             break;
         case VARTYPE_VECTOR3:
             value = godot::Variant(godot::Vector3(ext.value.vec3.x, ext.value.vec3.y, ext.value.vec3.z));
             break;
         case VARTYPE_VECTOR2I:
             //UtilityFunctions::print("variant_from_ext: VECTOR2I");
-            value = godot::Variant(godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y));
+            //value = godot::Variant(godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y));
             //UtilityFunctions::print("variant_from_ext: VECTOR2I done");
+            return godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y);
             break;
         case VARTYPE_VECTOR3I:
             value = godot::Variant(godot::Vector3i(ext.value.vec3i.x, ext.value.vec3i.y, ext.value.vec3i.z));
@@ -1261,11 +1269,33 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
                 value = godot::Variant(godot::PackedByteArray());
             }
         } break;
-        case VARTYPE_COLOR:
-            value = godot::Variant(godot::Color(ext.value.color.r, ext.value.color.g, ext.value.color.b, ext.value.color.a));
+        case VARTYPE_COLOR: {
+            /*
+            godot::Color c;
+            c.r = ext.value.color.r;
+            c.g = ext.value.color.g;
+            c.b = ext.value.color.b;
+            c.a = ext.value.color.a;
+            value = godot::Variant(c);
+            
             break;
+            */
+            UtilityFunctions::print("Converting COLOR: ", ext.value.color.r, " ", 
+                                    ext.value.color.g, " ", ext.value.color.b, " ", ext.value.color.a);
+            return godot::Color(ext.value.color.r,
+                                ext.value.color.g,
+                                ext.value.color.b,
+                                ext.value.color.a);
+            break;
+        }
         case VARTYPE_RECT2:
-            value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
+            //value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
+            return godot::Rect2(
+                ext.value.rect2.position.x,
+                ext.value.rect2.position.y,
+                ext.value.rect2.size.x,
+                ext.value.rect2.size.y
+            );
             break;
         case VARTYPE_RECT2I:
             value = godot::Variant(godot::Rect2i(ext.value.rect2i.position.x, ext.value.rect2i.position.y, ext.value.rect2i.size.x, ext.value.rect2i.size.y));
@@ -1401,8 +1431,16 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
 
         case godot::Variant::COLOR:
         {
+            /*
             godot::Color c = value;
             result.type = VARTYPE_COLOR;
+            result.value.color.r = c.r;
+            result.value.color.g = c.g;
+            result.value.color.b = c.b;
+            result.value.color.a = c.a;
+            */
+            result.type = VARTYPE_COLOR;
+            godot::Color c = value;
             result.value.color.r = c.r;
             result.value.color.g = c.g;
             result.value.color.b = c.b;
@@ -1414,8 +1452,8 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.type = VARTYPE_RECT2;
             result.value.rect2.position.x = r.position.x;
             result.value.rect2.position.y = r.position.y;
-            result.value.rect2.size.width = r.size.x;
-            result.value.rect2.size.height = r.size.y;
+            result.value.rect2.size.x = r.size.x;
+            result.value.rect2.size.y = r.size.y;
             break;
         }
 
@@ -1457,29 +1495,47 @@ GDExtensionVariant godot_call(void* obj_ptr,
     GDExtensionVariant result = {VARTYPE_NULL, {0}};
 
     if (!obj_ptr) {
-        godot::UtilityFunctions::print("godot_call_object: object is null");
+        UtilityFunctions::print("godot_call ERROR: obj_ptr is NULL");
         return result;
     }
 
     godot::Object* obj = static_cast<godot::Object*>(obj_ptr);
+    godot::String class_name = obj->get_class();
+
+    UtilityFunctions::print("=== godot_call ===");
+    UtilityFunctions::print("  Class: ", class_name);
+    UtilityFunctions::print("  Method: ", method_name);
+    UtilityFunctions::print("  Arg count: ", arg_count);
+
+    if (arg_count > 0 && args != nullptr) {
+        UtilityFunctions::print("  arg[0].type = ", args[0].type);
+        if (args[0].type == VARTYPE_COLOR) {
+            UtilityFunctions::print("  Color raw: r=", args[0].value.color.r,
+                                    " g=", args[0].value.color.g,
+                                    " b=", args[0].value.color.b,
+                                    " a=", args[0].value.color.a);
+        }
+    }
+
 
     godot::Variant ret;
 
-    if (arg_count == 0) {
-        ret = obj->call(method_name);
-    } else if (args) {
-        godot::Array call_args;
-
-        for (int i = 0; i < arg_count; i++) {
-            call_args.push_back(variant_from_ext(args[i]));
+     try {
+        if (arg_count == 0) {
+            ret = obj->call(method_name);
+        } else if (args) {
+            godot::Array call_args;
+            for (int i = 0; i < arg_count; i++) {
+                call_args.push_back(variant_from_ext(args[i]));
+            }
+            ret = obj->callv(method_name, call_args);
         }
-
-        ret = obj->callv(method_name, call_args);
-    } else {
-        godot::UtilityFunctions::print("godot_call_object: args null but arg_count > 0");
+    } catch (...) {
+        UtilityFunctions::print("godot_call: EXCEPTION during call!");
         return result;
     }
 
+    UtilityFunctions::print("  Call successful. Return type: ", (int)ret.get_type());
     return variant_to_ext(ret);
 }
 

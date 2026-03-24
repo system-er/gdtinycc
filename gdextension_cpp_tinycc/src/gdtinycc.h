@@ -25,25 +25,44 @@ extern "C" {
 }
 
 
+typedef struct { float x, y; } tcc_Vector2;
+typedef struct { float x, y, z; } tcc_Vector3;
+typedef struct { int x, y; } tcc_Vector2i;
+typedef struct { int x, y, z; } tcc_Vector3i;
+
+typedef struct {
+    float r, g, b, a;
+} tcc_Color;
+
+typedef struct {
+    tcc_Vector2 position;
+    tcc_Vector2 size;
+} tcc_Rect2;
+
+typedef struct {
+    tcc_Vector2i position;
+    tcc_Vector2i size;
+} tcc_Rect2i;
+
 typedef struct {
     int type;
-    
     union {
         int i;
         float f;
         char s[256];
         int b;
-        godot::Vector2 vec2;
-        godot::Vector3 vec3;
-        godot::Vector2i vec2i;
-        godot::Vector3i vec3i;
-        godot::Color color;
-        godot::Rect2 rect2;
-        godot::Rect2i rect2i;
+        tcc_Vector2 vec2;
+        tcc_Vector3 vec3;
+        tcc_Vector2i vec2i;
+        tcc_Vector3i vec3i;
+        tcc_Color color;
+        tcc_Rect2 rect2;
+        tcc_Rect2i rect2i;
     } value;
 
     void* ptr;
 } GDExtensionVariant;
+
 
 typedef enum {
     VARTYPE_NULL = 0,
