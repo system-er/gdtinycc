@@ -21,7 +21,8 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
 - check the "Enable 2D Drawing" in GDTinyCC-node in inspector if you need _draw        
    
 	   
-# hello world:       
+# documentation:       
+- methods:    
 _ready(self)    
 _process(self, double delta)    
 _physics_process(self, double delta)    
@@ -30,10 +31,16 @@ _unhandled_input(event)
 _enter_tree()    
 _exit_tree()    
 _notification(what)     
-_draw(self)    
+_draw(self)
+
+- objects:
+godot_get_rendering_server()    
+godot_get_engine()    
+godot_get_display_server()    
 
 - output:    
-godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);    
+godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);
+
 - nodes:        
 godot_get_node(self, path)    
 godot_instantiate(self, scenepath)    
@@ -48,20 +55,24 @@ godot_queue_free(node)
   
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
-godot_connect(self, node, signal_name, callback_func, user_data)    
+godot_connect(self, node, signal_name, callback_func, user_data)
+
 - godot random:    
 godot_randf()    
 godot_randi()     
 godot_randf_range(from, to)    
 godot_randi_range(from, to)    
-godot_randomize()
+godot_randomize()    
+
 - time:    
 godot_get_ticks_msec()
-godot_delay_msec(milliseconds)    
+godot_delay_msec(milliseconds)
+
 - input:    
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
 godot_get_global_mouse_position(self)
+
 - math:    
 sin()    
 cos()    
@@ -79,7 +90,8 @@ abs()
 - 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
 godot_get_drawingnode(self)    
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
-godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
+godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)
+ 
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
