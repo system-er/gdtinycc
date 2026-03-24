@@ -13,6 +13,9 @@
 #include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/rect2i.hpp>
 #include <godot_cpp/classes/os.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/display_server.hpp>
 #include <vector>
 #include <string>
 
