@@ -1520,7 +1520,7 @@ GDExtensionVariant godot_call(void* obj_ptr,
 
     godot::Variant ret;
 
-     try {
+    //try {
         if (arg_count == 0) {
             ret = obj->call(method_name);
         } else if (args) {
@@ -1530,10 +1530,10 @@ GDExtensionVariant godot_call(void* obj_ptr,
             }
             ret = obj->callv(method_name, call_args);
         }
-    } catch (...) {
-        UtilityFunctions::print("godot_call: EXCEPTION during call!");
-        return result;
-    }
+    //} catch (...) {
+    //    UtilityFunctions::print("godot_call: EXCEPTION during call!");
+    //    return result;
+    //}
 
     UtilityFunctions::print("  Call successful. Return type: ", (int)ret.get_type());
     return variant_to_ext(ret);
