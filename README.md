@@ -65,7 +65,17 @@ godot_get_global_mouse_position(self)
 - math:    
 sin()    
 cos()    
+tan()    
+atan()    
+atan2()    
+sqrt()    
+pow()    
+floor()    
+ceil()    
+fabs()    
+fmod()    
 abs()    
+
 - 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
 godot_get_drawingnode(self)    
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
