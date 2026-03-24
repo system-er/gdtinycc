@@ -2,6 +2,8 @@
 #include "gdtinycc.h"
 
 #include <cstdarg>
+#include <cstring>
+#include <cstdlib>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/core/property_info.hpp>
@@ -614,9 +616,8 @@ void GDTinyCC::load_object_file() {
 
     if (p) *p = '\0';
 
-    String lib_path = String(dll_path) + PATH_SEPARATOR "lib";
-    tcc_set_lib_path(s, lib_path.utf8().get_data());
-    tcc_add_library_path(s, lib_path.utf8().get_data());
+    tcc_set_lib_path(s, dll_path);
+    tcc_add_library_path(s, dll_path);
 
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
     //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
@@ -654,6 +655,10 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "abs", (void*)(double(*)(double))std::abs);
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
+    tcc_add_symbol(s, "memset", (void*)memset);
+    tcc_add_symbol(s, "memcpy", (void*)memcpy);
+    tcc_add_symbol(s, "malloc", (void*)malloc);
+    tcc_add_symbol(s, "free", (void*)free);
 
     UtilityFunctions::print("dll_path = ", dll_path);
 
