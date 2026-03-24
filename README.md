@@ -33,7 +33,7 @@ _exit_tree()
 _notification(what)     
 _draw(self)
 
-- objects:
+- objects:    
 godot_get_rendering_server()    
 godot_get_engine()    
 godot_get_display_server()    
