@@ -190,6 +190,13 @@ void _ready(void* self) {
     va.value.vec2.y = 20.0f;
     godot_set_variant(label, "position", va);
     godot_add_child_deferred(parent, label);
+	// test color
+    va.type = VARTYPE_COLOR;
+    va.value.color.r = 0.0f;
+    va.value.color.g = 1.0f;
+    va.value.color.b = 0.0f;
+    va.value.color.a = 1.0f;
+    godot_set_variant(label, "modulate", va);
 
     // get an existing Button and connect the callfunction to the signal pressed
     void* button = godot_get_node(self, "/root/Main/Button");
@@ -276,17 +283,6 @@ void _draw(void* self) {
 
 ```
 
-other examples:    
-
-```
-//example: set color
-GDExtensionVariant v;
-v.type = VARTYPE_COLOR;
-v.value.color.r = 1.0f;
-v.value.color.g = 0.5f;
-v.value.color.b = 0.0f;
-v.value.color.a = 1.0f;
-```
     
 # build:    
 copy tinycc-mob into src/tinycc-mob   
