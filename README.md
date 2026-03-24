@@ -65,7 +65,7 @@ godot_randi_range(from, to)
 godot_randomize()    
 
 - time:    
-godot_get_ticks_msec()
+godot_get_ticks_msec()    
 godot_delay_msec(milliseconds)
 
 - input:    
