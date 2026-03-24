@@ -236,6 +236,15 @@ void _ready(void* self) {
     texvar.ptr = tex;
     godot_set_variant(sprite, "texture", texvar);
 
+	// test godot_get_rendering_server
+    void* rs = godot_get_rendering_server();
+    args[0].type = VARTYPE_COLOR;
+    args[0].value.color.r = 0.0f;
+    args[0].value.color.g = 0.0f;
+    args[0].value.color.b = 0.0f;
+    args[0].value.color.a = 1.0f;
+    godot_call(rs, "set_default_clear_color", 1, args);
+
 }
 
 void _process(void* self, double delta) {
