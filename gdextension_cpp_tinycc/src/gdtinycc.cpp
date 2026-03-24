@@ -591,6 +591,33 @@ void GDTinyCC::load_object_file() {
     tcc_set_error_func(s, nullptr, tcc_error_callback);
     tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
 
+    char dll_path[1024];
+
+#ifdef _WIN32
+    HMODULE hModule;
+    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                            (LPCSTR)&godot_print, &hModule)) {
+        UtilityFunctions::print("error: load_object_file - no dll handle");
+        return;
+    }
+    GetModuleFileNameA(hModule, dll_path, sizeof(dll_path));
+    char *p = strrchr(dll_path, '\\');
+#else
+    Dl_info info;
+    if (dladdr((void*)godot_print, &info) == 0) {
+        UtilityFunctions::print("error: load_object_file - no so handle");
+        return;
+    }
+    strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
+    char *p = strrchr(dll_path, '/');
+#endif
+
+    if (p) *p = '\0';
+
+    String lib_path = String(dll_path) + PATH_SEPARATOR "lib";
+    tcc_set_lib_path(s, lib_path.utf8().get_data());
+    tcc_add_library_path(s, lib_path.utf8().get_data());
+
     tcc_add_symbol(s, "godot_print", (void*)godot_print);
     //tcc_add_symbol(s, "godot_get_parent", (void*)godot_get_parent);
     tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
@@ -628,39 +655,7 @@ void GDTinyCC::load_object_file() {
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
 
-    char dll_path[1024];
-
-#ifdef _WIN32
-    HMODULE hModule;
-    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-                            (LPCSTR)&godot_print, &hModule)) {
-        UtilityFunctions::print("error: load_object_file - no dll handle");
-        return;
-    }
-    GetModuleFileNameA(hModule, dll_path, sizeof(dll_path));
-    char *p = strrchr(dll_path, '\\');
-#else
-    Dl_info info;
-    if (dladdr((void*)godot_print, &info) == 0) {
-        UtilityFunctions::print("error: load_object_file - no so handle");
-        return;
-    }
-    strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
-    char *p = strrchr(dll_path, '/');
-#endif
-
-    if (p) *p = '\0';
-
     UtilityFunctions::print("dll_path = ", dll_path);
-
-
-    //tcc_set_lib_path(s, dll_path);
-    //String lib_path = String(dll_path) + "/lib";
-    //tcc_set_lib_path(s, lib_path.utf8().get_data());
-
-    String lib_path = String(dll_path) + PATH_SEPARATOR "lib";
-    tcc_set_lib_path(s, lib_path.utf8().get_data());
-    tcc_add_library_path(s, lib_path.utf8().get_data());
 
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
 
