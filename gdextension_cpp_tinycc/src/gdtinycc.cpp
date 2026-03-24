@@ -342,11 +342,24 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
-    tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
-    tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
-    tcc_add_symbol(s, "abs", (void*)(double(*)(double))std::abs);
+    tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
+    tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
+    tcc_add_symbol(s, "tan", (void*)static_cast<double(*)(double)>(std::tan));
+    tcc_add_symbol(s, "atan", (void*)static_cast<double(*)(double)>(std::atan));
+    tcc_add_symbol(s, "atan2", (void*)static_cast<double(*)(double, double)>(std::atan2));
+    tcc_add_symbol(s, "sqrt", (void*)static_cast<double(*)(double)>(std::sqrt));
+    tcc_add_symbol(s, "pow", (void*)static_cast<double(*)(double, double)>(std::pow));
+    tcc_add_symbol(s, "floor", (void*)static_cast<double(*)(double)>(std::floor));
+    tcc_add_symbol(s, "ceil", (void*)static_cast<double(*)(double)>(std::ceil));
+    tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
+    tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
+    tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
+    tcc_add_symbol(s, "memset", (void*)memset);
+    tcc_add_symbol(s, "memcpy", (void*)memcpy);
+    tcc_add_symbol(s, "malloc", (void*)malloc);
+    tcc_add_symbol(s, "free", (void*)free);
 
 #ifdef _WIN32
     String libtcc1_path = String(dll_path) + PATH_SEPARATOR "lib" PATH_SEPARATOR "libtcc1.a";
@@ -547,11 +560,24 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
-    tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
-    tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
-    tcc_add_symbol(s, "abs", (void*)(double(*)(double))std::abs);
+    tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
+    tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
+    tcc_add_symbol(s, "tan", (void*)static_cast<double(*)(double)>(std::tan));
+    tcc_add_symbol(s, "atan", (void*)static_cast<double(*)(double)>(std::atan));
+    tcc_add_symbol(s, "atan2", (void*)static_cast<double(*)(double, double)>(std::atan2));
+    tcc_add_symbol(s, "sqrt", (void*)static_cast<double(*)(double)>(std::sqrt));
+    tcc_add_symbol(s, "pow", (void*)static_cast<double(*)(double, double)>(std::pow));
+    tcc_add_symbol(s, "floor", (void*)static_cast<double(*)(double)>(std::floor));
+    tcc_add_symbol(s, "ceil", (void*)static_cast<double(*)(double)>(std::ceil));
+    tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
+    tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
+    tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
+    tcc_add_symbol(s, "memset", (void*)memset);
+    tcc_add_symbol(s, "memcpy", (void*)memcpy);
+    tcc_add_symbol(s, "malloc", (void*)malloc);
+    tcc_add_symbol(s, "free", (void*)free);
 
     if (tcc_add_file(s, object_file.utf8().get_data()) < 0) {
         UtilityFunctions::print("failed to load object file");
@@ -650,9 +676,18 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
 
-    tcc_add_symbol(s, "sin", (void*)(double(*)(double))std::sin);
-    tcc_add_symbol(s, "cos", (void*)(double(*)(double))std::cos);
-    tcc_add_symbol(s, "abs", (void*)(double(*)(double))std::abs);
+    tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
+    tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
+    tcc_add_symbol(s, "tan", (void*)static_cast<double(*)(double)>(std::tan));
+    tcc_add_symbol(s, "atan", (void*)static_cast<double(*)(double)>(std::atan));
+    tcc_add_symbol(s, "atan2", (void*)static_cast<double(*)(double, double)>(std::atan2));
+    tcc_add_symbol(s, "sqrt", (void*)static_cast<double(*)(double)>(std::sqrt));
+    tcc_add_symbol(s, "pow", (void*)static_cast<double(*)(double, double)>(std::pow));
+    tcc_add_symbol(s, "floor", (void*)static_cast<double(*)(double)>(std::floor));
+    tcc_add_symbol(s, "ceil", (void*)static_cast<double(*)(double)>(std::ceil));
+    tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
+    tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
+    tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
     tcc_add_symbol(s, "memset", (void*)memset);
