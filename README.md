@@ -37,6 +37,7 @@ _draw(self)
 godot_get_rendering_server()    
 godot_get_engine()    
 godot_get_display_server()    
+v0.3.5:godot_get_os()    
 
 - output:    
 godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);
