@@ -101,6 +101,7 @@ void godot_delay_msec(int msec);
 void* godot_get_rendering_server();
 void* godot_get_engine();
 void* godot_get_display_server();
+void* godot_get_os();
 void godot_print_int(int value);
 void godot_connect(void* self, void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
 float godot_randf();
@@ -332,6 +333,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_get_rendering_server", (void*)godot_get_rendering_server);
     tcc_add_symbol(s, "godot_get_engine", (void*)godot_get_engine);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
+    tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -553,6 +555,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_get_rendering_server", (void*)godot_get_rendering_server);
     tcc_add_symbol(s, "godot_get_engine", (void*)godot_get_engine);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
+    tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -672,6 +675,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_get_rendering_server", (void*)godot_get_rendering_server);
     tcc_add_symbol(s, "godot_get_engine", (void*)godot_get_engine);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
+    tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -991,6 +995,10 @@ void* godot_get_engine() {
 
 void* godot_get_display_server() {
     return godot::DisplayServer::get_singleton();
+}
+
+void* godot_get_os() {
+    return godot::OS::get_singleton();
 }
 
 void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {
