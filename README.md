@@ -92,6 +92,8 @@ abs()
 godot_get_drawingnode(self)    
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)
+- debugging:    
+godot_get_class_name(object)    
  
 - new var-type GDExtensionVariant:    
 VARTYPE_BOOL = 1,    
