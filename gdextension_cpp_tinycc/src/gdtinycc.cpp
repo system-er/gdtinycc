@@ -120,6 +120,31 @@ GDExtensionVariant godot_get_global_mouse_position(void* self);
 void* godot_load_resource(const char* path, const char* type_hint);
 const char* godot_get_class_name(void* obj);
 
+void godot_free_variant(GDExtensionVariant* variant) {
+    if (!variant || !variant->ptr) {
+        return;
+    }
+    
+    switch (variant->type) {
+        case VARTYPE_DICTIONARY:
+            delete static_cast<godot::Dictionary*>(variant->ptr);
+            break;
+        case VARTYPE_ARRAY:
+            delete static_cast<godot::Array*>(variant->ptr);
+            break;
+        case VARTYPE_PACKED_BYTE_ARRAY:
+            delete static_cast<godot::PackedByteArray*>(variant->ptr);
+            break;
+        case VARTYPE_STRING_NAME:
+            delete static_cast<godot::StringName*>(variant->ptr);
+            break;
+        default:
+            break;
+    }
+    variant->ptr = nullptr;
+}
+void godot_free_variant(GDExtensionVariant* variant);
+
 static std::vector<godot::Variant> g_loaded_resources;
 
 
@@ -349,6 +374,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
+    tcc_add_symbol(s, "godot_free_variant", (void*)godot_free_variant);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -571,6 +597,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
+    tcc_add_symbol(s, "godot_free_variant", (void*)godot_free_variant);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -691,6 +718,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
+    tcc_add_symbol(s, "godot_free_variant", (void*)godot_free_variant);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -1159,6 +1187,7 @@ void godot_add_child_deferred(void* parent_ptr, void* child_ptr) {
     parent->call_deferred("add_child", child);
 }
 
+/*
 void* godot_create(const char* class_name) {
     godot::StringName class_name_sn(class_name);
     
@@ -1234,6 +1263,24 @@ void* godot_create(const char* class_name) {
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
     return nullptr;
+}
+*/
+
+void* godot_create(const char* class_name) {
+    StringName sn(class_name);
+    
+    if (!ClassDB::class_exists(sn)) {
+        UtilityFunctions::print("Unknown class: ", class_name);
+        return nullptr;
+    }
+    
+    Object* obj = ClassDB::instantiate(sn);
+    if (!obj) {
+        UtilityFunctions::print("Could not instantiate: ", class_name);
+        return nullptr;
+    }
+    
+    return static_cast<void*>(obj);
 }
 
 godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
@@ -1510,20 +1557,20 @@ GDExtensionVariant godot_call(void* obj_ptr,
     godot::Object* obj = static_cast<godot::Object*>(obj_ptr);
     godot::String class_name = obj->get_class();
 
-    UtilityFunctions::print("=== godot_call ===");
-    UtilityFunctions::print("  Class: ", class_name);
-    UtilityFunctions::print("  Method: ", method_name);
-    UtilityFunctions::print("  Arg count: ", arg_count);
+    //UtilityFunctions::print("=== godot_call ===");
+    //UtilityFunctions::print("  Class: ", class_name);
+    //UtilityFunctions::print("  Method: ", method_name);
+    //UtilityFunctions::print("  Arg count: ", arg_count);
 
-    if (arg_count > 0 && args != nullptr) {
-        UtilityFunctions::print("  arg[0].type = ", args[0].type);
-        if (args[0].type == VARTYPE_COLOR) {
-            UtilityFunctions::print("  Color raw: r=", args[0].value.color.r,
-                                    " g=", args[0].value.color.g,
-                                    " b=", args[0].value.color.b,
-                                    " a=", args[0].value.color.a);
-        }
-    }
+    //if (arg_count > 0 && args != nullptr) {
+        //UtilityFunctions::print("  arg[0].type = ", args[0].type);
+        //if (args[0].type == VARTYPE_COLOR) {
+            //UtilityFunctions::print("  Color raw: r=", args[0].value.color.r,
+            //                        " g=", args[0].value.color.g,
+            //                        " b=", args[0].value.color.b,
+            //                        " a=", args[0].value.color.a);
+        //}
+    //}
 
 
     godot::Variant ret;
@@ -1543,7 +1590,7 @@ GDExtensionVariant godot_call(void* obj_ptr,
     //    return result;
     //}
 
-    UtilityFunctions::print("  Call successful. Return type: ", (int)ret.get_type());
+    //UtilityFunctions::print("  Call successful. Return type: ", (int)ret.get_type());
     return variant_to_ext(ret);
 }
 
