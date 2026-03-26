@@ -95,8 +95,8 @@ godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)
 - debugging:    
 godot_get_class_name(object)    
  
-- new var-type GDExtensionVariant:
-v0.3.5:godot_free_variant(variant) // frees memory of ARRAY, DICTIONARY etc - can be used for all variants, cause only if needed frees    
+- new var-type GDExtensionVariant:     
+v0.3.5:godot_free_variant(variant) // frees memory of ARRAY, DICTIONARY etc - can be used for all variants, cause only frees if needed       
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
 VARTYPE_FLOAT = 3,    
