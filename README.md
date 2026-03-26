@@ -37,7 +37,7 @@ _draw(self)
 godot_get_rendering_server()    
 godot_get_engine()    
 godot_get_display_server()    
-v0.3.5:godot_get_os()
+v0.3.5:godot_get_os()    
 v0.3.5:godot_get_physics_server2D()    
 v0.3.5:godot_get_physics_server3D()    
 
@@ -94,7 +94,7 @@ abs()
 godot_get_drawingnode(self)    
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)
-- collision:
+- collision:    
 v0.3.5:godot_get_physics_server2D()    
 v0.3.5:godot_get_physics_server3D()    
 v0.3.5:int godot_check_collision(void* area_ptr, void* other_ptr)    
