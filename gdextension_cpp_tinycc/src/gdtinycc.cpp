@@ -32,10 +32,17 @@
 #include <godot_cpp/classes/csg_sphere3d.hpp>
 #include <godot_cpp/classes/area2d.hpp>
 #include <godot_cpp/classes/area3d.hpp>
+#include <godot_cpp/classes/collision_shape3d.hpp>
+#include <godot_cpp/classes/shape3d.hpp>
+#include <godot_cpp/classes/sphere_shape3d.hpp>
+#include <godot_cpp/classes/box_shape3d.hpp>
+#include <godot_cpp/classes/capsule_shape3d.hpp>
 #include <godot_cpp/classes/static_body2d.hpp>
 #include <godot_cpp/classes/static_body3d.hpp>
 #include <godot_cpp/classes/rigid_body2d.hpp>
 #include <godot_cpp/classes/rigid_body3d.hpp>
+#include <godot_cpp/classes/physics_server2d.hpp>
+#include <godot_cpp/classes/physics_server3d.hpp>
 #include <godot_cpp/classes/timer.hpp>
 #include <godot_cpp/classes/time.hpp>
 #include <godot_cpp/classes/image.hpp>
@@ -101,6 +108,8 @@ void godot_delay_msec(int msec);
 void* godot_get_rendering_server();
 void* godot_get_engine();
 void* godot_get_display_server();
+void* godot_get_physics_server2D();
+void* godot_get_physics_server3D();  
 void* godot_get_os();
 void godot_print_int(int value);
 void godot_connect(void* self, void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
@@ -119,6 +128,9 @@ int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
 void* godot_load_resource(const char* path, const char* type_hint);
 const char* godot_get_class_name(void* obj);
+int godot_check_collision(void* area_ptr, void* other_ptr);
+int godot_check_collision_3d(void* area_ptr, void* other_ptr);
+void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3);
 
 void godot_free_variant(GDExtensionVariant* variant) {
     if (!variant || !variant->ptr) {
@@ -143,7 +155,6 @@ void godot_free_variant(GDExtensionVariant* variant) {
     }
     variant->ptr = nullptr;
 }
-void godot_free_variant(GDExtensionVariant* variant);
 
 static std::vector<godot::Variant> g_loaded_resources;
 
@@ -375,6 +386,11 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
     tcc_add_symbol(s, "godot_free_variant", (void*)godot_free_variant);
+    tcc_add_symbol(s, "godot_check_collision", (void*)godot_check_collision);
+    tcc_add_symbol(s, "godot_check_collision_3d", (void*)godot_check_collision_3d);
+    tcc_add_symbol(s, "godot_setup_collision_shape", (void*)godot_setup_collision_shape);
+    tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
+    tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -598,6 +614,11 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
     tcc_add_symbol(s, "godot_free_variant", (void*)godot_free_variant);
+    tcc_add_symbol(s, "godot_check_collision", (void*)godot_check_collision);
+    tcc_add_symbol(s, "godot_check_collision_3d", (void*)godot_check_collision_3d);
+    tcc_add_symbol(s, "godot_setup_collision_shape", (void*)godot_setup_collision_shape);
+    tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
+    tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -719,6 +740,11 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
     tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
     tcc_add_symbol(s, "godot_free_variant", (void*)godot_free_variant);
+    tcc_add_symbol(s, "godot_check_collision", (void*)godot_check_collision);
+    tcc_add_symbol(s, "godot_check_collision_3d", (void*)godot_check_collision_3d);
+    tcc_add_symbol(s, "godot_setup_collision_shape", (void*)godot_setup_collision_shape);
+    tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
+    tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -1017,6 +1043,14 @@ void* godot_get_rendering_server() {
     return godot::RenderingServer::get_singleton();
 }
 
+void* godot_get_physics_server_2d() {
+    return godot::PhysicsServer2D::get_singleton();
+}
+
+void* godot_get_physics_server_3d() {
+    return godot::PhysicsServer3D::get_singleton();
+}
+
 void* godot_get_engine() {
     return godot::Engine::get_singleton();
 }
@@ -1024,6 +1058,15 @@ void* godot_get_engine() {
 void* godot_get_display_server() {
     return godot::DisplayServer::get_singleton();
 }
+
+void* godot_get_physics_server2D() {
+    return godot::PhysicsServer2D::get_singleton();
+}
+
+void* godot_get_physics_server3D() {
+    return godot::PhysicsServer3D::get_singleton();
+}
+
 
 void* godot_get_os() {
     return godot::OS::get_singleton();
@@ -1837,6 +1880,58 @@ const char* godot_get_class_name(void* obj) {
     godot::String cls = o->get_class();
     snprintf(buf, sizeof(buf), "%s", cls.utf8().get_data());
     return buf;
+}
+
+int godot_check_collision(void* area_ptr, void* other_ptr) {
+    if (!area_ptr || !other_ptr) return 0;
+    
+    godot::Area2D* area = static_cast<godot::Area2D*>(area_ptr);
+    godot::Object* other = static_cast<godot::Object*>(other_ptr);
+    
+    godot::Area2D* other_area = godot::Object::cast_to<godot::Area2D>(other);
+    if (other_area) {
+        return area->overlaps_area(other_area) ? 1 : 0;
+    }
+    
+    godot::Node* other_node = static_cast<godot::Node*>(other);
+    return area->overlaps_body(other_node) ? 1 : 0;
+}
+
+int godot_check_collision_3d(void* area_ptr, void* other_ptr) {
+    if (!area_ptr || !other_ptr) return 0;
+    
+    godot::Area3D* area = static_cast<godot::Area3D*>(area_ptr);
+    godot::Object* other = static_cast<godot::Object*>(other_ptr);
+    
+    godot::Area3D* other_area = godot::Object::cast_to<godot::Area3D>(other);
+    if (other_area) {
+        return area->overlaps_area(other_area) ? 1 : 0;
+    }
+    
+    godot::Node* other_node = static_cast<godot::Node*>(other);
+    return area->overlaps_body(other_node) ? 1 : 0;
+}
+
+void godot_setup_collision_shape(void* collision_shape_ptr, const char* shape_type, float param1, float param2, float param3) {
+    if (!collision_shape_ptr) return;
+    
+    godot::CollisionShape3D* shape = static_cast<godot::CollisionShape3D*>(collision_shape_ptr);
+    godot::String type(shape_type);
+    
+    if (type == "sphere" || type == "circle") {
+        godot::SphereShape3D* sphere = memnew(godot::SphereShape3D);
+        sphere->set_radius(param1);
+        shape->set_shape(sphere);
+    } else if (type == "box" || type == "rect") {
+        godot::BoxShape3D* box = memnew(godot::BoxShape3D);
+        box->set_size(godot::Vector3(param1, param2, param3));
+        shape->set_shape(box);
+    } else if (type == "capsule") {
+        godot::CapsuleShape3D* capsule = memnew(godot::CapsuleShape3D);
+        capsule->set_radius(param1);
+        capsule->set_height(param2);
+        shape->set_shape(capsule);
+    }
 }
 
 
