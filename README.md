@@ -45,7 +45,7 @@ godot_print(string, ...) // example godot_print("helloworld"); //godot_print("in
 - nodes:        
 godot_get_node(self, path)    
 godot_instantiate(self, scenepath)    
-godot_create(classname)    
+godot_create(classname) // v0.3.5: now creates all classes godot knows    
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)       
 GDExtensionVariant godot_get_variant(node, property)    
