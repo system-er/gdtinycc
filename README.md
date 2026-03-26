@@ -37,7 +37,9 @@ _draw(self)
 godot_get_rendering_server()    
 godot_get_engine()    
 godot_get_display_server()    
-v0.3.5:godot_get_os()    
+v0.3.5:godot_get_os()
+v0.3.5:godot_get_physics_server2D()    
+v0.3.5:godot_get_physics_server3D()    
 
 - output:    
 godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);
@@ -92,6 +94,13 @@ abs()
 godot_get_drawingnode(self)    
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)
+- collision:
+v0.3.5:godot_get_physics_server2D()    
+v0.3.5:godot_get_physics_server3D()    
+v0.3.5:int godot_check_collision(void* area_ptr, void* other_ptr)    
+v0.3.5:int godot_check_collision_3d(void* area_ptr, void* other_ptr)    
+v0.3.5:void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3)    
+
 - debugging:    
 godot_get_class_name(object)    
  
