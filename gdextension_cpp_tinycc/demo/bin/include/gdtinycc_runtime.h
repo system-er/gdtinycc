@@ -71,6 +71,7 @@ typedef enum {
 
 GDExtensionVariant godot_get_variant(void* node, const char* property);
 void godot_set_variant(void* node, const char* property, GDExtensionVariant variant);
+void godot_free_variant(GDExtensionVariant* variant);
 void* godot_instantiate(void* self, const char* scene_path);
 void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
@@ -102,6 +103,8 @@ const char* godot_get_class_name(void* obj);
 void* godot_get_rendering_server();
 void* godot_get_engine();
 void* godot_get_display_server();
+void* godot_get_os();
+void godot_free_variant(GDExtensionVariant* variant);
 double sin(double x);
 double cos(double x);
 double abs(double x);
