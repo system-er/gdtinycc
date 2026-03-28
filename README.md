@@ -5,7 +5,6 @@ compile and execute C code directly (both very fast!).
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob     
 time to get out the old Kernighan/Ritchie C-bible  ;-)    
     
-    
 edit your c-files with the editor of your choice          
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
 	
