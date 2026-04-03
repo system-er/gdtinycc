@@ -54,6 +54,13 @@
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
 #include <godot_cpp/classes/input_event.hpp>   
+#include <godot_cpp/classes/standard_material3d.hpp>
+#include <godot_cpp/classes/shader_material.hpp>
+#include <godot_cpp/classes/image_texture.hpp>
+#include <godot_cpp/classes/gradient.hpp>
+#include <godot_cpp/classes/curve.hpp>
+#include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/godot.hpp>
 
 
@@ -1313,6 +1320,7 @@ void* godot_create(const char* class_name) {
 }
 */
 
+/*
 void* godot_create(const char* class_name) {
     StringName sn(class_name);
     
@@ -1322,6 +1330,9 @@ void* godot_create(const char* class_name) {
     }
     
     Object* obj = ClassDB::instantiate(sn);
+    if (obj) {
+        UtilityFunctions::print("godot_create: ", class_name, " → actual class = ", obj->get_class());
+    }
     if (!obj) {
         UtilityFunctions::print("Could not instantiate: ", class_name);
         return nullptr;
@@ -1329,6 +1340,88 @@ void* godot_create(const char* class_name) {
     
     return static_cast<void*>(obj);
 }
+*/
+
+void* godot_create(const char* class_name) {
+    StringName sn(class_name);
+    
+    if (!ClassDB::class_exists(sn)) {
+        UtilityFunctions::print("Unknown class: ", class_name);
+        return nullptr;
+    }
+
+    Object* obj = ClassDB::instantiate(sn);
+    if (!obj) {
+        UtilityFunctions::print("Could not instantiate: ", class_name);
+        return nullptr;
+    }
+
+    RefCounted* rc = Object::cast_to<RefCounted>(obj);
+    if (rc) {
+        rc->init_ref();
+    }
+
+    UtilityFunctions::print("godot_create('", class_name, "') → ", obj->get_class());
+
+    if (obj->get_class() == "Object" || !obj->is_class(sn)) {
+        UtilityFunctions::print("→ Bad initialization for ", class_name, " → trying memnew fallback");
+
+        if (sn == StringName("StandardMaterial3D")) {
+            StandardMaterial3D* mat = memnew(StandardMaterial3D);
+            if (mat) {
+                mat->init_ref();
+                UtilityFunctions::print("→ memnew succeeded: StandardMaterial3D");
+                return mat;
+            }
+        }
+        else if (sn == StringName("ShaderMaterial")) {
+            ShaderMaterial* mat = memnew(ShaderMaterial);
+            if (mat) {
+                mat->init_ref();
+                UtilityFunctions::print("→ memnew succeeded: ShaderMaterial");
+                return mat;
+            }
+        }
+        else if (sn == StringName("ImageTexture")) {
+            ImageTexture* tex = memnew(ImageTexture);
+            if (tex) {
+                tex->init_ref();
+                UtilityFunctions::print("→ memnew succeeded: ImageTexture");
+                return tex;
+            }
+        }
+        else if (sn == StringName("Gradient")) {
+            Gradient* grad = memnew(Gradient);
+            if (grad) {
+                grad->init_ref();
+                UtilityFunctions::print("→ memnew succeeded: Gradient");
+                return grad;
+            }
+        }
+        else if (sn == StringName("Curve")) {
+            Curve* curve = memnew(Curve);
+            if (curve) {
+                curve->init_ref();
+                UtilityFunctions::print("→ memnew succeeded: Curve");
+                return curve;
+            }
+        }
+        else if (sn == StringName("ArrayMesh")) {
+            ArrayMesh* mesh = memnew(ArrayMesh);
+            if (mesh) {
+                mesh->init_ref();
+                UtilityFunctions::print("→ memnew succeeded: ArrayMesh");
+                return mesh;
+            }
+        }
+        // add missing RefCounted here
+
+    }
+
+
+    return obj;
+}
+
 
 godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
     godot::Variant value;
