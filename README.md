@@ -51,7 +51,7 @@ godot_create(classname) // v0.3.5: now creates all classes godot knows
 // !!! v0.3.6: RefCounted: StandardMaterial3D, ShaderMaterial, ImageTexture, Gradient,    
 // Curve, ArrayMesh should work, for other RefCounted:    
 // !!! add the missing RefCounted in godot_create like StandardMaterial3D or    
-// store the RefCounted as file and load with godot_load_resource    
+// store the RefCounted as file .tres and load with godot_load_resource    
 
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)       
