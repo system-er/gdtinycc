@@ -130,6 +130,9 @@ void _ready(void* self) {
     args[0].value.color.a = 1.0f;
     godot_call(rs, "set_default_clear_color", 1, args);
 
+    // test RefCounted object
+    void* mat = godot_create("ImageTexture");
+    godot_print(godot_get_class_name(mat));
 }
 
 void _process(void* self, double delta) {
