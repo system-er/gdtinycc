@@ -165,6 +165,7 @@ void godot_free_variant(GDExtensionVariant* variant) {
 }
 
 static std::vector<godot::Variant> g_loaded_resources;
+static std::vector<godot::Variant> g_created_refs;
 
 
 //using namespace godot;
@@ -1320,27 +1321,6 @@ void* godot_create(const char* class_name) {
 }
 */
 
-/*
-void* godot_create(const char* class_name) {
-    StringName sn(class_name);
-    
-    if (!ClassDB::class_exists(sn)) {
-        UtilityFunctions::print("Unknown class: ", class_name);
-        return nullptr;
-    }
-    
-    Object* obj = ClassDB::instantiate(sn);
-    if (obj) {
-        UtilityFunctions::print("godot_create: ", class_name, " → actual class = ", obj->get_class());
-    }
-    if (!obj) {
-        UtilityFunctions::print("Could not instantiate: ", class_name);
-        return nullptr;
-    }
-    
-    return static_cast<void*>(obj);
-}
-*/
 
 void* godot_create(const char* class_name) {
     StringName sn(class_name);
@@ -1356,68 +1336,60 @@ void* godot_create(const char* class_name) {
         return nullptr;
     }
 
-    RefCounted* rc = Object::cast_to<RefCounted>(obj);
-    if (rc) {
-        rc->init_ref();
-    }
+    String actual_class = obj->get_class();
+    UtilityFunctions::print("godot_create('", class_name, "') -> ", actual_class);
 
-    UtilityFunctions::print("godot_create('", class_name, "') → ", obj->get_class());
-
-    if (obj->get_class() == "Object" || !obj->is_class(sn)) {
-        UtilityFunctions::print("→ Bad initialization for ", class_name, " → trying memnew fallback");
+    if (actual_class == "Object" || !obj->is_class(sn)) {
+        //UtilityFunctions::print("Bad init, skipping delete, trying memnew only...");
+        //memdelete(obj);
 
         if (sn == StringName("StandardMaterial3D")) {
             StandardMaterial3D* mat = memnew(StandardMaterial3D);
             if (mat) {
-                mat->init_ref();
-                UtilityFunctions::print("→ memnew succeeded: StandardMaterial3D");
+                g_created_refs.push_back(mat);
                 return mat;
             }
         }
         else if (sn == StringName("ShaderMaterial")) {
             ShaderMaterial* mat = memnew(ShaderMaterial);
             if (mat) {
-                mat->init_ref();
-                UtilityFunctions::print("→ memnew succeeded: ShaderMaterial");
+                g_created_refs.push_back(mat);
                 return mat;
             }
         }
         else if (sn == StringName("ImageTexture")) {
-            ImageTexture* tex = memnew(ImageTexture);
-            if (tex) {
-                tex->init_ref();
-                UtilityFunctions::print("→ memnew succeeded: ImageTexture");
-                return tex;
+            ImageTexture* mat = memnew(ImageTexture);
+            if (mat) {
+                g_created_refs.push_back(mat);
+                return mat;
             }
         }
         else if (sn == StringName("Gradient")) {
-            Gradient* grad = memnew(Gradient);
-            if (grad) {
-                grad->init_ref();
-                UtilityFunctions::print("→ memnew succeeded: Gradient");
-                return grad;
+            Gradient* mat = memnew(Gradient);
+            if (mat) {
+                g_created_refs.push_back(mat);
+                return mat;
             }
         }
         else if (sn == StringName("Curve")) {
-            Curve* curve = memnew(Curve);
-            if (curve) {
-                curve->init_ref();
-                UtilityFunctions::print("→ memnew succeeded: Curve");
-                return curve;
+            Curve* mat = memnew(Curve);
+            if (mat) {
+                g_created_refs.push_back(mat);
+                return mat;
             }
         }
         else if (sn == StringName("ArrayMesh")) {
-            ArrayMesh* mesh = memnew(ArrayMesh);
-            if (mesh) {
-                mesh->init_ref();
-                UtilityFunctions::print("→ memnew succeeded: ArrayMesh");
-                return mesh;
+            ArrayMesh* mat = memnew(ArrayMesh);
+            if (mat) {
+                g_created_refs.push_back(mat);
+                return mat;
             }
         }
-        // add missing RefCounted here
+        // missing extend here
 
+        UtilityFunctions::print("No fallback for: ", class_name);
+        return nullptr;
     }
-
 
     return obj;
 }
