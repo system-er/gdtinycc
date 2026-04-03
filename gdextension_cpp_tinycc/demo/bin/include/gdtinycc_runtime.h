@@ -94,7 +94,8 @@ void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
                      float r, float g, float b, float a, int filled);
 void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
-void* godot_get_drawingnode();
+void* godot_get_drawingnode(void* self);
+void* godot_get_drawingcanvas(void* self);
 int godot_is_pressed(void* event);
 int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
