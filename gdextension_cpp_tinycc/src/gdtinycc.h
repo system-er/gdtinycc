@@ -159,6 +159,7 @@ public:
     void set_enable_2d_drawing(bool enabled);
     bool get_enable_2d_drawing() const { return enable_2d_drawing; }
     Node2D* get_drawingnode() const { return drawing_node; }
+    CanvasLayer* get_drawingcanvas() const { return drawing_canvas; }
 };
 
 

@@ -123,6 +123,7 @@ void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
 void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
 void* godot_get_drawingnode(void* self);
+void* godot_get_drawingcanvas(void* self);
 int godot_is_pressed(void* evt);
 int godot_eventcode(void* event_ptr);
 GDExtensionVariant godot_get_global_mouse_position(void* self);
@@ -380,6 +381,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_get_drawingcanvas", (void*)godot_get_drawingcanvas);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
@@ -608,6 +610,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_get_drawingcanvas", (void*)godot_get_drawingcanvas);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
@@ -734,6 +737,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_get_drawingcanvas", (void*)godot_get_drawingcanvas);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
     tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
     tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
@@ -1949,6 +1953,13 @@ void* godot_get_drawingnode(void* self) {
     //return tcc ? tcc->get_drawingnode() : nullptr;
     GDTinyCC* instance = static_cast<GDTinyCC*>(self);
     return instance->get_drawingnode();
+}
+
+void* godot_get_drawingcanvas(void* self) {
+    //GDTinyCC* tcc = static_cast<GDTinyCC*>(self);
+    //return tcc ? tcc->get_drawingnode() : nullptr;
+    GDTinyCC* instance = static_cast<GDTinyCC*>(self);
+    return instance->get_drawingcanvas();
 }
 
 void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
