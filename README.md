@@ -46,7 +46,12 @@ godot_print(string, ...) // example godot_print("helloworld"); //godot_print("in
 - nodes:        
 godot_get_node(self, path)    
 godot_instantiate(self, scenepath)    
+
 godot_create(classname) // v0.3.5: now creates all classes godot knows    
+// !!! v0.3.6: RefCounted: StandardMaterial3D should work, for other RefCounted:    
+// !!! add the missing RefCounted in godot_create like StandardMaterial3D or    
+// store the RefCounted as file and load with godot_load_resource    
+
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)       
 GDExtensionVariant godot_get_variant(node, property)    
