@@ -60,6 +60,7 @@ typedef enum {
     VARTYPE_VECTOR3 = 9,
     VARTYPE_VECTOR3I = 10,
 
+    VARTYPE_COLOR = 20,
     VARTYPE_STRING_NAME = 21,
     VARTYPE_NODE_PATH = 22,
     VARTYPE_RID = 23,
@@ -67,7 +68,6 @@ typedef enum {
     VARTYPE_DICTIONARY = 27,
     VARTYPE_ARRAY = 28,
     VARTYPE_PACKED_BYTE_ARRAY = 29,
-    VARTYPE_COLOR = 20,
 
 } GDExtensionVarType;
 
@@ -102,6 +102,8 @@ void godot_draw_rect(void* canvas_item_ptr, float x, float y, float w, float h,
                      float r, float g, float b, float a, int filled);
 void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
+void godot_draw_line(void* canvas_item_ptr, float x1, float y1, float x2, float y2,
+                     float r, float g, float b, float a, float thickness);
 void* godot_get_drawingnode(void* self);
 void* godot_get_drawingcanvas(void* self);
 int godot_is_pressed(void* event);
