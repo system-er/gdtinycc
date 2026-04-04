@@ -56,9 +56,10 @@ void _ready(void* self) {
 
     // test godot_call
     GDExtensionVariant args[1];
+    GDExtensionVariant ret;
     args[0].type = VARTYPE_STRING;
     snprintf(args[0].value.s, sizeof(args[0].value.s), "new_labelname_from_code");
-    godot_call(label, "set_name", 1, args);
+    godot_call(label, "set_name", 1, args, &ret);
     GDExtensionVariant vl;
     vl.type = VARTYPE_STRING;
     //vl = godot_get_variant(label, "name");
@@ -130,7 +131,7 @@ void _ready(void* self) {
     args[0].value.color.g = 0.0f;
     args[0].value.color.b = 0.0f;
     args[0].value.color.a = 1.0f;
-    godot_call(rs, "set_default_clear_color", 1, args);
+    godot_call(rs, "set_default_clear_color", 1, args, &ret);
 
     // test RefCounted object
     void* mat = godot_create("ImageTexture");
