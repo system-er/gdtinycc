@@ -53,7 +53,7 @@ godot_add_child(parent, child)
 godot_add_child_deferred(parent, child)       
 v0.4: godot_get_variant(node, property, &GDExtensionVariant)    
 godot_set_variant(node, property, GDExtensionVariant)    
-GDExtensionVariant godot_call(object, method_name, arg_count, args)    
+v0.4: godot_call(object, method_name, arg_count, args, &GDExtensionVariant)    
 godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
   
@@ -160,12 +160,11 @@ void _ready(void* self) {
 
     // get the parentnode
     void* parent = godot_get_node(self, "/root/Main");
+
     if (parent != NULL) {
-        godot_print("GDTinyCC main: node found");
         GDExtensionVariant v;
-		godot_get_variant(parent, "name", &v);
-        // show the type of the name
-        //godot_print(godot_get_type_name(v.type));
+        godot_print("GDTinyCC main: node found");
+        godot_get_variant(parent, "name", &v);
         // show the name of the parentnode
         godot_print("parentname: %s", v.value.s);
     }
@@ -184,6 +183,17 @@ void _ready(void* self) {
         return;
     }
 
+    // test godot_call
+    GDExtensionVariant args[1];
+    GDExtensionVariant ret;
+    args[0].type = VARTYPE_STRING;
+    snprintf(args[0].value.s, sizeof(args[0].value.s), "new_labelname_from_code");
+    godot_call(label, "set_name", 1, args, &ret);
+    GDExtensionVariant vl;
+    vl.type = VARTYPE_STRING;
+    //vl = godot_get_variant(label, "name");
+    //godot_print("label name: %s", vl.value.s);
+
     // set labeltext
     GDExtensionVariant v;
     v.type = VARTYPE_STRING;
@@ -196,13 +206,14 @@ void _ready(void* self) {
     va.value.vec2.y = 20.0f;
     godot_set_variant(label, "position", va);
     godot_add_child_deferred(parent, label);
-	// test color
+    // test color
     va.type = VARTYPE_COLOR;
     va.value.color.r = 0.0f;
     va.value.color.g = 1.0f;
     va.value.color.b = 0.0f;
     va.value.color.a = 1.0f;
     godot_set_variant(label, "modulate", va);
+
 
     // get an existing Button and connect the callfunction to the signal pressed
     void* button = godot_get_node(self, "/root/Main/Button");
@@ -242,15 +253,14 @@ void _ready(void* self) {
     texvar.ptr = tex;
     godot_set_variant(sprite, "texture", texvar);
 
-    // test godot_get_rendering_server and godot_call
-    GDExtensionVariant args[1];
+    // test godot_get_rendering_server
     void* rs = godot_get_rendering_server();
     args[0].type = VARTYPE_COLOR;
     args[0].value.color.r = 0.0f;
     args[0].value.color.g = 0.0f;
     args[0].value.color.b = 0.0f;
     args[0].value.color.a = 1.0f;
-    godot_call(rs, "set_default_clear_color", 1, args);
+    godot_call(rs, "set_default_clear_color", 1, args, &ret);
 
     // test RefCounted object
     void* mat = godot_create("ImageTexture");
@@ -261,7 +271,6 @@ void _ready(void* self) {
     godot_get_variant(label, "position", &p1);
     godot_print("labelposition: %.2f %.2f", p1.value.vec2.x, p1.value.vec2.y);
 }
-
 void _process(void* self, double delta) {
     timepassed += delta;
     GDExtensionVariant v;
