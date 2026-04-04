@@ -108,7 +108,7 @@ abs()
 godot_get_drawingnode(self)    
 godot_get_drawingcanvas(self)     
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
-godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)
+godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 v0.4: godot_draw_line(drawingnode, x1, y1, x2, y2, r, g, b, a, thickness)    
 - collision:    
 godot_get_physics_server2D()    
