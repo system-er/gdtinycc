@@ -106,7 +106,12 @@ void* godot_instantiate(void* self, const char* scene_path);
 void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
-GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
+void godot_call(void* node_ptr, 
+                const char* method_name, 
+                int arg_count, 
+                GDExtensionVariant* args,
+                GDExtensionVariant* result);
+//GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 //GDExtensionVariant godot_call_object(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_queue_free(void* node_ptr);
 const char* godot_get_type_name(int type);
@@ -1729,7 +1734,7 @@ void godot_get_variant(void* node, const char *property, GDExtensionVariant *res
     *result = variant_to_ext(v);   // oder direkt hier füllen
 }
 
-
+/*
 GDExtensionVariant godot_call(void* obj_ptr,
                                      const char* method_name,
                                      int arg_count,
@@ -1781,7 +1786,40 @@ GDExtensionVariant godot_call(void* obj_ptr,
     //UtilityFunctions::print("  Call successful. Return type: ", (int)ret.get_type());
     return variant_to_ext(ret);
 }
+*/
+void godot_call(void* node_ptr,
+                const char* method_name,
+                int arg_count,
+                GDExtensionVariant* args,
+                GDExtensionVariant* result)
+{
+    if (!result) return;
 
+    // Immer sauber initialisieren
+    memset(result, 0, sizeof(GDExtensionVariant));
+    result->type = VARTYPE_NULL;
+
+    if (!node_ptr || !method_name) {
+        return;
+    }
+
+    godot::Object* obj = static_cast<godot::Object*>(node_ptr);
+
+    godot::Variant ret;
+
+    if (arg_count == 0 || args == nullptr) {
+        ret = obj->call(method_name);
+    } 
+    else {
+        godot::Array call_args;
+        for (int i = 0; i < arg_count; i++) {
+            call_args.push_back(variant_from_ext(args[i]));
+        }
+        ret = obj->callv(method_name, call_args);
+    }
+
+    *result = variant_to_ext(ret);
+}
 
 void godot_queue_free(void* node_ptr) {
     if (!node_ptr) {
