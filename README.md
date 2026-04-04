@@ -54,9 +54,7 @@ godot_print("floatvar with 2 decimal places %.2f", f);
 - nodes:        
 godot_get_node(self, path)    
 godot_instantiate(self, scenepath)    
-
 godot_create(classname) // v0.4 !!! add a missing class in godot_create            
-
 godot_add_child(parent, child) // use godot_add_child_deferred instead         
 godot_add_child_deferred(parent, child)       
 v0.4: godot_get_variant(node, property, &return-GDExtensionVariant) // look example    
@@ -133,7 +131,6 @@ VARTYPE_RECT2 = 7,
 VARTYPE_RECT2I = 8,    
 VARTYPE_VECTOR3 = 9,    
 VARTYPE_VECTOR3I = 10,    
-
 VARTYPE_COLOR = 20,    
 VARTYPE_STRING_NAME = 21,     
 VARTYPE_NODE_PATH = 22,    
