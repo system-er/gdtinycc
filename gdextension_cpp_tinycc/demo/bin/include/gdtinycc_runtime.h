@@ -71,7 +71,7 @@ typedef enum {
 
 } GDExtensionVarType;
 
-GDExtensionVariant godot_get_variant(void* node, const char* property);
+void godot_get_variant(void* node, const char *property, GDExtensionVariant *result);
 void godot_set_variant(void* node, const char* property, GDExtensionVariant variant);
 void godot_free_variant(GDExtensionVariant* variant);
 void* godot_instantiate(void* self, const char* scene_path);
