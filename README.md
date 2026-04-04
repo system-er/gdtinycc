@@ -49,7 +49,7 @@ godot_instantiate(self, scenepath)
 
 godot_create(classname) // v0.4 !!! add a missing class in godot_create            
 
-godot_add_child(parent, child)    
+godot_add_child(parent, child) // use godot_add_child_deferred instead         
 godot_add_child_deferred(parent, child)       
 v0.4: godot_get_variant(node, property, &return-GDExtensionVariant) // look example    
 godot_set_variant(node, property, GDExtensionVariant)    
