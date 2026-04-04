@@ -56,6 +56,13 @@ godot_set_variant(node, property, GDExtensionVariant)
 v0.4: godot_call(object, method_name, arg_count, args, &return-GDExtensionVariant) // look example    
 godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
+v0.4: godot_get_tree(self)    
+// for example to quit program:    
+```
+GDExtensionVariant result;
+void* tree = godot_get_tree(self);
+godot_call(tree, "quit", 0, NULL, &result);
+```
   
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
@@ -293,11 +300,16 @@ void _input(void* self,void* event) {
         int code = godot_eventcode(event);
         godot_print("input event: %d", code);
 
-        if(code < 9){ //mousebutton
+        if (code == 4194305) { // ESC
+            GDExtensionVariant result;
+            void* tree = godot_get_tree(self);
+            godot_call(tree, "quit", 0, NULL, &result);
+        }
+        else if(code < 9){ //mousebutton
             GDExtensionVariant v;
             v.type = VARTYPE_VECTOR2;
             v = godot_get_global_mouse_position(self);
-			godot_print("mousepos: %.2f, %.2f", v.value.vec2.x, v.value.vec2.y);
+            godot_print("mousepos: %.2f, %.2f", v.value.vec2.x, v.value.vec2.y);
         }
     }
 }
