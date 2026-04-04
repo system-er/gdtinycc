@@ -1,4 +1,4 @@
-# GDTinyCC - gdextension C compiler !atm i stopped releases cause debugging
+# GDTinyCC - gdextension C compiler    
 
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
