@@ -36,9 +36,9 @@ _draw(self)
 godot_get_rendering_server()    
 godot_get_engine()    
 godot_get_display_server()    
-v0.3.5:godot_get_os()    
-v0.3.5:godot_get_physics_server2D()    
-v0.3.5:godot_get_physics_server3D()    
+godot_get_os()    
+godot_get_physics_server2D()    
+godot_get_physics_server3D()    
 
 - output:    
 godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);
@@ -93,21 +93,21 @@ abs()
 
 - 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
 godot_get_drawingnode(self)    
-v0.3.6:godot_get_drawingcanvas(self)     
+godot_get_drawingcanvas(self)     
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)
 - collision:    
-v0.3.5:godot_get_physics_server2D()    
-v0.3.5:godot_get_physics_server3D()    
-v0.3.5:int godot_check_collision(void* area_ptr, void* other_ptr)    
-v0.3.5:int godot_check_collision_3d(void* area_ptr, void* other_ptr)    
-v0.3.5:void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3)    
+godot_get_physics_server2D()    
+godot_get_physics_server3D()    
+int godot_check_collision(void* area_ptr, void* other_ptr)    
+int godot_check_collision_3d(void* area_ptr, void* other_ptr)    
+void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3)    
 
 - debugging:    
 godot_get_class_name(object)    
  
 - new var-type GDExtensionVariant:     
-v0.3.5:godot_free_variant(variant) // frees memory of ARRAY, DICTIONARY etc - can be used for all variants, cause only frees if needed       
+godot_free_variant(variant) // frees memory of ARRAY, DICTIONARY etc - can be used for all variants, cause only frees if needed       
 VARTYPE_BOOL = 1,    
 VARTYPE_INT = 2,    
 VARTYPE_FLOAT = 3,    
