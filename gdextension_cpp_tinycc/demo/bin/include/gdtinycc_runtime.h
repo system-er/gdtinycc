@@ -75,6 +75,7 @@ void godot_get_variant(void* node, const char *property, GDExtensionVariant *res
 void godot_set_variant(void* node, const char* property, GDExtensionVariant variant);
 void godot_free_variant(GDExtensionVariant* variant);
 void* godot_instantiate(void* self, const char* scene_path);
+void* godot_get_tree(void* self);
 void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
