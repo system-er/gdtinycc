@@ -52,11 +52,12 @@ godot_print("floatvar with 2 decimal places %.2f", f);
 ```
 
 - nodes:        
-godot_get_node(self, path)    
+godot_get_node(self, path)
+godot_find_node(parentnode, name, 1) // 1=recursive    
 godot_instantiate(self, scenepath)    
-godot_create(classname) // v0.4 !!! add a missing class in godot_create            
-godot_add_child(parent, child) // use godot_add_child_deferred instead         
-godot_add_child_deferred(parent, child)       
+godot_create(classname) // v0.4 !!! add a missing class in godot_create                    
+godot_add_child_deferred(parent, child)    
+godot_remove_child_deferred(parent, child)    
 v0.4: godot_get_variant(node, property, &return-GDExtensionVariant) // look example    
 godot_set_variant(node, property, GDExtensionVariant)    
 v0.4: godot_call(object, method_name, arg_count, args, &return-GDExtensionVariant) // look example    
