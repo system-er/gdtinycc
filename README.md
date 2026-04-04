@@ -41,7 +41,7 @@ godot_get_physics_server2D()
 godot_get_physics_server3D()    
 
 - output:    
-godot_print(string, ...)
+godot_print(string, ...)     
 // examples:
 ```
 godot_print("helloworld");
