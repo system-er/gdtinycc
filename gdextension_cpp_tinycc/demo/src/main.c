@@ -31,9 +31,11 @@ void _ready(void* self) {
 
     // get the parentnode
     void* parent = godot_get_node(self, "/root/Main");
+
     if (parent != NULL) {
+        GDExtensionVariant v;
         godot_print("GDTinyCC main: node found");
-        GDExtensionVariant v = godot_get_variant(parent, "name");
+        godot_get_variant(parent, "name", &v);
         // show the name of the parentnode
         godot_print("parentname: %s", v.value.s);
     }
@@ -51,7 +53,7 @@ void _ready(void* self) {
         godot_print("failed to create Label");
         return;
     }
-    
+
     // test godot_call
     GDExtensionVariant args[1];
     args[0].type = VARTYPE_STRING;
@@ -59,8 +61,8 @@ void _ready(void* self) {
     godot_call(label, "set_name", 1, args);
     GDExtensionVariant vl;
     vl.type = VARTYPE_STRING;
-    vl = godot_get_variant(label, "name");
-    godot_print("label name: %s", vl.value.s);
+    //vl = godot_get_variant(label, "name");
+    //godot_print("label name: %s", vl.value.s);
 
     // set labeltext
     GDExtensionVariant v;
@@ -133,6 +135,11 @@ void _ready(void* self) {
     // test RefCounted object
     void* mat = godot_create("ImageTexture");
     godot_print(godot_get_class_name(mat));
+
+    // test 2 godot_get_variant
+    GDExtensionVariant p1;
+    godot_get_variant(label, "position", &p1);
+    godot_print("labelposition: %.2f %.2f", p1.value.vec2.x, p1.value.vec2.y);
 }
 
 void _process(void* self, double delta) {
