@@ -41,7 +41,15 @@ godot_get_physics_server2D()
 godot_get_physics_server3D()    
 
 - output:    
-godot_print(string, ...) // example godot_print("helloworld"); //godot_print("integervar: %d", i);
+godot_print(string, ...)
+// examples:
+```
+godot_print("helloworld");
+int i = 42;
+godot_print("integervar: %d", i);
+float f = 3.14159;
+godot_print("floatvar with 2 decimal places %.2f", f);
+```
 
 - nodes:        
 godot_get_node(self, path)    
