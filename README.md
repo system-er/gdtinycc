@@ -271,6 +271,7 @@ void _ready(void* self) {
     godot_get_variant(label, "position", &p1);
     godot_print("labelposition: %.2f %.2f", p1.value.vec2.x, p1.value.vec2.y);
 }
+
 void _process(void* self, double delta) {
     timepassed += delta;
     GDExtensionVariant v;
