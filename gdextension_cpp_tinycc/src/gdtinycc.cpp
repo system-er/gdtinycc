@@ -99,7 +99,8 @@ void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *format, ...);
 //void* godot_get_parent(void* node_ptr);
 void* godot_get_node(void* self, const char *path);
-GDExtensionVariant godot_get_variant(void* node, const char *property);
+//GDExtensionVariant godot_get_variant(void* node, const char *property);
+void godot_get_variant(void* node, const char *property, GDExtensionVariant *result);
 void godot_set_variant(void* node, const char *property, GDExtensionVariant variant);
 void* godot_instantiate(void* self, const char* scene_path);
 void* godot_create(const char* class_name);
@@ -900,7 +901,7 @@ void* godot_get_node(void* self, const char* path) {
 }
 
 
-
+/*
 GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
     GDExtensionVariant result = {0, {0}};
     
@@ -954,8 +955,7 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
         }
         case 5:  // VECTOR2
         {
-            UtilityFunctions::print("godot_get_variant: vector2 ");
-            break;
+
             godot::Vector2 v = value;
             result.type = VARTYPE_VECTOR2;
             result.value.vec2.x = v.x;
@@ -1045,6 +1045,10 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
     }
     return result;
 }
+*/
+
+
+
 
 const char* godot_get_type_name(int type) {
     switch (type) {
@@ -1506,8 +1510,8 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             
             break;
             */
-            UtilityFunctions::print("Converting COLOR: ", ext.value.color.r, " ", 
-                                    ext.value.color.g, " ", ext.value.color.b, " ", ext.value.color.a);
+            //UtilityFunctions::print("Converting COLOR: ", ext.value.color.r, " ", 
+            //                        ext.value.color.g, " ", ext.value.color.b, " ", ext.value.color.a);
             return godot::Color(ext.value.color.r,
                                 ext.value.color.g,
                                 ext.value.color.b,
@@ -1645,9 +1649,20 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
         }
         case 21:  // STRING_NAME
         {
-            result.type = VARTYPE_STRING_NAME;
-            godot::StringName sn = value;
-            result.ptr = memnew(godot::StringName(sn));
+            result.type = VARTYPE_STRING;
+            godot::String str;
+
+            if (value.get_type() == Variant::STRING) {
+                str = value;
+            } else if (value.get_type() == Variant::STRING_NAME) {
+                str = godot::String(value);
+            }
+            godot::PackedByteArray utf8 = str.to_utf8_buffer();
+            int len = (int)MIN(sizeof(result.value.s) - 1, (size_t)utf8.size());
+            if (len > 0) {
+                memcpy(result.value.s, utf8.ptr(), len);
+            }
+            result.value.s[len] = '\0';
         } break;
 
         case 20:  // COLOR
@@ -1701,6 +1716,18 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
     return result;
 }
 
+
+void godot_get_variant(void* node, const char *property, GDExtensionVariant *result) {
+    if (!result) return;
+    *result = {VARTYPE_NULL, {0}, nullptr};   // immer initialisieren
+
+    if (!node) return;
+
+    godot::Object* obj = static_cast<godot::Object*>(node);
+    godot::Variant v = obj->get(godot::String(property));
+
+    *result = variant_to_ext(v);   // oder direkt hier füllen
+}
 
 
 GDExtensionVariant godot_call(void* obj_ptr,
