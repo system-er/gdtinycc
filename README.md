@@ -51,9 +51,9 @@ godot_create(classname) // v0.4 !!! add a missing class in godot_create
 
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)       
-v0.4: godot_get_variant(node, property, &GDExtensionVariant)    
+v0.4: godot_get_variant(node, property, &return-GDExtensionVariant) // look example    
 godot_set_variant(node, property, GDExtensionVariant)    
-v0.4: godot_call(object, method_name, arg_count, args, &GDExtensionVariant)    
+v0.4: godot_call(object, method_name, arg_count, args, &return-GDExtensionVariant) // look example    
 godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
   
