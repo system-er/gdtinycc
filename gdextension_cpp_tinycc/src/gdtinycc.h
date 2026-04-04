@@ -77,6 +77,7 @@ typedef enum {
     VARTYPE_VECTOR3 = 9,
     VARTYPE_VECTOR3I = 10,
 
+    VARTYPE_COLOR = 20,
     VARTYPE_STRING_NAME = 21,
     VARTYPE_NODE_PATH = 22,
     VARTYPE_RID = 23,
@@ -84,7 +85,6 @@ typedef enum {
     VARTYPE_DICTIONARY = 27,
     VARTYPE_ARRAY = 28,
     VARTYPE_PACKED_BYTE_ARRAY = 29,
-    VARTYPE_COLOR = 20,
 
 } GDExtensionVarType;
 

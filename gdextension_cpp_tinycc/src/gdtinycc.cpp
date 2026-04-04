@@ -107,6 +107,10 @@ void* godot_instantiate(void* self, const char* scene_path);
 void* godot_create(const char* class_name);
 void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
+void godot_remove_child(void* parent, void* child);
+void godot_remove_child_deferred(void* parent, void* child);
+void* godot_get_children(void* parent);
+void* godot_find_node(void* parent, const char* name, int recursive);
 void godot_call(void* node_ptr, 
                 const char* method_name, 
                 int arg_count, 
@@ -379,6 +383,10 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_create", (void*)godot_create);
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
+    tcc_add_symbol(s, "godot_remove_child", (void*)godot_remove_child);
+    tcc_add_symbol(s, "godot_remove_child_deferred", (void*)godot_remove_child_deferred);
+    tcc_add_symbol(s, "godot_get_children", (void*)godot_get_children);
+    tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
@@ -610,6 +618,10 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_create", (void*)godot_create);
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
+    tcc_add_symbol(s, "godot_remove_child", (void*)godot_remove_child);
+    tcc_add_symbol(s, "godot_remove_child_deferred", (void*)godot_remove_child_deferred);
+    tcc_add_symbol(s, "godot_get_children", (void*)godot_get_children);
+    tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
@@ -739,6 +751,10 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_create", (void*)godot_create);
     tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
+    tcc_add_symbol(s, "godot_remove_child", (void*)godot_remove_child);
+    tcc_add_symbol(s, "godot_remove_child_deferred", (void*)godot_remove_child_deferred);
+    tcc_add_symbol(s, "godot_get_children", (void*)godot_get_children);
+    tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
@@ -1289,6 +1305,54 @@ void godot_add_child_deferred(void* parent_ptr, void* child_ptr) {
     godot::Node* child = static_cast<godot::Node*>(child_ptr);
     
     parent->call_deferred("add_child", child);
+}
+
+void godot_remove_child(void* parent_ptr, void* child_ptr) {
+    if (!parent_ptr || !child_ptr) {
+        UtilityFunctions::print("godot_remove_child: parent or child is null");
+        return;
+    }
+    
+    godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
+    godot::Node* child = static_cast<godot::Node*>(child_ptr);
+    
+    parent->remove_child(child);
+}
+
+void godot_remove_child_deferred(void* parent_ptr, void* child_ptr) {
+    if (!parent_ptr || !child_ptr) {
+        UtilityFunctions::print("godot_remove_child_deferred: parent or child is null");
+        return;
+    }
+    
+    godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
+    godot::Node* child = static_cast<godot::Node*>(child_ptr);
+    
+    parent->call_deferred("remove_child", child);
+}
+
+void* godot_get_children(void* parent_ptr) {
+    if (!parent_ptr) {
+        return nullptr;
+    }
+    
+    godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
+    godot::Array children = parent->get_children();
+    
+    godot::Array* result = memnew(godot::Array(children));
+    return static_cast<void*>(result);
+}
+
+void* godot_find_node(void* parent_ptr, const char* name, int recursive) {
+    if (!parent_ptr || !name) {
+        return nullptr;
+    }
+    
+    godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
+    godot::String name_str(name);
+    godot::Node* found = parent->find_child(name_str, recursive != 0, false);
+    
+    return static_cast<void*>(found);
 }
 
 
