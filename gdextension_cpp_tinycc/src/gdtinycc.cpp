@@ -32,6 +32,7 @@
 #include <godot_cpp/classes/csg_sphere3d.hpp>
 #include <godot_cpp/classes/area2d.hpp>
 #include <godot_cpp/classes/area3d.hpp>
+#include <godot_cpp/classes/collision_shape2d.hpp>
 #include <godot_cpp/classes/collision_shape3d.hpp>
 #include <godot_cpp/classes/shape3d.hpp>
 #include <godot_cpp/classes/sphere_shape3d.hpp>
@@ -120,6 +121,7 @@ long long godot_get_ticks_msec();
 void godot_delay_msec(int msec);
 void* godot_get_rendering_server();
 void* godot_get_engine();
+void* godot_get_tree(void* self);
 void* godot_get_display_server();
 void* godot_get_physics_server2D();
 void* godot_get_physics_server3D();  
@@ -383,6 +385,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_delay_msec", (void*)godot_delay_msec);
     tcc_add_symbol(s, "godot_get_rendering_server", (void*)godot_get_rendering_server);
     tcc_add_symbol(s, "godot_get_engine", (void*)godot_get_engine);
+    tcc_add_symbol(s, "godot_get_tree", (void*)godot_get_tree);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
     tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
@@ -612,6 +615,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_delay_msec", (void*)godot_delay_msec);
     tcc_add_symbol(s, "godot_get_rendering_server", (void*)godot_get_rendering_server);
     tcc_add_symbol(s, "godot_get_engine", (void*)godot_get_engine);
+    tcc_add_symbol(s, "godot_get_tree", (void*)godot_get_tree);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
     tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
@@ -739,6 +743,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_delay_msec", (void*)godot_delay_msec);
     tcc_add_symbol(s, "godot_get_rendering_server", (void*)godot_get_rendering_server);
     tcc_add_symbol(s, "godot_get_engine", (void*)godot_get_engine);
+    tcc_add_symbol(s, "godot_get_tree", (void*)godot_get_tree);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
     tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
@@ -1100,6 +1105,12 @@ void* godot_get_engine() {
     return godot::Engine::get_singleton();
 }
 
+void* godot_get_tree(void* self) {
+    if (!self) return nullptr;
+    godot::Node* node = static_cast<godot::Node*>(self);
+    return static_cast<void*>(node->get_tree());
+}
+
 void* godot_get_display_server() {
     return godot::DisplayServer::get_singleton();
 }
@@ -1363,8 +1374,14 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("Curve")) {
         return static_cast<void*>(memnew(godot::Curve));
     }
-    if (class_name_sn == godot::StringName("ArrayMesh ")) {
-        return static_cast<void*>(memnew(godot::ArrayMesh ));
+    if (class_name_sn == godot::StringName("ArrayMesh")) {
+        return static_cast<void*>(memnew(godot::ArrayMesh));
+    }
+    if (class_name_sn == godot::StringName("CollisionShape2D")) {
+        return static_cast<void*>(memnew(godot::CollisionShape2D));
+    }
+    if (class_name_sn == godot::StringName("CollisionShape3D")) {
+        return static_cast<void*>(memnew(godot::CollisionShape3D));
     }
     // missing add here
     
