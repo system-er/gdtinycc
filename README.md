@@ -51,7 +51,7 @@ godot_create(classname) // v0.4 !!! add a missing class in godot_create
 
 godot_add_child(parent, child)    
 godot_add_child_deferred(parent, child)       
-GDExtensionVariant godot_get_variant(node, property)    
+v0.4: godot_get_variant(node, property, &GDExtensionVariant)    
 godot_set_variant(node, property, GDExtensionVariant)    
 GDExtensionVariant godot_call(object, method_name, arg_count, args)    
 godot_load_resource(path, type_hint)    
