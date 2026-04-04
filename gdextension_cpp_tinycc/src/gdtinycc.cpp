@@ -928,20 +928,41 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.type = VARTYPE_FLOAT;
             result.value.f = (float)(double)value;
             break;
-        case 4:   // STRING (Godot 3)
-        case 21:  // STRING (Godot 4)
+        case 4:   // STRING
+        {
+            godot::String str = value;
+            godot::PackedByteArray utf8 = str.to_utf8_buffer();
+            int len = (int)MIN(sizeof(result.value.s) - 1, (size_t)utf8.size());
+            if (len > 0) {
+                memcpy(result.value.s, utf8.ptr(), len);
+            }
+            result.value.s[len] = '\0';
             result.type = VARTYPE_STRING;
-            snprintf(result.value.s, sizeof(result.value.s), "%s", ((godot::String)value).utf8().get_data());
             break;
+        }
+        case 21:   // STRINGNAME
+        {
+            godot::String str = value;
+            godot::PackedByteArray utf8 = str.to_utf8_buffer();
+            int len = (int)MIN(sizeof(result.value.s) - 1, (size_t)utf8.size());
+            if (len > 0) {
+                memcpy(result.value.s, utf8.ptr(), len);
+            }
+            result.value.s[len] = '\0';
+            result.type = VARTYPE_STRING;
+            break;
+        }
         case 5:  // VECTOR2
         {
+            UtilityFunctions::print("godot_get_variant: vector2 ");
+            break;
             godot::Vector2 v = value;
             result.type = VARTYPE_VECTOR2;
             result.value.vec2.x = v.x;
             result.value.vec2.y = v.y;
             break;
         }
-        case 6:  // VECTOR3
+        case 9:  // VECTOR3 (Godot 4)
         {
             godot::Vector3 v = value;
             result.type = VARTYPE_VECTOR3;
@@ -950,7 +971,7 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.vec3.z = v.z;
             break;
         }
-        case 20:  // VECTOR2I
+        case 6:  // VECTOR2I (Godot 4)
         {
             godot::Vector2i v = value;
             result.type = VARTYPE_VECTOR2I;
@@ -958,7 +979,7 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.vec2i.y = v.y;
             break;
         }
-        case 22:  // VECTOR3I
+        case 10:  // VECTOR3I (Godot 4)
         {
             godot::Vector3i v = value;
             result.type = VARTYPE_VECTOR3I;
@@ -967,14 +988,7 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.vec3i.z = v.z;
             break;
         }
-        case 23:  // PACKED_BYTE_ARRAY
-        {
-            godot::PackedByteArray arr = value;
-            result.type = VARTYPE_PACKED_BYTE_ARRAY;
-            result.ptr = memnew(godot::PackedByteArray(arr));
-            break;
-        }
-        case 19:  // RECT2I
+        case 8:  // RECT2I (Godot 4)
         {
             godot::Rect2i r = value;
             result.type = VARTYPE_RECT2I;
@@ -984,7 +998,14 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.rect2i.size.y = r.size.y;
             break;
         }
-        case 29:  // COLOR (Godot 4)
+        case 29:  // PACKED_BYTE_ARRAY (Godot 4)
+        {
+            godot::PackedByteArray arr = value;
+            result.type = VARTYPE_PACKED_BYTE_ARRAY;
+            result.ptr = memnew(godot::PackedByteArray(arr));
+            break;
+        }
+        case 20:  // COLOR (Godot 4)
         {
             godot::Color c = value;
             result.type = VARTYPE_COLOR;
@@ -994,7 +1015,7 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             result.value.color.a = c[3];
             break;
         }
-        case godot::Variant::OBJECT:
+        case 24:  // OBJECT (Godot 4)
         {
             godot::Object* obj = value;
             if (obj) {
@@ -1003,14 +1024,14 @@ GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
             }
             break;
         }
-        case godot::Variant::DICTIONARY:
+        case 27:  // DICTIONARY (Godot 4)
         {
             godot::Dictionary dict = value;
             result.type = VARTYPE_DICTIONARY;
             result.ptr = memnew(godot::Dictionary(dict));
             break;
         }
-        case godot::Variant::ARRAY:
+        case 28:  // ARRAY (Godot 4)
         {
             godot::Array arr = value;
             result.type = VARTYPE_ARRAY;
@@ -1032,13 +1053,16 @@ const char* godot_get_type_name(int type) {
         case VARTYPE_INT: return "INT";
         case VARTYPE_FLOAT: return "FLOAT";
         case VARTYPE_STRING: return "STRING";
+        case VARTYPE_STRING_NAME: return "STRING_NAME";
         case VARTYPE_VECTOR2: return "VECTOR2";
         case VARTYPE_VECTOR3: return "VECTOR3";
         case VARTYPE_VECTOR2I: return "VECTOR2I";
         case VARTYPE_VECTOR3I: return "VECTOR3I";
         case VARTYPE_COLOR: return "COLOR";
         case VARTYPE_PACKED_BYTE_ARRAY: return "PACKED_BYTE_ARRAY";
+        case VARTYPE_RECT2: return "RECT2";
         case VARTYPE_RECT2I: return "RECT2I";
+        case VARTYPE_OBJECT: return "OBJECT";
         default: return "UNKNOWN";
     }
 }
@@ -1086,7 +1110,7 @@ void* godot_get_os() {
 
 void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {
     if (!node_ptr) {
-        UtilityFunctions::print("godot_set_variant: node is null");
+        UtilityFunctions::print("godot_set_variant: node is null, property: %s", property);
         return;
     }
     
@@ -1242,7 +1266,7 @@ void godot_add_child_deferred(void* parent_ptr, void* child_ptr) {
     parent->call_deferred("add_child", child);
 }
 
-/*
+
 void* godot_create(const char* class_name) {
     godot::StringName class_name_sn(class_name);
     
@@ -1315,13 +1339,32 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("TextureRect")) {
         return static_cast<void*>(memnew(godot::TextureRect));
     }
+    if (class_name_sn == godot::StringName("ImageTexture")) {
+        return static_cast<void*>(memnew(godot::ImageTexture));
+    }
+    if (class_name_sn == godot::StringName("StandardMaterial3D")) {
+        return static_cast<void*>(memnew(godot::StandardMaterial3D));
+    }
+    if (class_name_sn == godot::StringName("ShaderMaterial")) {
+        return static_cast<void*>(memnew(godot::ShaderMaterial));
+    }
+    if (class_name_sn == godot::StringName("Gradient")) {
+        return static_cast<void*>(memnew(godot::Gradient));
+    }
+    if (class_name_sn == godot::StringName("Curve")) {
+        return static_cast<void*>(memnew(godot::Curve));
+    }
+    if (class_name_sn == godot::StringName("ArrayMesh ")) {
+        return static_cast<void*>(memnew(godot::ArrayMesh ));
+    }
+    // missing add here
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
     return nullptr;
 }
-*/
 
 
+/*
 void* godot_create(const char* class_name) {
     StringName sn(class_name);
     
@@ -1393,7 +1436,7 @@ void* godot_create(const char* class_name) {
 
     return obj;
 }
-
+*/
 
 godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
     godot::Variant value;
@@ -1417,18 +1460,34 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
             return godot::Vector2(ext.value.vec2.x, ext.value.vec2.y);
             //value = godot::Variant(godot::Vector2(ext.value.vec2.x, ext.value.vec2.y));
             break;
-        case VARTYPE_VECTOR3:
-            value = godot::Variant(godot::Vector3(ext.value.vec3.x, ext.value.vec3.y, ext.value.vec3.z));
-            break;
+
         case VARTYPE_VECTOR2I:
             //UtilityFunctions::print("variant_from_ext: VECTOR2I");
             //value = godot::Variant(godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y));
             //UtilityFunctions::print("variant_from_ext: VECTOR2I done");
             return godot::Vector2i(ext.value.vec2i.x, ext.value.vec2i.y);
             break;
+        
+        case VARTYPE_RECT2:
+            //value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
+            return godot::Rect2(
+                ext.value.rect2.position.x,
+                ext.value.rect2.position.y,
+                ext.value.rect2.size.x,
+                ext.value.rect2.size.y
+            );
+            break;
+        case VARTYPE_RECT2I:
+            value = godot::Variant(godot::Rect2i(ext.value.rect2i.position.x, ext.value.rect2i.position.y, ext.value.rect2i.size.x, ext.value.rect2i.size.y));
+            break;
+
+        case VARTYPE_VECTOR3:
+            value = godot::Variant(godot::Vector3(ext.value.vec3.x, ext.value.vec3.y, ext.value.vec3.z));
+            break;
         case VARTYPE_VECTOR3I:
             value = godot::Variant(godot::Vector3i(ext.value.vec3i.x, ext.value.vec3i.y, ext.value.vec3i.z));
             break;
+
         case VARTYPE_PACKED_BYTE_ARRAY: {
             if (ext.ptr) {
                 value = godot::Variant(*static_cast<godot::PackedByteArray*>(ext.ptr));
@@ -1455,18 +1514,6 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
                                 ext.value.color.a);
             break;
         }
-        case VARTYPE_RECT2:
-            //value = godot::Variant(godot::Rect2(ext.value.rect2.position.x, ext.value.rect2.position.y, ext.value.rect2.size.width, ext.value.rect2.size.height ));
-            return godot::Rect2(
-                ext.value.rect2.position.x,
-                ext.value.rect2.position.y,
-                ext.value.rect2.size.x,
-                ext.value.rect2.size.y
-            );
-            break;
-        case VARTYPE_RECT2I:
-            value = godot::Variant(godot::Rect2i(ext.value.rect2i.position.x, ext.value.rect2i.position.y, ext.value.rect2i.size.x, ext.value.rect2i.size.y));
-            break;
 
         case VARTYPE_STRING_NAME: {
             if (ext.ptr) {
@@ -1519,27 +1566,33 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
     }
     
     switch (value.get_type()) {
-        case godot::Variant::NIL:
+        case 0:  // NIL
             result.type = VARTYPE_NULL;
             break;
-        case godot::Variant::BOOL:
+        case 1:  // BOOL
             result.type = VARTYPE_BOOL;
             result.value.b = (bool)value ? 1 : 0;
             break;
-        case godot::Variant::INT:
+        case 2:  // INT
             result.type = VARTYPE_INT;
             result.value.i = (int)value;
             break;
-        case godot::Variant::FLOAT:
+        case 3:  // FLOAT
             result.type = VARTYPE_FLOAT;
             result.value.f = (float)(double)value;
             break;
-        case godot::Variant::STRING: {
+        case 4:  // STRING
+        {
             result.type = VARTYPE_STRING;
             godot::String str = value;
-            snprintf(result.value.s, sizeof(result.value.s), "%s", str.utf8().get_data());
+            godot::PackedByteArray utf8 = str.to_utf8_buffer();
+            int len = (int)MIN(sizeof(result.value.s) - 1, (size_t)utf8.size());
+            if (len > 0) {
+                memcpy(result.value.s, utf8.ptr(), len);
+            }
+            result.value.s[len] = '\0';
         } break;
-        case godot::Variant::VECTOR2:
+        case 5:  // VECTOR2
         {
             godot::Vector2 v = value;
             result.type = VARTYPE_VECTOR2;
@@ -1547,7 +1600,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec2.y = v.y;
             break;
         }
-        case godot::Variant::VECTOR3:
+        case 9:  // VECTOR3
         {
             godot::Vector3 v = value;
             result.type = VARTYPE_VECTOR3;
@@ -1556,7 +1609,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec3.z = v.z;
             break;
         }
-        case godot::Variant::VECTOR2I:
+        case 6:  // VECTOR2I
         {
             godot::Vector2i v = value;
             result.type = VARTYPE_VECTOR2I;
@@ -1564,7 +1617,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec2i.y = v.y;
             break;
         }
-        case godot::Variant::VECTOR3I:
+        case 10:  // VECTOR3I
         {
             godot::Vector3i v = value;
             result.type = VARTYPE_VECTOR3I;
@@ -1573,14 +1626,14 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.vec3i.z = v.z;
             break;
         }
-        case godot::Variant::PACKED_BYTE_ARRAY:
+        case 29:  // PACKED_BYTE_ARRAY
         {
             result.type = VARTYPE_PACKED_BYTE_ARRAY;
             godot::PackedByteArray arr = value;
             result.ptr = memnew(godot::PackedByteArray(arr));
             break;
         }
-        case godot::Variant::RECT2I:
+        case 8:  // RECT2I
         {
             godot::Rect2i r = value;
             result.type = VARTYPE_RECT2I;
@@ -1590,22 +1643,15 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.rect2i.size.y = r.size.y;
             break;
         }
-        case godot::Variant::STRING_NAME: {
+        case 21:  // STRING_NAME
+        {
             result.type = VARTYPE_STRING_NAME;
             godot::StringName sn = value;
             result.ptr = memnew(godot::StringName(sn));
         } break;
 
-        case godot::Variant::COLOR:
+        case 20:  // COLOR
         {
-            /*
-            godot::Color c = value;
-            result.type = VARTYPE_COLOR;
-            result.value.color.r = c.r;
-            result.value.color.g = c.g;
-            result.value.color.b = c.b;
-            result.value.color.a = c.a;
-            */
             result.type = VARTYPE_COLOR;
             godot::Color c = value;
             result.value.color.r = c.r;
@@ -1614,7 +1660,8 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.value.color.a = c.a;
             break;
         }
-        case godot::Variant::RECT2: {
+        case 7:  // RECT2
+        {
             godot::Rect2 r = value;
             result.type = VARTYPE_RECT2;
             result.value.rect2.position.x = r.position.x;
@@ -1624,22 +1671,24 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             break;
         }
 
-        case godot::Variant::OBJECT: {
+        case 24:  // OBJECT
+        {
             result.type = VARTYPE_OBJECT;
-
             godot::Object* obj = value;
             if (obj) {
                 result.ptr = obj;
             }
         } break;
 
-        case godot::Variant::DICTIONARY: {
+        case 27:  // DICTIONARY
+        {
             result.type = VARTYPE_DICTIONARY;
             godot::Dictionary dict = value;
             result.ptr = memnew(godot::Dictionary(dict)); 
         } break;
 
-        case godot::Variant::ARRAY: {
+        case 28:  // ARRAY
+        {
             result.type = VARTYPE_ARRAY;
             godot::Array arr = value;
             result.ptr = memnew(godot::Array(arr));
