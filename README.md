@@ -332,6 +332,7 @@ void _draw(void* self) {
     if(drawingnode) {
         godot_draw_rect(drawingnode, 500.0f, 200.0f, 200.0f, 100.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1);
         godot_draw_circle(drawingnode, 800.0f, 400.0f, 100.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
+		godot_draw_line(drawingnode, 600.0f, 200.0f, 700.0f, 600.0f, 1.0f, 0.0f, 0.0f, 1.0f, 6.0f);
     }
     else {
         godot_print("error: drawingnode not found");
