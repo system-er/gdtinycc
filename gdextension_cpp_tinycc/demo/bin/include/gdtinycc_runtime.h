@@ -123,6 +123,13 @@ void godot_free_variant(GDExtensionVariant* variant);
 int godot_check_collision(void* area, void* other);
 int godot_check_collision_3d(void* area3d, void* other);
 void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3);
+void godot_remove_child(void* parent, void* child);
+void godot_remove_child_deferred(void* parent, void* child);
+void* godot_get_children(void* parent);
+void* godot_find_node(void* parent, const char* name, int recursive);
+
+typedef void* Array;
+
 double sin(double x);
 double cos(double x);
 double abs(double x);
