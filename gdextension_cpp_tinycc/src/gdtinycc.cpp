@@ -52,6 +52,7 @@
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/window.hpp>
 #include <godot_cpp/classes/viewport.hpp>
+#include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
 #include <godot_cpp/classes/input_event.hpp>   
@@ -134,6 +135,7 @@ void* godot_get_display_server();
 void* godot_get_physics_server2D();
 void* godot_get_physics_server3D();  
 void* godot_get_os();
+void* godot_get_input();
 void godot_print_int(int value);
 void godot_connect(void* self, void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
 float godot_randf();
@@ -405,6 +407,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_get_tree", (void*)godot_get_tree);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
     tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
+    tcc_add_symbol(s, "godot_get_input", (void*)godot_get_input);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -642,6 +645,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_get_tree", (void*)godot_get_tree);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
     tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
+    tcc_add_symbol(s, "godot_get_input", (void*)godot_get_input);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -777,6 +781,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_get_tree", (void*)godot_get_tree);
     tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
     tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
+    tcc_add_symbol(s, "godot_get_input", (void*)godot_get_input);
     tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
     tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
     tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
@@ -1159,6 +1164,10 @@ void* godot_get_physics_server3D() {
 
 void* godot_get_os() {
     return godot::OS::get_singleton();
+}
+
+void* godot_get_input() {
+    return godot::Input::get_singleton();
 }
 
 void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {
