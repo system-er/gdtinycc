@@ -44,11 +44,11 @@ godot_get_physics_server3D()
 godot_print(string, ...)     
 // examples:
 ```
-godot_print("helloworld");
-int i = 42;
-godot_print("integervar: %d", i);
-float f = 3.14159;
-godot_print("floatvar with 2 decimal places %.2f", f);
+	godot_print("helloworld");
+	int i = 42;
+	godot_print("integervar: %d", i);
+	float f = 3.14159;
+	godot_print("floatvar with 2 decimal places %.2f", f);
 ```
 
 - nodes:        
@@ -57,6 +57,18 @@ v0.5: godot_find_node(parentnode, name, 1) // 1=recursive
 godot_instantiate(self, scenepath)    
 godot_create(classname) // v0.4 !!! add a missing class in godot_create                    
 godot_add_child_deferred(parent, child)    
+v0.5.1: godot_get_children_count(parent)    
+v0.5.1: godot_get_child_at(parent, nr)
+// example:
+```
+    int count = godot_get_children_count(parent);
+    godot_print("children of parent: %d", count);
+    for (int i = 0; i < count; i++) {
+        void* child = godot_get_child_at(parent, i);
+        godot_get_variant(child, "name", &v);
+        godot_print("godot_get_child_at - childnr %d, childname: %s", i, v.value.s);
+    }
+```
 v0.5: godot_remove_child_deferred(parent, child)    
 v0.4: godot_get_variant(node, property, &return-GDExtensionVariant) // look example    
 godot_set_variant(node, property, GDExtensionVariant)    
@@ -66,9 +78,9 @@ godot_queue_free(node)
 v0.4: godot_get_tree(self)    
 // for example to quit program:    
 ```
-GDExtensionVariant result;
-void* tree = godot_get_tree(self);
-godot_call(tree, "quit", 0, NULL, &result);
+	GDExtensionVariant result;
+	void* tree = godot_get_tree(self);
+	godot_call(tree, "quit", 0, NULL, &result);
 ```
   
 - signals:    
@@ -111,6 +123,7 @@ godot_get_drawingcanvas(self)
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 v0.4: godot_draw_line(drawingnode, x1, y1, x2, y2, r, g, b, a, thickness)    
+v0.5.1: godot_draw_string(drawingnode, font, x, y, text, r, g, b, a, font_size)      
 - collision:    
 godot_get_physics_server2D()    
 godot_get_physics_server3D()    
@@ -333,6 +346,7 @@ void _draw(void* self) {
         godot_draw_rect(drawingnode, 500.0f, 200.0f, 200.0f, 100.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1);
         godot_draw_circle(drawingnode, 800.0f, 400.0f, 100.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
 		godot_draw_line(drawingnode, 600.0f, 200.0f, 700.0f, 600.0f, 1.0f, 0.0f, 0.0f, 1.0f, 6.0f);
+		godot_draw_string(drawingnode, "default_font", 100.0f, 500.0f, "this is text from godot_draw_string", 1.0f, 1.0f, 1.0f, 1.0f, 22.0f);
     }
     else {
         godot_print("error: drawingnode not found");
