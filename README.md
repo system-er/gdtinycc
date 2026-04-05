@@ -1,4 +1,4 @@
-# GDTinyCC - gdextension C compiler (v0.5.1 - on the right track)             
+# GDTinyCC - gdextension C compiler (v0.5.2 - on the right track)             
 
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
@@ -39,6 +39,19 @@ godot_get_display_server()
 godot_get_os()    
 godot_get_physics_server2D()    
 godot_get_physics_server3D()    
+v0.5.2: godot_get_input()
+// example:
+```
+    void* input = godot_get_input();
+    GDExtensionVariant keycode;
+    keycode.type = VARTYPE_INT;
+    keycode.value.i = 87;  // KEY_W
+    GDExtensionVariant result;
+    godot_call(input, "is_key_pressed", 1, &keycode, &result);
+    if (result.value.b) {
+        godot_print("Key W is pressed");
+    }
+```
 
 - output:    
 godot_print(string, ...)     
