@@ -61,6 +61,9 @@
 #include <godot_cpp/classes/gradient.hpp>
 #include <godot_cpp/classes/curve.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/font.hpp>
+#include <godot_cpp/classes/theme.hpp>
+#include <godot_cpp/classes/theme_db.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/godot.hpp>
 
@@ -109,7 +112,8 @@ void godot_add_child(void* parent, void* child);
 void godot_add_child_deferred(void* parent, void* child);
 void godot_remove_child(void* parent, void* child);
 void godot_remove_child_deferred(void* parent, void* child);
-void* godot_get_children(void* parent);
+int godot_get_children_count(void* parent);
+void* godot_get_child_at(void* parent_ptr, int index);
 void* godot_find_node(void* parent, const char* name, int recursive);
 void godot_call(void* node_ptr, 
                 const char* method_name, 
@@ -143,6 +147,8 @@ void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
 void godot_draw_line(void* canvas_item_ptr, float x1, float y1, float x2, float y2,
                      float r, float g, float b, float a, float thickness);
+void godot_draw_string(void* canvas_item_ptr, const char* font, float x, float y, const char* text,
+                       float r, float g, float b, float a, float font_size);
 void* godot_get_drawingnode(void* self);
 void* godot_get_drawingcanvas(void* self);
 int godot_is_pressed(void* evt);
@@ -385,7 +391,8 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_remove_child", (void*)godot_remove_child);
     tcc_add_symbol(s, "godot_remove_child_deferred", (void*)godot_remove_child_deferred);
-    tcc_add_symbol(s, "godot_get_children", (void*)godot_get_children);
+    tcc_add_symbol(s, "godot_get_children_count", (void*)godot_get_children_count);
+tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
@@ -408,6 +415,7 @@ void GDTinyCC::compile_file() {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_draw_line", (void*)godot_draw_line);
+    tcc_add_symbol(s, "godot_draw_string", (void*)godot_draw_string);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_get_drawingcanvas", (void*)godot_get_drawingcanvas);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
@@ -620,7 +628,8 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_remove_child", (void*)godot_remove_child);
     tcc_add_symbol(s, "godot_remove_child_deferred", (void*)godot_remove_child_deferred);
-    tcc_add_symbol(s, "godot_get_children", (void*)godot_get_children);
+    tcc_add_symbol(s, "godot_get_children_count", (void*)godot_get_children_count);
+tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
@@ -643,6 +652,7 @@ void GDTinyCC::load_object(const String &object_file) {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_draw_line", (void*)godot_draw_line);
+    tcc_add_symbol(s, "godot_draw_string", (void*)godot_draw_string);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_get_drawingcanvas", (void*)godot_get_drawingcanvas);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
@@ -753,7 +763,8 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
     tcc_add_symbol(s, "godot_remove_child", (void*)godot_remove_child);
     tcc_add_symbol(s, "godot_remove_child_deferred", (void*)godot_remove_child_deferred);
-    tcc_add_symbol(s, "godot_get_children", (void*)godot_get_children);
+    tcc_add_symbol(s, "godot_get_children_count", (void*)godot_get_children_count);
+tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
@@ -776,6 +787,7 @@ void GDTinyCC::load_object_file() {
     tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
     tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
     tcc_add_symbol(s, "godot_draw_line", (void*)godot_draw_line);
+    tcc_add_symbol(s, "godot_draw_string", (void*)godot_draw_string);
     tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
     tcc_add_symbol(s, "godot_get_drawingcanvas", (void*)godot_get_drawingcanvas);
     tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
@@ -1331,7 +1343,18 @@ void godot_remove_child_deferred(void* parent_ptr, void* child_ptr) {
     parent->call_deferred("remove_child", child);
 }
 
-void* godot_get_children(void* parent_ptr) {
+int godot_get_children_count(void* parent_ptr) {
+    if (!parent_ptr) {
+        return 0;
+    }
+    
+    godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
+    godot::Array children = parent->get_children();
+    
+    return children.size();
+}
+
+void* godot_get_child_at(void* parent_ptr, int index) {
     if (!parent_ptr) {
         return nullptr;
     }
@@ -1339,8 +1362,18 @@ void* godot_get_children(void* parent_ptr) {
     godot::Node* parent = static_cast<godot::Node*>(parent_ptr);
     godot::Array children = parent->get_children();
     
-    godot::Array* result = memnew(godot::Array(children));
-    return static_cast<void*>(result);
+    if (index < 0 || index >= children.size()) {
+        return nullptr;
+    }
+    
+    godot::Variant child = children[index];
+    if (child.get_type() == godot::Variant::OBJECT) {
+        godot::Object* obj = child;
+        godot::Node* node = godot::Object::cast_to<godot::Node>(obj);
+        return static_cast<void*>(node);
+    }
+    
+    return nullptr;
 }
 
 void* godot_find_node(void* parent_ptr, const char* name, int recursive) {
@@ -2268,3 +2301,30 @@ void godot_draw_line(void* canvas_item_ptr, float x1, float y1, float x2, float 
     Color color(r, g, b, a);
     ci->draw_line(v1, v2, color, thickness);
 }
+
+void godot_draw_string(void* canvas_item_ptr, const char* font, float x, float y, const char* text,
+                       float r, float g, float b, float a, float font_size) {
+    if (!canvas_item_ptr || !text) {
+        return;
+    }
+    CanvasItem* ci = static_cast<CanvasItem*>(canvas_item_ptr);
+    Vector2 pos(x, y);
+    Color color(r, g, b, a);
+    
+    Ref<Font> font_ref;
+    if (font != nullptr && strcmp(font, "default_font") == 0) {
+        Ref<Theme> theme = ThemeDB::get_singleton()->get_default_theme();
+        if (!theme.is_null()) {
+            font_ref = theme->get_default_font();
+        }
+    } else if (font != nullptr && strcmp(font, "") != 0) {
+        String font_path(font);
+        if (!font_path.begins_with("res://")) {
+            font_path = "res://" + font_path;
+        }
+        font_ref = ResourceLoader::get_singleton()->load(font_path);
+    }
+    
+    ci->draw_string(font_ref, pos, String(text), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color);
+}
+
