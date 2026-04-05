@@ -104,6 +104,8 @@ void godot_draw_circle(void* canvas_item_ptr, float x, float y, float radius,
                               float r, float g, float b, float a, int filled);
 void godot_draw_line(void* canvas_item_ptr, float x1, float y1, float x2, float y2,
                      float r, float g, float b, float a, float thickness);
+void godot_draw_string(void* canvas_item_ptr, const char* font, float x, float y, const char* text,
+                       float r, float g, float b, float a, float font_size);
 void* godot_get_drawingnode(void* self);
 void* godot_get_drawingcanvas(void* self);
 int godot_is_pressed(void* event);
@@ -125,7 +127,8 @@ int godot_check_collision_3d(void* area3d, void* other);
 void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3);
 void godot_remove_child(void* parent, void* child);
 void godot_remove_child_deferred(void* parent, void* child);
-void* godot_get_children(void* parent);
+int godot_get_children_count(void* parent);
+void* godot_get_child_at(void* parent, int index);
 void* godot_find_node(void* parent, const char* name, int recursive);
 
 typedef void* Array;
