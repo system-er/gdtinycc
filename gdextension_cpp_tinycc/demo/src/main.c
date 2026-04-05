@@ -141,6 +141,24 @@ void _ready(void* self) {
     GDExtensionVariant p1;
     godot_get_variant(label, "position", &p1);
     godot_print("labelposition: %.2f %.2f", p1.value.vec2.x, p1.value.vec2.y);
+
+    //godot_remove_child_deferred(parent, label);
+
+    // test godot_find_node
+    void* found = godot_find_node(parent, "Button", 1);
+    if (found) {
+        godot_print("Button node found");
+    }
+
+    // test godot_get_children
+    int count = godot_get_children_count(parent);
+    godot_print("children of parent: %d", count);
+    for (int i = 0; i < count; i++) {
+        void* child = godot_get_child_at(parent, i);
+        godot_get_variant(child, "name", &v);
+        godot_print("godot_get_child_at - childnr %d, childname: %s", i, v.value.s);
+    }
+
 }
 
 void _process(void* self, double delta) {
@@ -164,7 +182,12 @@ void _input(void* self,void* event) {
         int code = godot_eventcode(event);
         godot_print("input event: %d", code);
 
-        if(code < 9){ //mousebutton
+        if (code == 4194305) { // ESC
+            GDExtensionVariant result;
+            void* tree = godot_get_tree(self);
+            godot_call(tree, "quit", 0, NULL, &result);
+        }
+        else if(code < 9){ //mousebutton
             GDExtensionVariant v;
             v.type = VARTYPE_VECTOR2;
             v = godot_get_global_mouse_position(self);
@@ -180,6 +203,8 @@ void _draw(void* self) {
     if(drawingnode) {
         godot_draw_rect(drawingnode, 500.0f, 200.0f, 200.0f, 100.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1);
         godot_draw_circle(drawingnode, 800.0f, 400.0f, 100.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1);
+        godot_draw_line(drawingnode, 600.0f, 200.0f, 700.0f, 600.0f, 1.0f, 0.0f, 0.0f, 1.0f, 6.0f);
+        godot_draw_string(drawingnode, "default_font", 100.0f, 500.0f, "this is text from godot_draw_string", 1.0f, 1.0f, 1.0f, 1.0f, 22.0f);
     }
     else {
         godot_print("error: drawingnode not found");
