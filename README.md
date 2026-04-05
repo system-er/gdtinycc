@@ -40,7 +40,7 @@ godot_get_display_server()
 godot_get_os()    
 godot_get_physics_server2D()    
 godot_get_physics_server3D()    
-v0.5.2: godot_get_input() // example:    
+v0.5.2: godot_get_input() // example:
 ```
     void* input = godot_get_input();
     GDExtensionVariant keycode;
@@ -54,7 +54,7 @@ v0.5.2: godot_get_input() // example:
 ```
 
 - output:    
-godot_print(string, ...) // examples:    
+godot_print(string, ...) // examples:
 ```
 	godot_print("helloworld");
 	int i = 42;
@@ -70,7 +70,7 @@ godot_instantiate(self, scenepath)
 godot_create(classname) // v0.4 !!! add a missing class in godot_create                    
 godot_add_child_deferred(parent, child)    
 v0.5.1: godot_get_children_count(parent)    
-v0.5.1: godot_get_child_at(parent, nr) // example:    
+v0.5.1: godot_get_child_at(parent, nr) // example:
 ```
     int count = godot_get_children_count(parent);
     godot_print("children of parent: %d", count);
@@ -86,7 +86,7 @@ godot_set_variant(node, property, GDExtensionVariant)
 v0.4: godot_call(object, method_name, arg_count, args, &return-GDExtensionVariant) // look example    
 godot_load_resource(path, type_hint)    
 godot_queue_free(node)    
-v0.4: godot_get_tree(self) // for example to quit program:    
+v0.4: godot_get_tree(self) // for example to quit program:
 ```
 	GDExtensionVariant result;
 	void* tree = godot_get_tree(self);
