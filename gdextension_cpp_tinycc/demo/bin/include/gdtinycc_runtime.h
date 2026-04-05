@@ -121,6 +121,7 @@ void* godot_get_display_server();
 void* godot_get_physics_server2D();
 void* godot_get_physics_server3D();  
 void* godot_get_os();
+void* godot_get_input();
 void godot_free_variant(GDExtensionVariant* variant);
 int godot_check_collision(void* area, void* other);
 int godot_check_collision_3d(void* area3d, void* other);
