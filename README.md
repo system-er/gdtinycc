@@ -3,6 +3,7 @@
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob     
+the powerful commands godot_get_variant/godot_set_variant and godot_call reach properties and methods!     
 time to get out the old Kernighan/Ritchie C-bible  ;-)    
     
 edit your c-files with the editor of your choice          
