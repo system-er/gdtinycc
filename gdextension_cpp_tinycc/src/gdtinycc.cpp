@@ -35,6 +35,8 @@
 #include <godot_cpp/classes/collision_shape2d.hpp>
 #include <godot_cpp/classes/collision_shape3d.hpp>
 #include <godot_cpp/classes/shape3d.hpp>
+#include <godot_cpp/classes/mesh_instance2d.hpp>
+#include <godot_cpp/classes/mesh_instance3d.hpp>
 #include <godot_cpp/classes/sphere_shape3d.hpp>
 #include <godot_cpp/classes/box_shape3d.hpp>
 #include <godot_cpp/classes/capsule_shape3d.hpp>
@@ -53,6 +55,17 @@
 #include <godot_cpp/classes/window.hpp>
 #include <godot_cpp/classes/viewport.hpp>
 #include <godot_cpp/classes/input.hpp>
+#include <godot_cpp/classes/animation_player.hpp>
+#include <godot_cpp/classes/audio_stream_player.hpp>
+#include <godot_cpp/classes/audio_stream_player3d.hpp>
+#include <godot_cpp/classes/audio_stream_player2d.hpp>
+#include <godot_cpp/classes/label3d.hpp>
+#include <godot_cpp/classes/directional_light3d.hpp>
+#include <godot_cpp/classes/omni_light3d.hpp>
+#include <godot_cpp/classes/spot_light3d.hpp>
+#include <godot_cpp/classes/world3d.hpp>
+#include <godot_cpp/classes/world2d.hpp>
+#include <godot_cpp/classes/sprite_frames.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
 #include <godot_cpp/classes/input_event.hpp>   
@@ -62,6 +75,8 @@
 #include <godot_cpp/classes/gradient.hpp>
 #include <godot_cpp/classes/curve.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/box_mesh.hpp>
+#include <godot_cpp/classes/shader.hpp>
 #include <godot_cpp/classes/font.hpp>
 #include <godot_cpp/classes/theme.hpp>
 #include <godot_cpp/classes/theme_db.hpp>
@@ -85,12 +100,6 @@
 #define PATH_SEPARATOR "/"
 #endif
 
-//extern "C" {
-//    #include "tinycc-mob/libtcc.h"
-//}
-
-//godot::GDTinyCCDrawer* godot::GDTinyCC::shared_drawer    = nullptr;
-//godot::CanvasLayer*    godot::GDTinyCC::shared_ui_canvas = nullptr;
 
 
 using namespace godot;
@@ -908,26 +917,7 @@ void godot_print(const char *format, ...) {
     UtilityFunctions::print(buffer);
 }
 
-/*
-void* godot_get_parent(void* self, void* node_ptr) {
-    if (!self) {
-        UtilityFunctions::print("godot_connect: missing self pointer");
-        return;
-    }
-    GDTinyCC* instance = static_cast<GDTinyCC*>(self);
-    if (instance) {
-        godot::Node* node = static_cast<godot::Node*>(node_ptr);
-        godot::Node* parent = node->get_parent();
-        if (!parent){
-            UtilityFunctions::print("error: godot_get_parent - node not found ");
-        }
-        return static_cast<void*>(parent);
-    } else {
-        UtilityFunctions::print("error: godot_get_parent - no current instance found");
-        return nullptr;
-    }
-}
-*/
+
 
 void* godot_get_node(void* self, const char* path) {
     if (!self) {
@@ -947,154 +937,6 @@ void* godot_get_node(void* self, const char* path) {
         return nullptr;
     }
 }
-
-
-/*
-GDExtensionVariant godot_get_variant(void* node_ptr, const char* property) {
-    GDExtensionVariant result = {0, {0}};
-    
-    if (!node_ptr) {
-        UtilityFunctions::print("godot_get_variant: node is null");
-        return result;
-    }
-    
-    godot::Node* node = static_cast<godot::Node*>(node_ptr);
-    godot::Variant value = node->get(property);
-    
-    switch ((int)value.get_type()) {
-        case 0:  // NIL
-            result.type = VARTYPE_NULL;
-            break;
-        case 1:  // BOOL
-            result.type = VARTYPE_BOOL;
-            result.value.b = (bool)value ? 1 : 0;
-            break;
-        case 2:  // INT
-            result.type = VARTYPE_INT;
-            result.value.i = (int)value;
-            break;
-        case 3:  // FLOAT
-            result.type = VARTYPE_FLOAT;
-            result.value.f = (float)(double)value;
-            break;
-        case 4:   // STRING
-        {
-            godot::String str = value;
-            godot::PackedByteArray utf8 = str.to_utf8_buffer();
-            int len = (int)MIN(sizeof(result.value.s) - 1, (size_t)utf8.size());
-            if (len > 0) {
-                memcpy(result.value.s, utf8.ptr(), len);
-            }
-            result.value.s[len] = '\0';
-            result.type = VARTYPE_STRING;
-            break;
-        }
-        case 21:   // STRINGNAME
-        {
-            godot::String str = value;
-            godot::PackedByteArray utf8 = str.to_utf8_buffer();
-            int len = (int)MIN(sizeof(result.value.s) - 1, (size_t)utf8.size());
-            if (len > 0) {
-                memcpy(result.value.s, utf8.ptr(), len);
-            }
-            result.value.s[len] = '\0';
-            result.type = VARTYPE_STRING;
-            break;
-        }
-        case 5:  // VECTOR2
-        {
-
-            godot::Vector2 v = value;
-            result.type = VARTYPE_VECTOR2;
-            result.value.vec2.x = v.x;
-            result.value.vec2.y = v.y;
-            break;
-        }
-        case 9:  // VECTOR3 (Godot 4)
-        {
-            godot::Vector3 v = value;
-            result.type = VARTYPE_VECTOR3;
-            result.value.vec3.x = v.x;
-            result.value.vec3.y = v.y;
-            result.value.vec3.z = v.z;
-            break;
-        }
-        case 6:  // VECTOR2I (Godot 4)
-        {
-            godot::Vector2i v = value;
-            result.type = VARTYPE_VECTOR2I;
-            result.value.vec2i.x = v.x;
-            result.value.vec2i.y = v.y;
-            break;
-        }
-        case 10:  // VECTOR3I (Godot 4)
-        {
-            godot::Vector3i v = value;
-            result.type = VARTYPE_VECTOR3I;
-            result.value.vec3i.x = v.x;
-            result.value.vec3i.y = v.y;
-            result.value.vec3i.z = v.z;
-            break;
-        }
-        case 8:  // RECT2I (Godot 4)
-        {
-            godot::Rect2i r = value;
-            result.type = VARTYPE_RECT2I;
-            result.value.rect2i.position.x = r.position.x;
-            result.value.rect2i.position.y = r.position.y;
-            result.value.rect2i.size.x = r.size.x;
-            result.value.rect2i.size.y = r.size.y;
-            break;
-        }
-        case 29:  // PACKED_BYTE_ARRAY (Godot 4)
-        {
-            godot::PackedByteArray arr = value;
-            result.type = VARTYPE_PACKED_BYTE_ARRAY;
-            result.ptr = memnew(godot::PackedByteArray(arr));
-            break;
-        }
-        case 20:  // COLOR (Godot 4)
-        {
-            godot::Color c = value;
-            result.type = VARTYPE_COLOR;
-            result.value.color.r = c[0];
-            result.value.color.g = c[1];
-            result.value.color.b = c[2];
-            result.value.color.a = c[3];
-            break;
-        }
-        case 24:  // OBJECT (Godot 4)
-        {
-            godot::Object* obj = value;
-            if (obj) {
-                result.type = VARTYPE_OBJECT;
-                result.ptr = obj;
-            }
-            break;
-        }
-        case 27:  // DICTIONARY (Godot 4)
-        {
-            godot::Dictionary dict = value;
-            result.type = VARTYPE_DICTIONARY;
-            result.ptr = memnew(godot::Dictionary(dict));
-            break;
-        }
-        case 28:  // ARRAY (Godot 4)
-        {
-            godot::Array arr = value;
-            result.type = VARTYPE_ARRAY;
-            result.ptr = memnew(godot::Array(arr));
-            break;
-        }
-        default:
-            UtilityFunctions::print("godot_get_variant: unhandled type=", (int)value.get_type());
-            result.type = VARTYPE_NULL;
-            break;
-    }
-    return result;
-}
-*/
-
 
 
 
@@ -1488,11 +1330,56 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("ArrayMesh")) {
         return static_cast<void*>(memnew(godot::ArrayMesh));
     }
+    if (class_name_sn == godot::StringName("BoxMesh")) {
+        return static_cast<void*>(memnew(godot::BoxMesh));
+    }
+    if (class_name_sn == godot::StringName("Shader")) {
+        return static_cast<void*>(memnew(godot::Shader));
+    }
     if (class_name_sn == godot::StringName("CollisionShape2D")) {
         return static_cast<void*>(memnew(godot::CollisionShape2D));
     }
     if (class_name_sn == godot::StringName("CollisionShape3D")) {
         return static_cast<void*>(memnew(godot::CollisionShape3D));
+    }
+    if (class_name_sn == godot::StringName("MeshInstance2D")) {
+        return static_cast<void*>(memnew(godot::CollisionShape3D));
+    }
+    if (class_name_sn == godot::StringName("MeshInstance3D")) {
+        return static_cast<void*>(memnew(godot::MeshInstance3D));
+    }
+    if (class_name_sn == godot::StringName("AnimationPlayer")) {
+        return static_cast<void*>(memnew(godot::AnimationPlayer));
+    }
+    if (class_name_sn == godot::StringName("AudioStreamPlayer")) {
+        return static_cast<void*>(memnew(godot::AudioStreamPlayer));
+    }
+    if (class_name_sn == godot::StringName("AudioStreamPlayer3D")) {
+        return static_cast<void*>(memnew(godot::AudioStreamPlayer3D));
+    }
+    if (class_name_sn == godot::StringName("AudioStreamPlayer2D")) {
+        return static_cast<void*>(memnew(godot::AudioStreamPlayer2D));
+    }
+    if (class_name_sn == godot::StringName("Label3D")) {
+        return static_cast<void*>(memnew(godot::Label3D));
+    }
+    if (class_name_sn == godot::StringName("DirectionalLight3D")) {
+        return static_cast<void*>(memnew(godot::DirectionalLight3D));
+    }
+    if (class_name_sn == godot::StringName("OmniLight3D")) {
+        return static_cast<void*>(memnew(godot::OmniLight3D));
+    }
+    if (class_name_sn == godot::StringName("SpotLight3D")) {
+        return static_cast<void*>(memnew(godot::SpotLight3D));
+    }
+    if (class_name_sn == godot::StringName("World3D")) {
+        return static_cast<void*>(memnew(godot::World3D));
+    }
+    if (class_name_sn == godot::StringName("World2D")) {
+        return static_cast<void*>(memnew(godot::World2D));
+    }
+    if (class_name_sn == godot::StringName("SpriteFrames")) {
+        return static_cast<void*>(memnew(godot::SpriteFrames));
     }
     // missing add here
     
@@ -1501,79 +1388,6 @@ void* godot_create(const char* class_name) {
 }
 
 
-/*
-void* godot_create(const char* class_name) {
-    StringName sn(class_name);
-    
-    if (!ClassDB::class_exists(sn)) {
-        UtilityFunctions::print("Unknown class: ", class_name);
-        return nullptr;
-    }
-
-    Object* obj = ClassDB::instantiate(sn);
-    if (!obj) {
-        UtilityFunctions::print("Could not instantiate: ", class_name);
-        return nullptr;
-    }
-
-    String actual_class = obj->get_class();
-    UtilityFunctions::print("godot_create('", class_name, "') -> ", actual_class);
-
-    if (actual_class == "Object" || !obj->is_class(sn)) {
-        //UtilityFunctions::print("Bad init, skipping delete, trying memnew only...");
-        //memdelete(obj);
-
-        if (sn == StringName("StandardMaterial3D")) {
-            StandardMaterial3D* mat = memnew(StandardMaterial3D);
-            if (mat) {
-                g_created_refs.push_back(mat);
-                return mat;
-            }
-        }
-        else if (sn == StringName("ShaderMaterial")) {
-            ShaderMaterial* mat = memnew(ShaderMaterial);
-            if (mat) {
-                g_created_refs.push_back(mat);
-                return mat;
-            }
-        }
-        else if (sn == StringName("ImageTexture")) {
-            ImageTexture* mat = memnew(ImageTexture);
-            if (mat) {
-                g_created_refs.push_back(mat);
-                return mat;
-            }
-        }
-        else if (sn == StringName("Gradient")) {
-            Gradient* mat = memnew(Gradient);
-            if (mat) {
-                g_created_refs.push_back(mat);
-                return mat;
-            }
-        }
-        else if (sn == StringName("Curve")) {
-            Curve* mat = memnew(Curve);
-            if (mat) {
-                g_created_refs.push_back(mat);
-                return mat;
-            }
-        }
-        else if (sn == StringName("ArrayMesh")) {
-            ArrayMesh* mat = memnew(ArrayMesh);
-            if (mat) {
-                g_created_refs.push_back(mat);
-                return mat;
-            }
-        }
-        // missing extend here
-
-        UtilityFunctions::print("No fallback for: ", class_name);
-        return nullptr;
-    }
-
-    return obj;
-}
-*/
 
 godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
     godot::Variant value;
@@ -1862,59 +1676,7 @@ void godot_get_variant(void* node, const char *property, GDExtensionVariant *res
     *result = variant_to_ext(v);   // oder direkt hier füllen
 }
 
-/*
-GDExtensionVariant godot_call(void* obj_ptr,
-                                     const char* method_name,
-                                     int arg_count,
-                                     GDExtensionVariant* args)
-{
-    GDExtensionVariant result = {VARTYPE_NULL, {0}};
 
-    if (!obj_ptr) {
-        UtilityFunctions::print("godot_call ERROR: obj_ptr is NULL");
-        return result;
-    }
-
-    godot::Object* obj = static_cast<godot::Object*>(obj_ptr);
-    godot::String class_name = obj->get_class();
-
-    //UtilityFunctions::print("=== godot_call ===");
-    //UtilityFunctions::print("  Class: ", class_name);
-    //UtilityFunctions::print("  Method: ", method_name);
-    //UtilityFunctions::print("  Arg count: ", arg_count);
-
-    //if (arg_count > 0 && args != nullptr) {
-        //UtilityFunctions::print("  arg[0].type = ", args[0].type);
-        //if (args[0].type == VARTYPE_COLOR) {
-            //UtilityFunctions::print("  Color raw: r=", args[0].value.color.r,
-            //                        " g=", args[0].value.color.g,
-            //                        " b=", args[0].value.color.b,
-            //                        " a=", args[0].value.color.a);
-        //}
-    //}
-
-
-    godot::Variant ret;
-
-    //try {
-        if (arg_count == 0) {
-            ret = obj->call(method_name);
-        } else if (args) {
-            godot::Array call_args;
-            for (int i = 0; i < arg_count; i++) {
-                call_args.push_back(variant_from_ext(args[i]));
-            }
-            ret = obj->callv(method_name, call_args);
-        }
-    //} catch (...) {
-    //    UtilityFunctions::print("godot_call: EXCEPTION during call!");
-    //    return result;
-    //}
-
-    //UtilityFunctions::print("  Call successful. Return type: ", (int)ret.get_type());
-    return variant_to_ext(ret);
-}
-*/
 void godot_call(void* node_ptr,
                 const char* method_name,
                 int arg_count,
