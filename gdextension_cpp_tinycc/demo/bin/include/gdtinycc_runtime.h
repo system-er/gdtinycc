@@ -152,6 +152,10 @@ int godot_directory_exists(const char* path);
 int godot_make_dir(const char* path);
 int godot_remove_file(const char* path);
 int godot_remove_dir(const char* path);
+float godot_clamp_float(float value, float min_val, float max_val);
+float godot_lerp_float(float from, float to, float weight);
+float godot_lerp_angle(float from, float to, float weight);
+int godot_clamp_int(int value, int min_val, int max_val);
 typedef void* Array;
 
 double sin(double x);
