@@ -139,7 +139,19 @@ int godot_get_children_count(void* parent);
 void* godot_get_child_at(void* parent, int index);
 void* godot_find_node(void* parent, const char* name, int recursive);
 void godot_call_deferred(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
-
+void* godot_file_open(const char* path, const char* mode);
+int godot_file_read(void* handle, char* buffer, int size);
+int godot_file_write(void* handle, const char* buffer, int size);
+void godot_file_close(void* handle);
+void godot_file_seek(void* handle, long position);
+long godot_file_get_position(void* handle);
+int godot_file_eof(void* handle);
+long godot_file_get_size(void* handle);
+int godot_file_exists(const char* path);
+int godot_directory_exists(const char* path);
+int godot_make_dir(const char* path);
+int godot_remove_file(const char* path);
+int godot_remove_dir(const char* path);
 typedef void* Array;
 
 double sin(double x);
