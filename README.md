@@ -116,21 +116,22 @@ godot_delay_msec(milliseconds)
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
 godot_get_global_mouse_position(self)
-v0.5.4: - file I/O files:
-godot_file_open(path, mode)    
-int godot_file_read(handle, buffer, size)    
-int godot_file_write(handle, buffer, size)    
-godot_file_close(handle)     
-godot_file_seek(handle, position)    
-long godot_file_get_position(handle)    
-int godot_file_eof(handle)    
-long godot_file_get_size(handle)    
-int godot_file_exists(path)    
-v0.5.4: - file I/O directories:    
-int godot_directory_exists(path)    
-int godot_make_dir(path)     
-int godot_remove_file(path)     
-int godot_remove_dir(path)     
+
+- file I/O files:    
+v0.5.4:godot_file_open(path, mode)    
+v0.5.4:int godot_file_read(handle, buffer, size)    
+v0.5.4:int godot_file_write(handle, buffer, size)    
+v0.5.4:godot_file_close(handle)     
+v0.5.4:godot_file_seek(handle, position)    
+v0.5.4:long godot_file_get_position(handle)    
+v0.5.4:int godot_file_eof(handle)    
+v0.5.4:long godot_file_get_size(handle)    
+v0.5.4:int godot_file_exists(path)    
+- file I/O directories:    
+v0.5.4:int godot_directory_exists(path)    
+v0.5.4:int godot_make_dir(path)     
+v0.5.4:int godot_remove_file(path)     
+v0.5.4:int godot_remove_dir(path)     
 - math:    
 sin()    
 cos()    
