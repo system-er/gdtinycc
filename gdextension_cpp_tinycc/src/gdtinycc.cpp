@@ -338,18 +338,6 @@ void GDTinyCC::_input(const Ref<InputEvent> &event) {
     }
 }
 
-/*
-void GDTinyCC::_draw() {
-    if (tcc_state && enable_2d_drawing) {
-        using DrawFunc = void(*)(void*);
-        DrawFunc draw_func = (DrawFunc)tcc_get_symbol((TCCState*)tcc_state, "_draw");
-
-        if (draw_func) {
-            draw_func(this);
-        }
-    }
-}
-*/
 
 void GDTinyCC::set_source_file(const String &p_path) {
     source_file = p_path;
@@ -617,10 +605,8 @@ void GDTinyCC::compile_to_object(const String &output_file) {
 
     tcc_set_error_func(s, nullptr, tcc_error_callback);
 
-    // wichtig
     tcc_set_output_type(s, TCC_OUTPUT_OBJ);
 
-    // includes wie bisher
     char dll_path[1024];
 #ifdef _WIN32
     HMODULE hModule;
@@ -1760,14 +1746,14 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
 
 void godot_get_variant(void* node, const char *property, GDExtensionVariant *result) {
     if (!result) return;
-    *result = {VARTYPE_NULL, {0}, nullptr};   // immer initialisieren
+    *result = {VARTYPE_NULL, {0}, nullptr};
 
     if (!node) return;
 
     godot::Object* obj = static_cast<godot::Object*>(node);
     godot::Variant v = obj->get(godot::String(property));
 
-    *result = variant_to_ext(v);   // oder direkt hier füllen
+    *result = variant_to_ext(v);
 }
 
 
@@ -1779,7 +1765,6 @@ void godot_call(void* node_ptr,
 {
     if (!result) return;
 
-    // Immer sauber initialisieren
     memset(result, 0, sizeof(GDExtensionVariant));
     result->type = VARTYPE_NULL;
 
@@ -1945,7 +1930,6 @@ void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, G
         variant_args[i] = variant_from_ext(args[i]);
     }
 
-    // Godot 4 C++ korrekte Variante:
     const godot::Variant** arg_ptrs = memnew_arr(const godot::Variant*, arg_count);
     for (int i = 0; i < arg_count; i++) arg_ptrs[i] = &variant_args[i];
 
@@ -2070,15 +2054,7 @@ void godot_randomize(){
     godot::UtilityFunctions::randomize();
 }
 
-/*
-void* godot_get_drawingnode() {
-    if (GDTinyCC::shared_drawer) {
-        return GDTinyCC::shared_drawer;
-    }
-    UtilityFunctions::print("Warning: No shared drawer available yet!");
-    return nullptr;
-}
-*/
+
 
 int godot_is_pressed(void* evt) {
     if (!evt) return 0;
@@ -2324,18 +2300,17 @@ void godot_call_deferred(void* node_ptr, const char* method_name,
     godot::StringName method(method_name);
 
     if (arg_count == 0 || args == nullptr) {
-        // Keine Argumente → sauberster Weg für queue_free, free usw.
+
         node->call_deferred(method);
         return;
     }
 
-    // Mit Argumenten (z. B. add_child, set_text, etc.)
     godot::Array call_args;
     for (int i = 0; i < arg_count; i++) {
         call_args.push_back(variant_from_ext(args[i]));
     }
 
-    node->call_deferred(method, call_args);   // oder node->callv_deferred(method, call_args);
+    node->call_deferred(method, call_args);
 }
 
 static std::vector<godot::Ref<godot::FileAccess>> g_open_files;
