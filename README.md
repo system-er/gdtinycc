@@ -85,7 +85,7 @@ v0.4: godot_get_variant(node, property, &return-GDExtensionVariant) // look exam
 godot_set_variant(node, property, GDExtensionVariant)    
 v0.4: godot_call(object, method_name, arg_count, args, &return-GDExtensionVariant) // look example    
 godot_load_resource(path, type_hint)    
-v0.5.3: godot_call_deferred(node_ptr, method_name, arg_count, args) // example:
+v0.5.3: godot_call_deferred(node_ptr, method_name, arg_count, args) // example free a node:    
 ```
 	godot_call_deferred(label, "queue_free", 0, NULL);
 ```
