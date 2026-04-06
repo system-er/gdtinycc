@@ -144,7 +144,22 @@ floor()
 ceil()    
 fabs()    
 fmod()    
-abs()    
+abs()
+
+v0.5.4:log()    
+v0.5.4:log10()    
+v0.5.4:exp()    
+v0.5.4:asin(), acos()    
+v0.5.4:sinh(), cosh(), tanh()    
+v0.5.4:asinh(), acosh(), atanh()    
+v0.5.4:fmin(), fmax()    
+v0.5.4:round()    
+v0.5.4:trunc()     
+- godot-math:
+v0.5.4:godot_clamp_float(v, min, max)    
+v0.5.4:godot_clamp_int(v, min, max)    
+v0.5.4:godot_lerp_float(from, to, weight)    
+v0.5.4:godot_lerp_angle(from, to, weight)    
 
 - 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
 godot_get_drawingnode(self)    
