@@ -15,6 +15,7 @@
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/dir_access.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/classes/object.hpp>
@@ -182,6 +183,19 @@ int godot_check_collision(void* area_ptr, void* other_ptr);
 int godot_check_collision_3d(void* area_ptr, void* other_ptr);
 void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3);
 void godot_call_deferred(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
+void* godot_file_open(const char* path, const char* mode);
+int godot_file_read(void* handle, char* buffer, int size);
+int godot_file_write(void* handle, const char* buffer, int size);
+void godot_file_close(void* handle);
+void godot_file_seek(void* handle, long position);
+long godot_file_get_position(void* handle);
+int godot_file_eof(void* handle);
+long godot_file_get_size(void* handle);
+int godot_file_exists(const char* path);
+int godot_directory_exists(const char* path);
+int godot_make_dir(const char* path);
+int godot_remove_file(const char* path);
+int godot_remove_dir(const char* path);
 void godot_free_variant(GDExtensionVariant* variant) {
     if (!variant || !variant->ptr) {
         return;
@@ -457,6 +471,19 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
     tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
     tcc_add_symbol(s, "godot_call_deferred", (void*)godot_call_deferred);
+    tcc_add_symbol(s, "godot_file_open", (void*)godot_file_open);
+    tcc_add_symbol(s, "godot_file_read", (void*)godot_file_read);
+    tcc_add_symbol(s, "godot_file_write", (void*)godot_file_write);
+    tcc_add_symbol(s, "godot_file_close", (void*)godot_file_close);
+    tcc_add_symbol(s, "godot_file_seek", (void*)godot_file_seek);
+    tcc_add_symbol(s, "godot_file_get_position", (void*)godot_file_get_position);
+    tcc_add_symbol(s, "godot_file_eof", (void*)godot_file_eof);
+    tcc_add_symbol(s, "godot_file_get_size", (void*)godot_file_get_size);
+    tcc_add_symbol(s, "godot_file_exists", (void*)godot_file_exists);
+    tcc_add_symbol(s, "godot_directory_exists", (void*)godot_directory_exists);
+    tcc_add_symbol(s, "godot_make_dir", (void*)godot_make_dir);
+    tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
+    tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -697,6 +724,19 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
     tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
     tcc_add_symbol(s, "godot_call_deferred", (void*)godot_call_deferred);
+    tcc_add_symbol(s, "godot_file_open", (void*)godot_file_open);
+    tcc_add_symbol(s, "godot_file_read", (void*)godot_file_read);
+    tcc_add_symbol(s, "godot_file_write", (void*)godot_file_write);
+    tcc_add_symbol(s, "godot_file_close", (void*)godot_file_close);
+    tcc_add_symbol(s, "godot_file_seek", (void*)godot_file_seek);
+    tcc_add_symbol(s, "godot_file_get_position", (void*)godot_file_get_position);
+    tcc_add_symbol(s, "godot_file_eof", (void*)godot_file_eof);
+    tcc_add_symbol(s, "godot_file_get_size", (void*)godot_file_get_size);
+    tcc_add_symbol(s, "godot_file_exists", (void*)godot_file_exists);
+    tcc_add_symbol(s, "godot_directory_exists", (void*)godot_directory_exists);
+    tcc_add_symbol(s, "godot_make_dir", (void*)godot_make_dir);
+    tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
+    tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -835,6 +875,19 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
     tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
     tcc_add_symbol(s, "godot_call_deferred", (void*)godot_call_deferred);
+    tcc_add_symbol(s, "godot_file_open", (void*)godot_file_open);
+    tcc_add_symbol(s, "godot_file_read", (void*)godot_file_read);
+    tcc_add_symbol(s, "godot_file_write", (void*)godot_file_write);
+    tcc_add_symbol(s, "godot_file_close", (void*)godot_file_close);
+    tcc_add_symbol(s, "godot_file_seek", (void*)godot_file_seek);
+    tcc_add_symbol(s, "godot_file_get_position", (void*)godot_file_get_position);
+    tcc_add_symbol(s, "godot_file_eof", (void*)godot_file_eof);
+    tcc_add_symbol(s, "godot_file_get_size", (void*)godot_file_get_size);
+    tcc_add_symbol(s, "godot_file_exists", (void*)godot_file_exists);
+    tcc_add_symbol(s, "godot_directory_exists", (void*)godot_directory_exists);
+    tcc_add_symbol(s, "godot_make_dir", (void*)godot_make_dir);
+    tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
+    tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -1372,7 +1425,7 @@ void* godot_create(const char* class_name) {
         return static_cast<void*>(memnew(godot::CollisionShape3D));
     }
     if (class_name_sn == godot::StringName("MeshInstance2D")) {
-        return static_cast<void*>(memnew(godot::CollisionShape3D));
+        return static_cast<void*>(memnew(godot::MeshInstance2D));
     }
     if (class_name_sn == godot::StringName("MeshInstance3D")) {
         return static_cast<void*>(memnew(godot::MeshInstance3D));
@@ -1400,15 +1453,6 @@ void* godot_create(const char* class_name) {
     }
     if (class_name_sn == godot::StringName("SpotLight3D")) {
         return static_cast<void*>(memnew(godot::SpotLight3D));
-    }
-    if (class_name_sn == godot::StringName("World3D")) {
-        return static_cast<void*>(memnew(godot::World3D));
-    }
-    if (class_name_sn == godot::StringName("World2D")) {
-        return static_cast<void*>(memnew(godot::World2D));
-    }
-    if (class_name_sn == godot::StringName("SpriteFrames")) {
-        return static_cast<void*>(memnew(godot::SpriteFrames));
     }
     if (class_name_sn == godot::StringName("PackedColorArray")) {
         return static_cast<void*>(memnew(godot::PackedColorArray));
@@ -2292,4 +2336,138 @@ void godot_call_deferred(void* node_ptr, const char* method_name,
     }
 
     node->call_deferred(method, call_args);   // oder node->callv_deferred(method, call_args);
+}
+
+static std::vector<godot::Ref<godot::FileAccess>> g_open_files;
+
+void* godot_file_open(const char* path, const char* mode) {
+    godot::String p(path);
+    if (!p.begins_with("res://") && !p.begins_with("user://") && !p.begins_with("tmp://")) {
+        p = "user://" + p;
+    }
+    
+    godot::FileAccess::ModeFlags m = godot::FileAccess::READ;
+    if (strcmp(mode, "w") == 0 || strcmp(mode, "wb") == 0) {
+        m = godot::FileAccess::WRITE;
+    } else if (strcmp(mode, "a") == 0 || strcmp(mode, "ab") == 0) {
+        m = godot::FileAccess::READ_WRITE;
+    } else if (strcmp(mode, "r") == 0 || strcmp(mode, "rb") == 0) {
+        m = godot::FileAccess::READ;
+    }
+    
+    godot::Ref<godot::FileAccess> fa = godot::FileAccess::open(p, m);
+    if (fa.is_valid()) {
+        g_open_files.push_back(fa);
+        return (void*)fa.ptr();
+    }
+    return nullptr;
+}
+
+int godot_file_read(void* handle, char* buffer, int size) {
+    if (!handle) return -1;
+    godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
+    return (int)fa->get_buffer((uint8_t*)buffer, size);
+}
+
+int godot_file_write(void* handle, const char* buffer, int size) {
+    if (!handle) return -1;
+    godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
+    fa->store_buffer((const uint8_t*)buffer, size);
+    return size;
+}
+
+void godot_file_close(void* handle) {
+    if (!handle) return;
+    godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
+    for (auto it = g_open_files.begin(); it != g_open_files.end(); ++it) {
+        if ((*it).ptr() == fa) {
+            g_open_files.erase(it);
+            break;
+        }
+    }
+    fa->close();
+}
+
+void godot_file_seek(void* handle, long position) {
+    if (!handle) return;
+    godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
+    fa->seek(position);
+}
+
+long godot_file_get_position(void* handle) {
+    if (!handle) return 0;
+    godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
+    return fa->get_position();
+}
+
+int godot_file_eof(void* handle) {
+    if (!handle) return 1;
+    godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
+    return fa->eof_reached() ? 1 : 0;
+}
+
+long godot_file_get_size(void* handle) {
+    if (!handle) return 0;
+    godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
+    return fa->get_length();
+}
+
+int godot_file_exists(const char* path) {
+    godot::String p(path);
+    if (!p.begins_with("res://") && !p.begins_with("user://") && !p.begins_with("tmp://")) {
+        p = "user://" + p;
+    }
+    return godot::FileAccess::file_exists(p) ? 1 : 0;
+}
+
+int godot_directory_exists(const char* path) {
+    godot::String p(path);
+    if (!p.begins_with("res://") && !p.begins_with("user://") && !p.begins_with("tmp://")) {
+        p = "user://" + p;
+    }
+    godot::Ref<godot::DirAccess> da = godot::DirAccess::open(p);
+    if (da.is_valid()) {
+        bool exists = da->dir_exists(p);
+        return exists ? 1 : 0;
+    }
+    return 0;
+}
+
+int godot_make_dir(const char* path) {
+    godot::String p(path);
+    if (!p.begins_with("res://") && !p.begins_with("user://") && !p.begins_with("tmp://")) {
+        p = "user://" + p;
+    }
+    godot::Ref<godot::DirAccess> da = godot::DirAccess::open(p.get_base_dir());
+    if (da.is_valid()) {
+        int err = da->make_dir(p);
+        return err == godot::OK ? 0 : -1;
+    }
+    return -1;
+}
+
+int godot_remove_file(const char* path) {
+    godot::String p(path);
+    if (!p.begins_with("res://") && !p.begins_with("user://") && !p.begins_with("tmp://")) {
+        p = "user://" + p;
+    }
+    godot::Ref<godot::DirAccess> da = godot::DirAccess::open(p.get_base_dir());
+    if (da.is_valid()) {
+        int err = da->remove(p);
+        return err == godot::OK ? 0 : -1;
+    }
+    return -1;
+}
+
+int godot_remove_dir(const char* path) {
+    godot::String p(path);
+    if (!p.begins_with("res://") && !p.begins_with("user://") && !p.begins_with("tmp://")) {
+        p = "user://" + p;
+    }
+    godot::Ref<godot::DirAccess> da = godot::DirAccess::open(p.get_base_dir());
+    if (da.is_valid()) {
+        int err = da->remove(p);
+        return err == godot::OK ? 0 : -1;
+    }
+    return -1;
 }
