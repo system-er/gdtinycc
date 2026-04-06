@@ -155,7 +155,7 @@ v0.5.4:asinh(), acosh(), atanh()
 v0.5.4:fmin(), fmax()    
 v0.5.4:round()    
 v0.5.4:trunc()     
-- godot-math:
+- godot-math:    
 v0.5.4:godot_clamp_float(v, min, max)    
 v0.5.4:godot_clamp_int(v, min, max)    
 v0.5.4:godot_lerp_float(from, to, weight)    
