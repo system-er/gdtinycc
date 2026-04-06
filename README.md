@@ -126,8 +126,9 @@ v0.5.4:godot_file_seek(handle, position)
 v0.5.4:long godot_file_get_position(handle)    
 v0.5.4:int godot_file_eof(handle)    
 v0.5.4:long godot_file_get_size(handle)    
-v0.5.4:int godot_file_exists(path)
+v0.5.4:int godot_file_exists(path)    
 v0.5.4:int godot_remove_file(path)    
+
 - file I/O directories:    
 v0.5.4:int godot_directory_exists(path)    
 v0.5.4:int godot_make_dir(path)         
