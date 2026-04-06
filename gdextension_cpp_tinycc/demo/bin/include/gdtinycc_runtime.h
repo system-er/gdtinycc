@@ -68,6 +68,7 @@ typedef enum {
     VARTYPE_DICTIONARY = 27,
     VARTYPE_ARRAY = 28,
     VARTYPE_PACKED_BYTE_ARRAY = 29,
+    //VARTYPE_PACKED_VECTOR3_ARRAY = 36,
 
 } GDExtensionVarType;
 
@@ -84,6 +85,12 @@ void godot_call(void* node_ptr,
                 int arg_count, 
                 GDExtensionVariant* args,
                 GDExtensionVariant* result);
+void godot_call_pod(void* pod_ptr, 
+                    int type_id,
+                    const char* method_name, 
+                    int arg_count, 
+                    GDExtensionVariant* args,
+                    GDExtensionVariant* result);
 //GDExtensionVariant godot_call(void* node, const char* method_name, int arg_count, GDExtensionVariant* args);
 GDExtensionVariant godot_call_object(void* node, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_queue_free(void* node);
@@ -131,6 +138,7 @@ void godot_remove_child_deferred(void* parent, void* child);
 int godot_get_children_count(void* parent);
 void* godot_get_child_at(void* parent, int index);
 void* godot_find_node(void* parent, const char* name, int recursive);
+void godot_call_deferred(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 
 typedef void* Array;
 
