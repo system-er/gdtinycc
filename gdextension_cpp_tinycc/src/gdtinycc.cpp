@@ -196,6 +196,11 @@ int godot_directory_exists(const char* path);
 int godot_make_dir(const char* path);
 int godot_remove_file(const char* path);
 int godot_remove_dir(const char* path);
+float godot_clamp_float(float value, float min_val, float max_val);
+float godot_lerp_float(float from, float to, float weight);
+float godot_lerp_angle(float from, float to, float weight);
+int godot_clamp_int(int value, int min_val, int max_val);
+
 void godot_free_variant(GDExtensionVariant* variant) {
     if (!variant || !variant->ptr) {
         return;
@@ -221,6 +226,29 @@ void godot_free_variant(GDExtensionVariant* variant) {
             break;
     }
     variant->ptr = nullptr;
+}
+
+float godot_clamp_float(float value, float min_val, float max_val) {
+    if (value < min_val) return min_val;
+    if (value > max_val) return max_val;
+    return value;
+}
+
+float godot_lerp_float(float from, float to, float weight) {
+    return from + (to - from) * weight;
+}
+
+float godot_lerp_angle(float from, float to, float weight) {
+    float diff = to - from;
+    while (diff < -180.0f) diff += 360.0f;
+    while (diff > 180.0f) diff -= 360.0f;
+    return from + diff * weight;
+}
+
+int godot_clamp_int(int value, int min_val, int max_val) {
+    if (value < min_val) return min_val;
+    if (value > max_val) return max_val;
+    return value;
 }
 
 static std::vector<godot::Variant> g_loaded_resources;
@@ -486,6 +514,27 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
     tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
 
+    tcc_add_symbol(s, "log", (void*)static_cast<double(*)(double)>(std::log));
+    tcc_add_symbol(s, "log10", (void*)static_cast<double(*)(double)>(std::log10));
+    tcc_add_symbol(s, "exp", (void*)static_cast<double(*)(double)>(std::exp));
+    tcc_add_symbol(s, "asin", (void*)static_cast<double(*)(double)>(std::asin));
+    tcc_add_symbol(s, "acos", (void*)static_cast<double(*)(double)>(std::acos));
+    tcc_add_symbol(s, "sinh", (void*)static_cast<double(*)(double)>(std::sinh));
+    tcc_add_symbol(s, "cosh", (void*)static_cast<double(*)(double)>(std::cosh));
+    tcc_add_symbol(s, "tanh", (void*)static_cast<double(*)(double)>(std::tanh));
+    tcc_add_symbol(s, "asinh", (void*)static_cast<double(*)(double)>(std::asinh));
+    tcc_add_symbol(s, "acosh", (void*)static_cast<double(*)(double)>(std::acosh));
+    tcc_add_symbol(s, "atanh", (void*)static_cast<double(*)(double)>(std::atanh));
+    tcc_add_symbol(s, "fmin", (void*)static_cast<double(*)(double, double)>(std::fmin));
+    tcc_add_symbol(s, "fmax", (void*)static_cast<double(*)(double, double)>(std::fmax));
+    tcc_add_symbol(s, "round", (void*)static_cast<double(*)(double)>(std::round));
+    tcc_add_symbol(s, "trunc", (void*)static_cast<double(*)(double)>(std::trunc));
+
+    tcc_add_symbol(s, "godot_clamp_float", (void*)godot_clamp_float);
+    tcc_add_symbol(s, "godot_lerp_float", (void*)godot_lerp_float);
+    tcc_add_symbol(s, "godot_lerp_angle", (void*)godot_lerp_angle);
+    tcc_add_symbol(s, "godot_clamp_int", (void*)godot_clamp_int);
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
     tcc_add_symbol(s, "memset", (void*)memset);
     tcc_add_symbol(s, "memcpy", (void*)memcpy);
@@ -737,6 +786,22 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
     tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
 
+    tcc_add_symbol(s, "log", (void*)static_cast<double(*)(double)>(std::log));
+    tcc_add_symbol(s, "log10", (void*)static_cast<double(*)(double)>(std::log10));
+    tcc_add_symbol(s, "exp", (void*)static_cast<double(*)(double)>(std::exp));
+    tcc_add_symbol(s, "asin", (void*)static_cast<double(*)(double)>(std::asin));
+    tcc_add_symbol(s, "acos", (void*)static_cast<double(*)(double)>(std::acos));
+    tcc_add_symbol(s, "sinh", (void*)static_cast<double(*)(double)>(std::sinh));
+    tcc_add_symbol(s, "cosh", (void*)static_cast<double(*)(double)>(std::cosh));
+    tcc_add_symbol(s, "tanh", (void*)static_cast<double(*)(double)>(std::tanh));
+    tcc_add_symbol(s, "asinh", (void*)static_cast<double(*)(double)>(std::asinh));
+    tcc_add_symbol(s, "acosh", (void*)static_cast<double(*)(double)>(std::acosh));
+    tcc_add_symbol(s, "atanh", (void*)static_cast<double(*)(double)>(std::atanh));
+    tcc_add_symbol(s, "fmin", (void*)static_cast<double(*)(double, double)>(std::fmin));
+    tcc_add_symbol(s, "fmax", (void*)static_cast<double(*)(double, double)>(std::fmax));
+    tcc_add_symbol(s, "round", (void*)static_cast<double(*)(double)>(std::round));
+    tcc_add_symbol(s, "trunc", (void*)static_cast<double(*)(double)>(std::trunc));
+
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
     tcc_add_symbol(s, "memset", (void*)memset);
     tcc_add_symbol(s, "memcpy", (void*)memcpy);
@@ -887,6 +952,22 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
     tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
     tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
+
+    tcc_add_symbol(s, "log", (void*)static_cast<double(*)(double)>(std::log));
+    tcc_add_symbol(s, "log10", (void*)static_cast<double(*)(double)>(std::log10));
+    tcc_add_symbol(s, "exp", (void*)static_cast<double(*)(double)>(std::exp));
+    tcc_add_symbol(s, "asin", (void*)static_cast<double(*)(double)>(std::asin));
+    tcc_add_symbol(s, "acos", (void*)static_cast<double(*)(double)>(std::acos));
+    tcc_add_symbol(s, "sinh", (void*)static_cast<double(*)(double)>(std::sinh));
+    tcc_add_symbol(s, "cosh", (void*)static_cast<double(*)(double)>(std::cosh));
+    tcc_add_symbol(s, "tanh", (void*)static_cast<double(*)(double)>(std::tanh));
+    tcc_add_symbol(s, "asinh", (void*)static_cast<double(*)(double)>(std::asinh));
+    tcc_add_symbol(s, "acosh", (void*)static_cast<double(*)(double)>(std::acosh));
+    tcc_add_symbol(s, "atanh", (void*)static_cast<double(*)(double)>(std::atanh));
+    tcc_add_symbol(s, "fmin", (void*)static_cast<double(*)(double, double)>(std::fmin));
+    tcc_add_symbol(s, "fmax", (void*)static_cast<double(*)(double, double)>(std::fmax));
+    tcc_add_symbol(s, "round", (void*)static_cast<double(*)(double)>(std::round));
+    tcc_add_symbol(s, "trunc", (void*)static_cast<double(*)(double)>(std::trunc));
 
     tcc_add_symbol(s, "snprintf", (void*)snprintf);
     tcc_add_symbol(s, "memset", (void*)memset);
