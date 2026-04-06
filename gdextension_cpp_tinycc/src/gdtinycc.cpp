@@ -4,6 +4,8 @@
 #include <cstdarg>
 #include <cstring>
 #include <cstdlib>
+#include <vector>
+#include <array>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/core/property_info.hpp>
@@ -76,11 +78,14 @@
 #include <godot_cpp/classes/curve.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
 #include <godot_cpp/classes/box_mesh.hpp>
+#include <godot_cpp/classes/sphere_mesh.hpp>
 #include <godot_cpp/classes/shader.hpp>
 #include <godot_cpp/classes/font.hpp>
 #include <godot_cpp/classes/theme.hpp>
 #include <godot_cpp/classes/theme_db.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/packed_color_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/godot.hpp>
 
 
@@ -130,6 +135,12 @@ void godot_call(void* node_ptr,
                 int arg_count, 
                 GDExtensionVariant* args,
                 GDExtensionVariant* result);
+void godot_call_pod(void* pod_ptr, 
+                    int type_id,
+                    const char* method_name, 
+                    int arg_count, 
+                    GDExtensionVariant* args,
+                    GDExtensionVariant* result);
 //GDExtensionVariant godot_call(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 //GDExtensionVariant godot_call_object(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_queue_free(void* node_ptr);
@@ -170,7 +181,7 @@ const char* godot_get_class_name(void* obj);
 int godot_check_collision(void* area_ptr, void* other_ptr);
 int godot_check_collision_3d(void* area_ptr, void* other_ptr);
 void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3);
-
+void godot_call_deferred(void* node_ptr, const char* method_name, int arg_count, GDExtensionVariant* args);
 void godot_free_variant(GDExtensionVariant* variant) {
     if (!variant || !variant->ptr) {
         return;
@@ -178,16 +189,19 @@ void godot_free_variant(GDExtensionVariant* variant) {
     
     switch (variant->type) {
         case VARTYPE_DICTIONARY:
-            delete static_cast<godot::Dictionary*>(variant->ptr);
+            memdelete(static_cast<godot::Dictionary*>(variant->ptr));
             break;
         case VARTYPE_ARRAY:
-            delete static_cast<godot::Array*>(variant->ptr);
+            memdelete(static_cast<godot::Array*>(variant->ptr));
             break;
         case VARTYPE_PACKED_BYTE_ARRAY:
-            delete static_cast<godot::PackedByteArray*>(variant->ptr);
+            memdelete(static_cast<godot::PackedByteArray*>(variant->ptr));
             break;
+        //case VARTYPE_PACKED_VECTOR3_ARRAY:
+        //    memdelete(static_cast<godot::PackedVector3Array*>(variant->ptr));
+        //    break;
         case VARTYPE_STRING_NAME:
-            delete static_cast<godot::StringName*>(variant->ptr);
+            memdelete(static_cast<godot::StringName*>(variant->ptr));
             break;
         default:
             break;
@@ -406,6 +420,7 @@ void GDTinyCC::compile_file() {
 tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_call_pod", (void*)godot_call_pod);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
@@ -441,6 +456,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_setup_collision_shape", (void*)godot_setup_collision_shape);
     tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
     tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
+    tcc_add_symbol(s, "godot_call_deferred", (void*)godot_call_deferred);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -501,7 +517,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         }
 
         if (tcc_compile_string(s, source_code.utf8().get_data()) < 0) {
-            UtilityFunctions::print("error: compile_file - compileerror!");
+            UtilityFunctions::print("error: compile_file - compileerror!", full_path);
             tcc_delete(s);
             return;
         }
@@ -644,6 +660,7 @@ void GDTinyCC::load_object(const String &object_file) {
 tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_call_pod", (void*)godot_call_pod);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
@@ -679,6 +696,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_setup_collision_shape", (void*)godot_setup_collision_shape);
     tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
     tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
+    tcc_add_symbol(s, "godot_call_deferred", (void*)godot_call_deferred);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -780,6 +798,7 @@ void GDTinyCC::load_object_file() {
 tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
     tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_call_pod", (void*)godot_call_pod);
     //tcc_add_symbol(s, "godot_call_object", (void*)godot_call_object);
     tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
     tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
@@ -815,6 +834,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_setup_collision_shape", (void*)godot_setup_collision_shape);
     tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
     tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
+    tcc_add_symbol(s, "godot_call_deferred", (void*)godot_call_deferred);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -954,6 +974,7 @@ const char* godot_get_type_name(int type) {
         case VARTYPE_VECTOR3I: return "VECTOR3I";
         case VARTYPE_COLOR: return "COLOR";
         case VARTYPE_PACKED_BYTE_ARRAY: return "PACKED_BYTE_ARRAY";
+        //case VARTYPE_PACKED_VECTOR3_ARRAY: return "PACKED_VECTOR3_ARRAY";
         case VARTYPE_RECT2: return "RECT2";
         case VARTYPE_RECT2I: return "RECT2I";
         case VARTYPE_OBJECT: return "OBJECT";
@@ -1054,6 +1075,11 @@ void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant 
                 value = godot::Variant(*static_cast<godot::PackedByteArray*>(variant.ptr));
             }
             break;
+        //case VARTYPE_PACKED_VECTOR3_ARRAY:
+        //    if (variant.ptr) {
+        //        value = godot::Variant(*static_cast<godot::PackedVector3Array*>(variant.ptr));
+        //    }
+        //    break;
         case VARTYPE_RECT2I:
             value = godot::Variant(godot::Rect2i(variant.value.rect2i.position.x, variant.value.rect2i.position.y, variant.value.rect2i.size.x, variant.value.rect2i.size.y));
             break;
@@ -1333,6 +1359,9 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("BoxMesh")) {
         return static_cast<void*>(memnew(godot::BoxMesh));
     }
+    if (class_name_sn == godot::StringName("SphereMesh")) {
+        return static_cast<void*>(memnew(godot::SphereMesh));
+    }
     if (class_name_sn == godot::StringName("Shader")) {
         return static_cast<void*>(memnew(godot::Shader));
     }
@@ -1381,6 +1410,13 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("SpriteFrames")) {
         return static_cast<void*>(memnew(godot::SpriteFrames));
     }
+    if (class_name_sn == godot::StringName("PackedColorArray")) {
+        return static_cast<void*>(memnew(godot::PackedColorArray));
+    }
+    //if (class_name_sn == godot::StringName("PackedVector3Array")) {
+    //    return static_cast<void*>(memnew(godot::PackedVector3Array));
+    //}
+
     // missing add here
     
     UtilityFunctions::print("godot_create: unsupported class: ", class_name);
@@ -1446,6 +1482,13 @@ godot::Variant variant_from_ext(const GDExtensionVariant& ext) {
                 value = godot::Variant(godot::PackedByteArray());
             }
         } break;
+        //case VARTYPE_PACKED_VECTOR3_ARRAY: {
+        //    if (ext.ptr) {
+        //        value = godot::Variant(*static_cast<godot::PackedVector3Array*>(ext.ptr));
+        //    } else {
+        //        value = godot::Variant(godot::PackedVector3Array());
+        //    }
+        //} break;
         case VARTYPE_COLOR: {
             /*
             godot::Color c;
@@ -1584,6 +1627,13 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
             result.ptr = memnew(godot::PackedByteArray(arr));
             break;
         }
+        //case 36:  // PACKED_VECTOR3_ARRAY
+        //{
+        //    result.type = VARTYPE_PACKED_VECTOR3_ARRAY;
+        //    godot::PackedVector3Array arr = value;
+        //    result.ptr = memnew(godot::PackedVector3Array(arr));
+        //    break;
+        //}
         case 8:  // RECT2I
         {
             godot::Rect2i r = value;
@@ -1596,7 +1646,7 @@ GDExtensionVariant variant_to_ext(const godot::Variant& value) {
         }
         case 21:  // STRING_NAME
         {
-            result.type = VARTYPE_STRING;
+            result.type = VARTYPE_STRING_NAME;
             godot::String str;
 
             if (value.get_type() == Variant::STRING) {
@@ -1711,6 +1761,98 @@ void godot_call(void* node_ptr,
     *result = variant_to_ext(ret);
 }
 
+void godot_call_pod(void* pod_ptr, 
+                    int type_id,
+                    const char* method_name, 
+                    int arg_count, 
+                    GDExtensionVariant* args,
+                    GDExtensionVariant* result)
+{
+    if (!result) return;
+    memset(result, 0, sizeof(GDExtensionVariant));
+    result->type = VARTYPE_NULL;
+
+    if (!pod_ptr || !method_name) {
+        return;
+    }
+
+    if (type_id == 36) {  // PACKED_VECTOR3_ARRAY
+        auto* arr = static_cast<godot::PackedVector3Array*>(pod_ptr);
+
+        if (strcmp(method_name, "size") == 0) {
+            result->type = VARTYPE_INT;
+            result->value.i = (int)arr->size();
+            return;
+        }
+        if (strcmp(method_name, "is_empty") == 0) {
+            result->type = VARTYPE_BOOL;
+            result->value.b = arr->is_empty() ? 1 : 0;
+            return;
+        }
+        if (strcmp(method_name, "clear") == 0) {
+            arr->clear();
+            return;
+        }
+        if (strcmp(method_name, "resize") == 0 && arg_count == 1) {
+            arr->resize(args[0].value.i);
+            return;
+        }
+
+        if (strcmp(method_name, "push_back") == 0 && arg_count == 1) {
+            if (args[0].type == VARTYPE_VECTOR3) {
+                godot::Vector3 v = variant_from_ext(args[0]);
+                arr->push_back(v);
+                result->type = VARTYPE_INT;
+                result->value.i = (int)arr->size();
+            } else {
+                UtilityFunctions::print("godot_call_pod: push_back expects Vector3");
+            }
+            return;
+        }
+
+        if (strcmp(method_name, "get") == 0 && arg_count == 1) {
+            int idx = args[0].value.i;
+            if (idx >= 0 && idx < (int)arr->size()) {
+                godot::Vector3 v = (*arr)[idx];
+                result->type = VARTYPE_VECTOR3;
+                result->value.vec3.x = v.x;
+                result->value.vec3.y = v.y;
+                result->value.vec3.z = v.z;
+            }
+            return;
+        }
+    } 
+    else if (type_id == 29) {  // PACKED_BYTE_ARRAY
+        auto* arr = static_cast<godot::PackedByteArray*>(pod_ptr);
+
+        if (strcmp(method_name, "size") == 0) {
+            result->type = VARTYPE_INT;
+            result->value.i = (int)arr->size();
+            return;
+        }
+        if (strcmp(method_name, "is_empty") == 0) {
+            result->type = VARTYPE_BOOL;
+            result->value.b = arr->is_empty() ? 1 : 0;
+            return;
+        }
+        if (strcmp(method_name, "clear") == 0) {
+            arr->clear();
+            return;
+        }
+        if (strcmp(method_name, "resize") == 0 && arg_count == 1) {
+            arr->resize(args[0].value.i);
+            return;
+        }
+        if (strcmp(method_name, "push_back") == 0 && arg_count == 1) {
+            arr->push_back(static_cast<uint8_t>(args[0].value.i));
+            result->type = VARTYPE_INT;
+            result->value.i = (int)arr->size();
+            return;
+        }
+    }
+
+}
+
 void godot_queue_free(void* node_ptr) {
     if (!node_ptr) {
         return;
@@ -1720,6 +1862,7 @@ void godot_queue_free(void* node_ptr) {
     node->queue_free();
 }
 
+/*
 void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args) {
     if (!node_ptr) {
         UtilityFunctions::print("godot_emit_signal: node is null");
@@ -1742,6 +1885,32 @@ void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, G
         UtilityFunctions::print("godot_emit_signal: args is null but arg_count > 0");
     }
 }
+*/
+void godot_emit_signal(void* node_ptr, const char* signal_name, int arg_count, GDExtensionVariant* args) {
+    if (!node_ptr) return;
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    godot::StringName sn(signal_name);
+
+    if (arg_count == 0) {
+        node->emit_signal(sn);
+        return;
+    }
+
+    godot::Variant* variant_args = memnew_arr(godot::Variant, arg_count);
+    for (int i = 0; i < arg_count; i++) {
+        variant_args[i] = variant_from_ext(args[i]);
+    }
+
+    // Godot 4 C++ korrekte Variante:
+    const godot::Variant** arg_ptrs = memnew_arr(const godot::Variant*, arg_count);
+    for (int i = 0; i < arg_count; i++) arg_ptrs[i] = &variant_args[i];
+
+    node->emit_signal(sn, arg_ptrs, arg_count);
+
+    memdelete_arr(arg_ptrs);
+    memdelete_arr(variant_args);
+}
+
 
 bool GDTinyCC::connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data) {
     if (!node_ptr || !callback_func) {
@@ -2099,3 +2268,28 @@ void godot_draw_string(void* canvas_item_ptr, const char* font, float x, float y
     ci->draw_string(font_ref, pos, String(text), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color);
 }
 
+void godot_call_deferred(void* node_ptr, const char* method_name, 
+                         int arg_count, GDExtensionVariant* args)
+{
+    if (!node_ptr || !method_name) {
+        UtilityFunctions::print("godot_call_deferred: invalid parameters");
+        return;
+    }
+
+    godot::Node* node = static_cast<godot::Node*>(node_ptr);
+    godot::StringName method(method_name);
+
+    if (arg_count == 0 || args == nullptr) {
+        // Keine Argumente → sauberster Weg für queue_free, free usw.
+        node->call_deferred(method);
+        return;
+    }
+
+    // Mit Argumenten (z. B. add_child, set_text, etc.)
+    godot::Array call_args;
+    for (int i = 0; i < arg_count; i++) {
+        call_args.push_back(variant_from_ext(args[i]));
+    }
+
+    node->call_deferred(method, call_args);   // oder node->callv_deferred(method, call_args);
+}

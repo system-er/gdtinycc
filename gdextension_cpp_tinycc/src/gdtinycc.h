@@ -11,6 +11,7 @@
 #include <godot_cpp/variant/vector2i.hpp>
 #include <godot_cpp/variant/vector3i.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/rect2i.hpp>
 #include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
@@ -85,6 +86,7 @@ typedef enum {
     VARTYPE_DICTIONARY = 27,
     VARTYPE_ARRAY = 28,
     VARTYPE_PACKED_BYTE_ARRAY = 29,
+    //VARTYPE_PACKED_VECTOR3_ARRAY = 36,
 
 } GDExtensionVarType;
 
