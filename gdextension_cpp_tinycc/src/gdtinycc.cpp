@@ -299,6 +299,9 @@ void GDTinyCC::_bind_methods() {
 
 
 GDTinyCC::GDTinyCC() {
+    if (Engine::get_singleton()->is_editor_hint()) {
+        return;
+    }
     //_current_instance = this;
     tcc_state = nullptr;
     UtilityFunctions::print("GDTinyCC started.");
