@@ -336,7 +336,10 @@ void GDTinyCC::_ready() {
 }
 
 void GDTinyCC::_process(double delta) {
-   if (tcc_state) {
+    if (Engine::get_singleton()->is_editor_hint()) {
+        return;
+    }
+    if (tcc_state) {
         using ProcessFunc = void(*)(void*, double);
         ProcessFunc process_func = (ProcessFunc)tcc_get_symbol((TCCState*)tcc_state, "_process");
         if (process_func) {

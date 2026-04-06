@@ -13,10 +13,12 @@ void initialize_example_module(ModuleInitializationLevel p_level) {
     if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
         return;
     }
-
-    ClassDB::register_class<SignalHandler>();
-    ClassDB::register_class<GDTinyCC>();
-    ClassDB::register_class<GDTinyCCDrawer>();
+    //ClassDB::register_class<SignalHandler>();
+    //ClassDB::register_class<GDTinyCC>();
+    //ClassDB::register_class<GDTinyCCDrawer>();
+    ClassDB::register_runtime_class<SignalHandler>();
+    ClassDB::register_runtime_class<GDTinyCC>();
+    ClassDB::register_runtime_class<GDTinyCCDrawer>();
 }
 
 void uninitialize_example_module(ModuleInitializationLevel p_level) {
