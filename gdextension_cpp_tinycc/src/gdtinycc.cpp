@@ -87,6 +87,7 @@
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/packed_color_array.hpp>
 #include <godot_cpp/variant/packed_vector3_array.hpp>
+#include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/godot.hpp>
 
 
@@ -254,10 +255,6 @@ int godot_clamp_int(int value, int min_val, int max_val) {
 static std::vector<godot::Variant> g_loaded_resources;
 static std::vector<godot::Variant> g_created_refs;
 
-
-//using namespace godot;
-
-//void* godot::GDTinyCC::shared_tcc_state = nullptr;
 
 
 void GDTinyCC::_bind_methods() {

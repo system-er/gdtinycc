@@ -93,6 +93,7 @@ typedef enum {
 namespace godot {
 
 
+
 class SignalHandler : public Node {
     GDCLASS(SignalHandler, Node)
 public:
