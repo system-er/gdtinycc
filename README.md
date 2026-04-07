@@ -42,7 +42,7 @@ godot_get_display_server()
 godot_get_os()    
 godot_get_physics_server2D()    
 godot_get_physics_server3D()    
-v0.5.2: godot_get_input() // example:
+godot_get_input() // example:
 ```
     void* input = godot_get_input();
     GDExtensionVariant keycode;
@@ -67,12 +67,12 @@ godot_print(string, ...) // examples:
 
 - nodes:        
 godot_get_node(self, path)    
-v0.5: godot_find_node(parentnode, name, 1) // 1=recursive    
+godot_find_node(parentnode, name, 1) // 1=recursive    
 godot_instantiate(self, scenepath)    
 godot_create(classname) // v0.4 !!! add a missing class in godot_create                    
-godot_add_child_deferred(parent, child)    
-v0.5.1: godot_get_children_count(parent)    
-v0.5.1: godot_get_child_at(parent, nr) // example:
+godot_add_child_deferred(parent, child)
+godot_get_children_count(parent)    
+godot_get_child_at(parent, nr) // example:
 ```
     int count = godot_get_children_count(parent);
     godot_print("children of parent: %d", count);
@@ -82,17 +82,17 @@ v0.5.1: godot_get_child_at(parent, nr) // example:
         godot_print("godot_get_child_at - childnr %d, childname: %s", i, v.value.s);
     }
 ```
-v0.5: godot_remove_child_deferred(parent, child)    
-v0.4: godot_get_variant(node, property, &return-GDExtensionVariant) // look example    
+godot_remove_child_deferred(parent, child)    
+godot_get_variant(node, property, &return-GDExtensionVariant) // look example    
 godot_set_variant(node, property, GDExtensionVariant)    
-v0.4: godot_call(object, method_name, arg_count, args, &return-GDExtensionVariant) // look example    
+godot_call(object, method_name, arg_count, args, &return-GDExtensionVariant) // look example    
 godot_load_resource(path, type_hint)    
-v0.5.3: godot_call_deferred(node_ptr, method_name, arg_count, args) // example free a node:    
+godot_call_deferred(node_ptr, method_name, arg_count, args) // example free a node:    
 ```
 	godot_call_deferred(label, "queue_free", 0, NULL);
 ```
 godot_queue_free(node)    
-v0.4: godot_get_tree(self) // for example to quit program:
+godot_get_tree(self) // for example to quit program:
 ```
 	GDExtensionVariant result;
 	void* tree = godot_get_tree(self);
@@ -120,21 +120,21 @@ godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=m
 godot_get_global_mouse_position(self)
 
 - file I/O files:    
-v0.5.4:godot_file_open(path, mode)    
-v0.5.4:int godot_file_read(handle, buffer, size)    
-v0.5.4:int godot_file_write(handle, buffer, size)    
-v0.5.4:godot_file_close(handle)     
-v0.5.4:godot_file_seek(handle, position)    
-v0.5.4:long godot_file_get_position(handle)    
-v0.5.4:int godot_file_eof(handle)    
-v0.5.4:long godot_file_get_size(handle)    
-v0.5.4:int godot_file_exists(path)    
-v0.5.4:int godot_remove_file(path)    
+godot_file_open(path, mode)    
+int godot_file_read(handle, buffer, size)    
+int godot_file_write(handle, buffer, size)    
+godot_file_close(handle)     
+godot_file_seek(handle, position)    
+long godot_file_get_position(handle)    
+int godot_file_eof(handle)    
+long godot_file_get_size(handle)    
+int godot_file_exists(path)    
+int godot_remove_file(path)    
 
 - file I/O directories:    
-v0.5.4:int godot_directory_exists(path)    
-v0.5.4:int godot_make_dir(path)         
-v0.5.4:int godot_remove_dir(path)     
+int godot_directory_exists(path)    
+int godot_make_dir(path)         
+int godot_remove_dir(path)     
 - math:    
 sin()    
 cos()    
@@ -149,28 +149,28 @@ fabs()
 fmod()    
 abs()
 
-v0.5.4:log()    
-v0.5.4:log10()    
-v0.5.4:exp()    
-v0.5.4:asin(), acos()    
-v0.5.4:sinh(), cosh(), tanh()    
-v0.5.4:asinh(), acosh(), atanh()    
-v0.5.4:fmin(), fmax()    
-v0.5.4:round()    
-v0.5.4:trunc()     
+log()    
+log10()    
+exp()    
+asin(), acos()    
+sinh(), cosh(), tanh()    
+asinh(), acosh(), atanh()    
+fmin(), fmax()    
+round()    
+trunc()     
 - godot-math:    
-v0.5.4:godot_clamp_float(v, min, max)    
-v0.5.4:godot_clamp_int(v, min, max)    
-v0.5.4:godot_lerp_float(from, to, weight)    
-v0.5.4:godot_lerp_angle(from, to, weight)    
+godot_clamp_float(v, min, max)    
+godot_clamp_int(v, min, max)    
+godot_lerp_float(from, to, weight)    
+godot_lerp_angle(from, to, weight)    
 
 - 2D Drawing (if Checkbutton in GDTinyCC-node is enabled, a canvaslayer and a node2d are added to the node, then the _draw-method is working):    
 godot_get_drawingnode(self)    
 godot_get_drawingcanvas(self)     
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
-v0.4: godot_draw_line(drawingnode, x1, y1, x2, y2, r, g, b, a, thickness)    
-v0.5.1: godot_draw_string(drawingnode, font, x, y, text, r, g, b, a, font_size)      
+godot_draw_line(drawingnode, x1, y1, x2, y2, r, g, b, a, thickness)    
+godot_draw_string(drawingnode, font, x, y, text, r, g, b, a, font_size)      
 - collision:    
 godot_get_physics_server2D()    
 godot_get_physics_server3D()    
