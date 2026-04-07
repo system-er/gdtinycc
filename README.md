@@ -22,6 +22,8 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
    
 	   
 # documentation:       
+always include gdtinycc_runtime.h: #include "gdtinycc_runtime.h"    
+     
 - methods:    
 _ready(self)    
 _process(self, double delta)    
