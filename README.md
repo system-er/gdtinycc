@@ -63,12 +63,12 @@ func _ready():
 			print(err)
 ```
 gets the output in godot:    
-gdscript: ready started    
-GDTinyCC started.    
-=== Compiling res://src/helloworld.c ===    
-hello world from GDTinyCC main.    
-=== SUCCESS ===    
-gdscript: behind gdtcc.compile_file    
+> gdscript: ready started    
+> GDTinyCC started.    
+> === Compiling res://src/helloworld.c ===    
+> hello world from GDTinyCC main.    
+> === SUCCESS ===    
+> gdscript: behind gdtcc.compile_file    
     
 - GDTinyCC methods:    
 _ready(self)    
