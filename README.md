@@ -1,10 +1,10 @@
-# GDTinyCC - gdextension C compiler (v0.6 - the sun rises)             
+# GDTinyCC - gdextension C compiler (v0.6)             
 
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
 WIP (work in progress) - programmed with godot 4.5, tinycc-mob     
 the powerful commands godot_get_variant/godot_set_variant and godot_call/godot_call_deferred reach all properties and methods!     
-time to get out the old Kernighan/Ritchie C-bible  ;-)    
+It's time to dust off the old Kernighan/Ritchie C bible and get it out of the cupboard.    
     
 edit your c-files with the editor of your choice          
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
