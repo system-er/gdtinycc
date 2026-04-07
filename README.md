@@ -42,8 +42,26 @@ String get_last_compile_error()
 String get_last_compile_warning()    
 Array get_compile_errors()    
 Array get_compile_warnings()    
-void clear_compile_messages()    
+void clear_compile_messages()
 
+- add the GDTinyCC-node direct in Inspector and use it OR add it for example in gdscript from code:    
+```
+extends Node
+
+func _ready():
+	print ("gdscript: ready started")
+	var gdtcc = GDTinyCC.new()
+	gdtcc.source_file = "res://src/helloworld.c"
+	add_child(gdtcc)
+	print("gdscript: behind gdtcc.compile_file")
+	
+	var errors = gdtcc.get_compile_errors()
+	var error_count = gdtcc.get_compile_error_count()
+	var warnings = gdtcc.get_compile_warnings()
+	if error_count > 0:
+		for err in errors:
+			print(err)
+```
 - GDTinyCC methods:    
 _ready(self)    
 _process(self, double delta)    
