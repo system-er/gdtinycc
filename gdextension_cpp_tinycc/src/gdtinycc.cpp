@@ -116,6 +116,8 @@ using namespace godot;
 typedef struct TCCState TCCState;
 //godot::GDTinyCC* godot::GDTinyCC::_current_instance = nullptr;
 
+static GDTinyCC* g_current_compiling_instance = nullptr;
+
 void tcc_error_callback(void *opaque, const char *msg);
 void godot_print(const char *format, ...);
 //void* godot_get_parent(void* node_ptr);
@@ -292,6 +294,13 @@ void GDTinyCC::_bind_methods() {
         PropertyInfo(Variant::BOOL, "enable_2d_drawing"), 
         "set_enable_2d_drawing", "get_enable_2d_drawing");
     
+    ClassDB::bind_method(D_METHOD("get_compile_error_count"), &GDTinyCC::get_compile_error_count);
+    ClassDB::bind_method(D_METHOD("get_compile_warning_count"), &GDTinyCC::get_compile_warning_count);
+    ClassDB::bind_method(D_METHOD("get_last_compile_error"), &GDTinyCC::get_last_compile_error);
+    ClassDB::bind_method(D_METHOD("get_last_compile_warning"), &GDTinyCC::get_last_compile_warning);
+    ClassDB::bind_method(D_METHOD("get_compile_errors"), &GDTinyCC::get_compile_errors);
+    ClassDB::bind_method(D_METHOD("get_compile_warnings"), &GDTinyCC::get_compile_warnings);
+    ClassDB::bind_method(D_METHOD("clear_compile_messages"), &GDTinyCC::clear_compile_messages);
 }
 
 
@@ -383,6 +392,15 @@ void GDTinyCC::compile_file() {
         UtilityFunctions::print("error: compile_file - no sourcefile!");
         return;
     }
+
+    compile_error_count = 0;
+    compile_warning_count = 0;
+    last_compile_error = "";
+    last_compile_warning = "";
+    compile_errors.clear();
+    compile_warnings.clear();
+    
+    g_current_compiling_instance = this;
 
     char dll_path[1024];
     
@@ -569,23 +587,35 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
             full_path = "res://" + file;
         }
 
+        if (first_file) {
+            if (files_array.size() > 1) {
+                UtilityFunctions::print("=== Compiling ", files_array.size(), " files ===");
+            } else {
+                UtilityFunctions::print("=== Compiling ", full_path, " ===");
+            }
+            first_file = false;
+        }
+        
+        current_compile_file = full_path;
+        
+        if (files_array.size() > 1) {
+            UtilityFunctions::print("  [", i + 1, "/", files_array.size(), "] Compiling: ", full_path);
+        }
+
         Ref<FileAccess> fa = FileAccess::open(full_path, FileAccess::READ);
         if (fa.is_null()) {
             UtilityFunctions::print("error: compile_file - file open error: ", full_path);
             tcc_delete(s);
+            g_current_compiling_instance = nullptr;
             return;
         }
 
         String source_code = fa->get_as_text();
-        UtilityFunctions::print("compile: ", full_path);
-
-        if (first_file) {
-            first_file = false;
-        }
 
         if (tcc_compile_string(s, source_code.utf8().get_data()) < 0) {
-            UtilityFunctions::print("error: compile_file - compileerror!", full_path);
             tcc_delete(s);
+            g_current_compiling_instance = nullptr;
+            UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s) ===");
             return;
         }
     }
@@ -606,12 +636,14 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         }
 
         tcc_delete(s);
+        g_current_compiling_instance = nullptr;
         return;
     }
 
     if (tcc_relocate(s) < 0) {
         UtilityFunctions::print("error: compile_file - relocationerror!");
         tcc_delete(s);
+        g_current_compiling_instance = nullptr;
         return;
     }
 
@@ -627,6 +659,16 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         main_func();
     } else {
         UtilityFunctions::print("error: compile_file - main-function not found!");
+    }
+    
+    g_current_compiling_instance = nullptr;
+    
+    if (compile_error_count > 0) {
+        UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s) ===");
+    } else if (compile_warning_count > 0) {
+        UtilityFunctions::print("=== SUCCESS: 0 error(s), ", compile_warning_count, " warning(s) ===");
+    } else {
+        UtilityFunctions::print("=== SUCCESS ===");
     }
 }
 
@@ -1048,7 +1090,36 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
 }
 
 void tcc_error_callback(void *opaque, const char *msg) {
-    UtilityFunctions::print("TCC Error: ", msg);
+    if (g_current_compiling_instance) {
+        GDTinyCC* inst = g_current_compiling_instance;
+        godot::String s(msg);
+        
+        godot::String prefix = "[TCC] ";
+        godot::String file_prefix = inst->current_compile_file;
+        
+        godot::String full_msg = prefix;
+        if (s.contains("<string>")) {
+            full_msg += file_prefix + ": " + s.replace("<string>", file_prefix);
+        } else {
+            full_msg += s;
+        }
+        
+        UtilityFunctions::print(full_msg);
+        
+        if (s.contains("error")) {
+            inst->compile_error_count++;
+            inst->last_compile_error = full_msg;
+            inst->compile_errors.push_back(full_msg);
+        } else if (s.contains("warning")) {
+            inst->compile_warning_count++;
+            inst->last_compile_warning = full_msg;
+            inst->compile_warnings.push_back(full_msg);
+        } else {
+            inst->compile_errors.push_back(full_msg);
+        }
+    } else {
+        UtilityFunctions::print("[TCC] ", msg);
+    }
 }
 
 void godot_print(const char *format, ...) {
@@ -2523,10 +2594,35 @@ int godot_remove_dir(const char* path) {
     if (!p.begins_with("res://") && !p.begins_with("user://") && !p.begins_with("tmp://")) {
         p = "user://" + p;
     }
-    godot::Ref<godot::DirAccess> da = godot::DirAccess::open(p.get_base_dir());
+    godot::Ref<godot::DirAccess> da = godot::DirAccess::open(p);
     if (da.is_valid()) {
         int err = da->remove(p);
         return err == godot::OK ? 0 : -1;
     }
     return -1;
+}
+
+Array GDTinyCC::get_compile_errors() const {
+    Array result;
+    for (const auto& err : compile_errors) {
+        result.append(err);
+    }
+    return result;
+}
+
+Array GDTinyCC::get_compile_warnings() const {
+    Array result;
+    for (const auto& warn : compile_warnings) {
+        result.append(warn);
+    }
+    return result;
+}
+
+void GDTinyCC::clear_compile_messages() {
+    compile_error_count = 0;
+    compile_warning_count = 0;
+    last_compile_error = "";
+    last_compile_warning = "";
+    compile_errors.clear();
+    compile_warnings.clear();
 }
