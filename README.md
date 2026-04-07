@@ -23,8 +23,28 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
 	   
 # documentation:       
 always include gdtinycc_runtime.h: #include "gdtinycc_runtime.h"    
-     
-- methods:    
+
+- GDTinyCC-commands in _bind_methods for extern:
+set_source_file(String)    
+String get_source_file()     
+compile_file()     
+set_output_object_file(String)    
+String get_output_object_file()
+set_input_object_file(String)
+String get_input_object_file()     
+compile_to_object(String)
+load_object(String)        
+set_enable_2d_drawing(bool)
+bool get_enable_2d_drawing()
+int get_compile_error_count()    
+int get_compile_warning_count()    
+String get_last_compile_error()    
+String get_last_compile_warning()    
+Array get_compile_errors()    
+Array get_compile_warnings()    
+void clear_compile_messages()    
+
+- GDTinyCC methods:    
 _ready(self)    
 _process(self, double delta)    
 _physics_process(self, double delta)    
