@@ -47,7 +47,7 @@ v0.5.2: godot_get_input() // example:
     void* input = godot_get_input();
     GDExtensionVariant keycode;
     keycode.type = VARTYPE_INT;
-    keycode.value.i = 87;  // KEY_W
+    keycode.value.i = KEY_W;
     GDExtensionVariant result;
     godot_call(input, "is_key_pressed", 1, &keycode, &result);
     if (result.value.b) {
