@@ -52,7 +52,7 @@ func _ready():
 	print ("gdscript: ready started")
 	var gdtcc = GDTinyCC.new()
 	gdtcc.source_file = "res://src/helloworld.c"
-	add_child(gdtcc)
+	add_child(gdtcc) // adding to godot starts the compile
 	print("gdscript: behind gdtcc.compile_file")
 	
 	var errors = gdtcc.get_compile_errors()
