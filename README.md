@@ -44,7 +44,7 @@ Array get_compile_errors()
 Array get_compile_warnings()    
 void clear_compile_messages()
 
-- add the GDTinyCC-node direct in Inspector and use it OR add it for example in gdscript from code:    
+- use the GDTinyCC-node direct in Inspector OR add it for example in gdscript from code:    
 ```
 extends Node
 
