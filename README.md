@@ -24,7 +24,7 @@ and choose the name of the .c-file in the GDTinyCC-node in inspector.
 # documentation:       
 always include gdtinycc_runtime.h: #include "gdtinycc_runtime.h"    
 
-- GDTinyCC-commands in _bind_methods for extern:
+- GDTinyCC-commands in _bind_methods for extern:    
 set_source_file(String)    
 String get_source_file()     
 compile_file()     
