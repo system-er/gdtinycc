@@ -70,7 +70,7 @@ gets the output in godot:
 > === SUCCESS ===    
 > gdscript: behind gdtcc.compile_file    
     
-- GDTinyCC methods:    
+- GDTinyCC methods for tcc to access godot:    
 _ready(self)    
 _process(self, double delta)    
 _physics_process(self, double delta)    
