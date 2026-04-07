@@ -355,10 +355,23 @@ void _process(void* self, double delta) {
     v.value.vec2.x = 10.0f + (10.0f * sin(timepassed * 2.0f));
     v.value.vec2.y = 10.0f + (10.0f * cos(timepassed * 1.5f));
     godot_set_variant(sprite, "position", v);
+
+    // test input singleton with method is_key_pressed
+    void* input = godot_get_input();
+    GDExtensionVariant keycode;
+    keycode.type = VARTYPE_INT;
+    keycode.value.i = KEY_W;
+    GDExtensionVariant result;
+    godot_call(input, "is_key_pressed", 1, &keycode, &result);
+    if (result.value.b) {
+        godot_print("Key W is pressed");
+    }
 }
+
 
 void _physics_process(void* self,double delta) {
 }
+
 
 void _input(void* self,void* event) {
     if (!event) {
@@ -368,13 +381,16 @@ void _input(void* self,void* event) {
     if(godot_is_pressed(event)){
         int code = godot_eventcode(event);
         godot_print("input event: %d", code);
-
-        if (code == 4194305) { // ESC
+        
+        if (code == KEY_ESCAPE) {
             GDExtensionVariant result;
             void* tree = godot_get_tree(self);
             godot_call(tree, "quit", 0, NULL, &result);
         }
-        else if(code < 9){ //mousebutton
+        else if(code < 10){ //mousebutton
+            if (code == MOUSE_BUTTON_LEFT) godot_print("mousebuttonleft");
+            if (code == MOUSE_BUTTON_RIGHT) godot_print("mousebuttonright");
+            if (code == MOUSE_BUTTON_MIDDLE) godot_print("mousebuttonmiddle");
             GDExtensionVariant v;
             v.type = VARTYPE_VECTOR2;
             v = godot_get_global_mouse_position(self);
