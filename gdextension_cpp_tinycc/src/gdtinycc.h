@@ -163,6 +163,7 @@ public:
     void set_input_object_file(const String &p_path);
     String get_input_object_file() const;
     void load_object_file();
+    void recompile();
     bool connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
     void disconnect_all_signals();
     int get_compile_error_count() const { return compile_error_count; }

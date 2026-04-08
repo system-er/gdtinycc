@@ -263,6 +263,7 @@ void GDTinyCC::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_source_file", "path"), &GDTinyCC::set_source_file);
     ClassDB::bind_method(D_METHOD("get_source_file"), &GDTinyCC::get_source_file);
     ClassDB::bind_method(D_METHOD("compile_file"), &GDTinyCC::compile_file);
+    ClassDB::bind_method(D_METHOD("recompile"), &GDTinyCC::recompile);
 
     ClassDB::add_property(
         "GDTinyCC", 
@@ -2625,4 +2626,19 @@ void GDTinyCC::clear_compile_messages() {
     last_compile_warning = "";
     compile_errors.clear();
     compile_warnings.clear();
+}
+
+void GDTinyCC::recompile() {
+    if (tcc_state) {
+        tcc_delete((TCCState*)tcc_state);
+        tcc_state = nullptr;
+    }
+    compile_error_count = 0;
+    compile_warning_count = 0;
+    last_compile_error = "";
+    last_compile_warning = "";
+    compile_errors.clear();
+    compile_warnings.clear();
+    
+    compile_file();
 }
