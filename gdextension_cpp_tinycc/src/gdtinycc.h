@@ -114,11 +114,19 @@ public:
 class GDTinyCC : public Node {
     GDCLASS(GDTinyCC, Node)
 
-private:
+public:
     String source_file;
     String output_object_file;
     String input_object_file;
+    int compile_error_count = 0;
+    int compile_warning_count = 0;
+    String last_compile_error;
+    String last_compile_warning;
+    std::vector<String> compile_errors;
+    std::vector<String> compile_warnings;
+    String current_compile_file;
 
+private:
     void *tcc_state;
     std::vector<SignalHandler*> signal_handlers;
 
@@ -157,6 +165,13 @@ public:
     void load_object_file();
     bool connect_signal(void* node_ptr, const char* signal_name, void* callback_func, void* user_data);
     void disconnect_all_signals();
+    int get_compile_error_count() const { return compile_error_count; }
+    int get_compile_warning_count() const { return compile_warning_count; }
+    String get_last_compile_error() const { return last_compile_error; }
+    String get_last_compile_warning() const { return last_compile_warning; }
+    Array get_compile_errors() const;
+    Array get_compile_warnings() const;
+    void clear_compile_messages();
     void* get_tcc_state() const { return tcc_state; }
     int godot_input_event_is_pressed(void* evt);
     int godot_get_eventcode(void* event_ptr);
