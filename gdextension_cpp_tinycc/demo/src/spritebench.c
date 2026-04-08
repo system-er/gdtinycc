@@ -28,6 +28,12 @@ static int frame_index = 0;
 static int benchmark_done = 0;
 static void* icon_texture = NULL;
 
+
+void main() {
+
+}
+
+
 void _ready(void* self) {
     godot_randomize();
     
@@ -73,6 +79,7 @@ void _ready(void* self) {
     
     godot_print("All %d sprites created", sprite_count);
 }
+
 
 void _process(void* self, double delta) {
     if (sprite_count == 0 || benchmark_done) return;
