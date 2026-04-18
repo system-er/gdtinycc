@@ -11,5 +11,5 @@ theme_override_font_sizes/font_size = 28
 text = "click me"
 
 [node name="GDTinyCC" type="GDTinyCC" parent="."]
-source_file = "res://src/main.c, res://src/add.c"
+source_file = "res://src/main.c"
 enable_2d_drawing = true
