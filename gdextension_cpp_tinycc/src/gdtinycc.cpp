@@ -2629,16 +2629,61 @@ void GDTinyCC::clear_compile_messages() {
 }
 
 void GDTinyCC::recompile() {
-    if (tcc_state) {
-        tcc_delete((TCCState*)tcc_state);
-        tcc_state = nullptr;
+    if (!tcc_state) {
+        compile_file();
+        return;
     }
-    compile_error_count = 0;
-    compile_warning_count = 0;
-    last_compile_error = "";
-    last_compile_warning = "";
-    compile_errors.clear();
-    compile_warnings.clear();
-    
-    compile_file();
+
+    TCCState* old_s = (TCCState*)tcc_state;
+
+    using GetVarsFunc = void*(*)();
+    using SetVarsFunc = void(*)(void*);
+    GetVarsFunc get_vars_func = (GetVarsFunc)tcc_get_symbol(old_s, "_get_hotreload_vars");
+    SetVarsFunc set_vars_func = (SetVarsFunc)tcc_get_symbol(old_s, "_set_hotreload_vars");
+
+    if (get_vars_func && set_vars_func) {
+        void* var_state = get_vars_func();
+
+        compile_error_count = 0;
+        compile_warning_count = 0;
+        last_compile_error = "";
+        last_compile_warning = "";
+        compile_errors.clear();
+        compile_warnings.clear();
+
+        tcc_delete(old_s);
+        tcc_state = nullptr;
+
+        compile_file();
+
+        if (compile_error_count > 0 || !tcc_state) {
+            compile_error_count = 0;
+            compile_warning_count = 0;
+            last_compile_error = "";
+            last_compile_warning = "";
+            compile_errors.clear();
+            compile_warnings.clear();
+            return;
+        }
+
+        TCCState* new_s = (TCCState*)tcc_state;
+        SetVarsFunc new_set = (SetVarsFunc)tcc_get_symbol(new_s, "_set_hotreload_vars");
+        if (new_set) {
+            new_set(var_state);
+        }
+    } else {
+        compile_error_count = 0;
+        compile_warning_count = 0;
+        last_compile_error = "";
+        last_compile_warning = "";
+        compile_errors.clear();
+        compile_warnings.clear();
+
+        tcc_delete(old_s);
+        tcc_state = nullptr;
+
+        compile_file();
+    }
+
+    UtilityFunctions::print("=== HOT-RELOAD ===");
 }
