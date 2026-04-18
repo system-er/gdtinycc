@@ -497,13 +497,14 @@ void _draw(void* self) {
 
     
 # build:    
-copy tinycc-mob (i use version 0.9.28rc) into src/tinycc-mob   
-copy all files from src/tinycc-mob/include to demo/bin/include    
-build tinycc for your OS...   
-(if libtcc1.a is after build in src/tinycc-mob copy to src/tinycc-mob/lib)    
-copy libtcc1.a into demo/bin/lib (from  build or copy from a tinycc-mob release...)    
-copy godot-cpp version 4.5 to directory godot-cpp    
-start scons    
+- copy tinycc-mob (i use version 0.9.28rc) into src/tinycc-mob   
+- copy all files from src/tinycc-mob/include to demo/bin/include    
+- build tinycc for your OS...   
+  (if libtcc1.a is after build in src/tinycc-mob copy to src/tinycc-mob/lib)    
+- copy libtcc1.a into demo/bin/lib (from  build or copy from a tinycc-mob release...)    
+- copy godot-cpp version 4.5 to directory godot-cpp    
+- start scons    
+
 (tested on ubuntu 24.4 and windows 11)    
 
 
