@@ -36,22 +36,16 @@ v0.7.0: recompile() // HOT-RELOAD(recompile is called from extern for example fr
 ```
 // variables for hotreload with recompile
 static float time = 0.0f;
-static float x = 100.0f;
-static float speed = 2.0f;
 static int counter = 0;
 
 struct Vars {
     float time;
-    float x;
-    float speed;
     int counter;
 };
 
 void* _get_hotreload_vars() {
     static struct Vars v = {0};
     v.time = time;
-    v.x = x;
-    v.speed = speed;
     v.counter = counter;
     return &v;
 }
@@ -59,8 +53,6 @@ void* _get_hotreload_vars() {
 void _set_hotreload_vars(void* p) {
     struct Vars* v = (struct Vars*)p;
     time = v->time;
-    x = v->x;
-    speed = v->speed;
     counter = v->counter;
 }
 ```
