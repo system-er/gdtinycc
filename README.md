@@ -1,4 +1,4 @@
-# GDTinyCC - gdextension C compiler (v0.6.3)             
+# GDTinyCC - gdextension C compiler (v0.7.0)             
 
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
@@ -8,7 +8,7 @@ It's time to dust off the old Kernighan/Ritchie C bible and get it out of the cu
     
 edit your c-files with the editor of your choice          
 and choose the name of the .c-file in the GDTinyCC-node in inspector.      
-	
+v0.7.0: now with HOT-RELOAD with function recompile.    
 
 - compile and run c-source-file just in time (filename *.c in inspector in "Source File")    
   more than one filename separated with comma, the main-file first (for example "res://src/main.c,res://src/add.c" - the add.h is included in add.c - projects with modularization possible )    
@@ -27,7 +27,40 @@ always include gdtinycc_runtime.h: #include "gdtinycc_runtime.h"
 - GDTinyCC-commands in _bind_methods for extern:    
 set_source_file(String)    
 String get_source_file()     
-compile_file()     
+compile_file()
+v0.7.0: recompile() // HOT-RELOAD(recompile is called from extern for example from gdscript)    
+// for hotreload set the varibles in a struct and create two functions
+// _get_hotreload_vars and _set_hotreload_vars are called from recompile, example in the C-program (only the user knows the variables):    
+```
+static float time = 0.0f;
+static float x = 100.0f;
+static float speed = 2.0f;
+static int counter = 0;
+
+struct Vars {
+    float time;
+    float x;
+    float speed;
+    int counter;
+};
+
+void* _get_hotreload_vars() {
+    static struct Vars v = {0};
+    v.time = time;
+    v.x = x;
+    v.speed = speed;
+    v.counter = counter;
+    return &v;
+}
+
+void _set_hotreload_vars(void* p) {
+    struct Vars* v = (struct Vars*)p;
+    time = v->time;
+    x = v->x;
+    speed = v->speed;
+    counter = v->counter;
+}
+```
 set_output_object_file(String)    
 String get_output_object_file()    
 set_input_object_file(String)    
