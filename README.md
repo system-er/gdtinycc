@@ -27,7 +27,7 @@ always include gdtinycc_runtime.h: #include "gdtinycc_runtime.h"
 - GDTinyCC-commands in _bind_methods for extern:    
 set_source_file(String)    
 String get_source_file()     
-compile_file()
+compile_file()    
 v0.7.0: recompile() // HOT-RELOAD(recompile is called from extern for example from gdscript)    
 // for hotreload set the varibles in a struct and create two functions
 // _get_hotreload_vars and _set_hotreload_vars are called from recompile, example in the C-program (only the user knows the variables):    
