@@ -21,7 +21,7 @@ v0.7.0: now with HOT-RELOAD with function recompile.
 - check the "Enable 2D Drawing" in GDTinyCC-node in inspector if you need _draw        
 
 screenshot from example res://src/main.c:    
-![Pic1](screenshot.jpg)
+![Pic1](gdextension_cpp_tinycc/screenshot.jpg)
 	   
 # documentation:       
 always include gdtinycc_runtime.h: #include "gdtinycc_runtime.h"    
