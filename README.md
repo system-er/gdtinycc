@@ -30,7 +30,7 @@ String get_source_file()
 compile_file()    
 v0.7.0: recompile() // HOT-RELOAD(recompile is called from extern for example from gdscript)    
 // for hotreload set the variables in a struct and create two functions
-// _get_hotreload_vars and _set_hotreload_vars are called from recompile, example in the C-program (only the user knows the variables):    
+// _get_hotreload_vars and _set_hotreload_vars are called from recompile in the C-program (only the user knows the variables) - example:    
 ```
 // variables for hotreload with recompile
 static float time = 0.0f;
