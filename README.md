@@ -32,6 +32,7 @@ v0.7.0: recompile() // HOT-RELOAD(recompile is called from extern for example fr
 // for hotreload set the variables in a struct and create two functions
 // _get_hotreload_vars and _set_hotreload_vars are called from recompile, example in the C-program (only the user knows the variables):    
 ```
+// variables for hotreload with recompile
 static float time = 0.0f;
 static float x = 100.0f;
 static float speed = 2.0f;
