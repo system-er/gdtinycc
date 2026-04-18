@@ -463,7 +463,7 @@ void _draw(void* self) {
 
     
 # build:    
-copy tinycc-mob into src/tinycc-mob   
+copy tinycc-mob (i use version 0.9.28rc) into src/tinycc-mob   
 copy all files from src/tinycc-mob/include to demo/bin/include    
 build tinycc for your OS...   
 if libtcc1.a is after build in src/tinycc-mob copy to src/tinycc-mob/lib    
