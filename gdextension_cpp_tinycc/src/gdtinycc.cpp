@@ -2328,22 +2328,39 @@ int godot_check_collision(void* area_ptr, void* other_ptr)
     return 0;
 }
 
-int godot_check_collision_3d(void* area_ptr, void* other_ptr) {
+int godot_check_collision_3d(void* area_ptr, void* other_ptr)
+{
     if (!area_ptr || !other_ptr) {
-        UtilityFunctions::print("godot_check_collision_3d: NULL ptr - area=%p other=%p", area_ptr, other_ptr);
+        UtilityFunctions::print("godot_check_collision_3d: NULL-Pointer!");
         return 0;
     }
-    
-    godot::Area3D* area = static_cast<godot::Area3D*>(area_ptr);
-    godot::Object* other = static_cast<godot::Object*>(other_ptr);
-    
-    godot::Area3D* other_area = godot::Object::cast_to<godot::Area3D>(other);
-    if (other_area) {
-        return area->overlaps_area(other_area) ? 1 : 0;
+
+    godot::Area3D* area = godot::Object::cast_to<godot::Area3D>(
+        static_cast<godot::Object*>(area_ptr));
+
+    if (!area) {
+        return 0;
     }
-    
-    godot::Node* other_node = static_cast<godot::Node*>(other);
-    return area->overlaps_body(other_node) ? 1 : 0;
+
+    if (!area->is_monitoring()) {
+        area->set_monitoring(true);
+    }
+
+    godot::Object* other_obj = static_cast<godot::Object*>(other_ptr);
+
+    godot::Area3D* other_area = godot::Object::cast_to<godot::Area3D>(other_obj);
+    if (other_area) {
+        bool hit = area->overlaps_area(other_area);
+        return hit ? 1 : 0;
+    }
+
+    godot::Node* other_node = godot::Object::cast_to<godot::Node>(other_obj);
+    if (other_node) {
+        bool hit = area->overlaps_body(other_node);
+        return hit ? 1 : 0;
+    }
+
+    return 0;
 }
 
 void godot_setup_collision_shape(void* collision_shape_ptr, const char* shape_type, float param1, float param2, float param3) {
