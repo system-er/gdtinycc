@@ -1,4 +1,4 @@
-# GDTinyCC - gdextension C compiler (v0.7.0)             
+# GDTinyCC - gdextension C compiler (v0.7.1)             
 
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
@@ -247,8 +247,8 @@ godot_draw_string(drawingnode, font, x, y, text, r, g, b, a, font_size)
 - collision:    
 godot_get_physics_server2D()    
 godot_get_physics_server3D()    
-int godot_check_collision(void* area_ptr, void* other_ptr) // use in _physics_process!    
-int godot_check_collision_3d(void* area_ptr, void* other_ptr)    
+v0.7.1:int godot_check_collision(void* area_ptr, void* other_ptr) // use in _physics_process!    
+v0.7.1:int godot_check_collision_3d(void* area_ptr, void* other_ptr)    
 void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3)    
 
 - debugging:    
