@@ -2302,21 +2302,64 @@ const char* godot_get_class_name(void* obj) {
 
 int godot_check_collision(void* area_ptr, void* other_ptr) {
     if (!area_ptr || !other_ptr) return 0;
-    
-    godot::Area2D* area = static_cast<godot::Area2D*>(area_ptr);
+
+    godot::Node2D* area_node2d = static_cast<godot::Node2D*>(area_ptr);
     godot::Object* other = static_cast<godot::Object*>(other_ptr);
-    
+
     godot::Area2D* other_area = godot::Object::cast_to<godot::Area2D>(other);
     if (other_area) {
+        godot::Area2D* area = static_cast<godot::Area2D*>(area_ptr);
         return area->overlaps_area(other_area) ? 1 : 0;
     }
-    
-    godot::Node* other_node = static_cast<godot::Node*>(other);
-    return area->overlaps_body(other_node) ? 1 : 0;
+
+    godot::Node2D* other_node2d = godot::Object::cast_to<godot::Node2D>(other);
+    if (!other_node2d) {
+        godot::Area2D* area = static_cast<godot::Area2D*>(area_ptr);
+        godot::Node* node = static_cast<godot::Node*>(other);
+        return area->overlaps_body(node) ? 1 : 0;
+    }
+
+    godot::Vector2 pos_a = area_node2d->get_global_position();
+    godot::Vector2 pos_b = other_node2d->get_global_position();
+
+    godot::CollisionShape2D* area_shape = godot::Object::cast_to<godot::CollisionShape2D>(
+        static_cast<godot::Node*>(area_node2d)->get_child(0));
+    godot::CollisionShape2D* other_shape = godot::Object::cast_to<godot::CollisionShape2D>(
+        static_cast<godot::Node*>(other_node2d)->get_child(0));
+
+    float radius_a = 32.0f;
+    float radius_b = 16.0f;
+
+    if (area_shape) {
+        godot::Variant shape_var = area_shape->call("get_shape");
+        if (shape_var.get_type() == godot::Variant::OBJECT) {
+            godot::Object* shape_obj = shape_var;
+            if (shape_obj && shape_obj->is_class("CircleShape2D")) {
+                radius_a = (float)shape_obj->call("get_radius");
+            }
+        }
+    }
+
+    if (other_shape) {
+        godot::Variant shape_var = other_shape->call("get_shape");
+        if (shape_var.get_type() == godot::Variant::OBJECT) {
+            godot::Object* shape_obj = shape_var;
+            if (shape_obj && shape_obj->is_class("CircleShape2D")) {
+                radius_b = (float)shape_obj->call("get_radius");
+            }
+        }
+    }
+
+    float radius_sum = radius_a + radius_b;
+    float dist = pos_a.distance_to(pos_b);
+    return (dist < radius_sum) ? 1 : 0;
 }
 
 int godot_check_collision_3d(void* area_ptr, void* other_ptr) {
-    if (!area_ptr || !other_ptr) return 0;
+    if (!area_ptr || !other_ptr) {
+        UtilityFunctions::print("godot_check_collision_3d: NULL ptr - area=%p other=%p", area_ptr, other_ptr);
+        return 0;
+    }
     
     godot::Area3D* area = static_cast<godot::Area3D*>(area_ptr);
     godot::Object* other = static_cast<godot::Object*>(other_ptr);
