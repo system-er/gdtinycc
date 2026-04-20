@@ -1,13 +1,12 @@
 [gd_scene format=3 uid="uid://dsnp5a6lr43ug"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node"]
 
 [node name="Button" type="Button" parent="."]
-offset_left = 414.0
-offset_top = 94.0
-offset_right = 631.0
-offset_bottom = 164.0
-theme_override_font_sizes/font_size = 28
+offset_left = 434.0
+offset_top = 96.0
+offset_right = 564.0
+offset_bottom = 149.0
 text = "click me"
 
 [node name="GDTinyCC" type="GDTinyCC" parent="."]
