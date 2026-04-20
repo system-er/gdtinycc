@@ -61,6 +61,16 @@ void _ready(void* self) {
             mat_v.value.color.a = 1.0f;
             godot_set_variant(material, "albedo_color", mat_v);
 
+            GDExtensionVariant metallic;
+            metallic.type = VARTYPE_FLOAT;
+            metallic.value.f = 0.9f;
+            godot_set_variant(material, "metallic", metallic);
+
+            GDExtensionVariant roughness;
+            roughness.type = VARTYPE_FLOAT;
+            roughness.value.f = 0.2f;
+            godot_set_variant(material, "roughness", roughness);
+
             GDExtensionVariant mat_var;
             mat_var.type = VARTYPE_OBJECT;
             mat_var.ptr = material;
@@ -88,10 +98,15 @@ void _ready(void* self) {
 
         GDExtensionVariant rot;
         rot.type = VARTYPE_VECTOR3;
-        rot.value.vec3.x = -30.0f;
-        rot.value.vec3.y = -35.0f;
-        rot.value.vec3.z = 14.0f;
+        rot.value.vec3.x = 45.0f;
+        rot.value.vec3.y = 45.0f;
+        rot.value.vec3.z = 0.0f;
         godot_set_variant(light, "rotation", rot);
+
+        GDExtensionVariant energy;
+        energy.type = VARTYPE_FLOAT;
+        energy.value.f = 3.0f;
+        godot_set_variant(light, "light_energy", energy);
 
         GDExtensionVariant shadow;
         shadow.type = VARTYPE_BOOL;
