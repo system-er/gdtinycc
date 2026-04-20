@@ -24,6 +24,9 @@ void _ready(void* self) {
     godot_print("demo3d: _ready called");
     godot_randomize();
 
+    void* button = godot_get_node(self, "/root/Main/Button");
+    godot_call_deferred(button, "queue_free", 0, NULL);
+
     void* parent = godot_get_node(self, "/root/Main");
     if (!parent) {
         parent = self;
