@@ -504,6 +504,10 @@ void _set_hotreload_vars(void* p) {
     counter = v->counter;
 }
 ```
+
+# use the release:
+- decompress the release into you project-directory
+- in the inspector press "Add Child Node" and there should be a new node GDTinyCC    
     
 # build:    
 - copy tinycc-mob (i use version 0.9.28rc) into src/tinycc-mob   
