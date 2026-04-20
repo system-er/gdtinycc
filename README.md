@@ -465,7 +465,7 @@ void _draw(void* self) {
 ```
 
 # hotreload:    
-recompile() // HOT-RELOAD - recompile is called from extern for example from gdscript for example:    
+recompile() // HOT-RELOAD - recompile is called from extern for example from gdscript:    
 ```
 var gdtcc: GDTinyCC
 
