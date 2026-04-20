@@ -78,24 +78,22 @@ void _ready(void* self) {
     if (light) {
         GDExtensionVariant v;
         v.type = VARTYPE_VECTOR3;
-        v.value.vec3.x = -5.0f;
-        v.value.vec3.y = 5.0f;
-        v.value.vec3.z = 5.0f;
+        v.value.vec3.x = -10.0f;
+        v.value.vec3.y = 8.0f;
+        v.value.vec3.z = 8.0f;
         godot_set_variant(light, "position", v);
-
-        v.type = VARTYPE_VECTOR3;
-        v.value.vec3.x = -1.0f;
-        v.value.vec3.y = -1.0f;
-        v.value.vec3.z = -1.0f;
-        v.value.vec3.x = -1.0f;
-        godot_set_variant(light, "light_direction", v);
 
         GDExtensionVariant rot;
         rot.type = VARTYPE_VECTOR3;
-        rot.value.vec3.x = 45.0f;
-        rot.value.vec3.y = 45.0f;
-        rot.value.vec3.z = 0.0f;
+        rot.value.vec3.x = -30.0f;
+        rot.value.vec3.y = -35.0f;
+        rot.value.vec3.z = 14.0f;
         godot_set_variant(light, "rotation", rot);
+
+        GDExtensionVariant shadow;
+        shadow.type = VARTYPE_BOOL;
+        shadow.value.b = 1;
+        godot_set_variant(light, "shadows_enabled", shadow);
 
         godot_add_child_deferred(parent, light);
         godot_print("added DirectionalLight3D");
