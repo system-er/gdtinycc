@@ -31,31 +31,6 @@ set_source_file(String)
 String get_source_file()     
 compile_file()    
 v0.7.0: recompile() // HOT-RELOAD(recompile is called from extern for example from gdscript)    
-// for hotreload set the variables in a struct and create two functions
-// _get_hotreload_vars and _set_hotreload_vars in the C-program - they are called from recompile (only the user knows the variables) - example:    
-```
-// variables for hotreload with recompile
-static float time = 0.0f;
-static int counter = 0;
-
-struct Vars {
-    float time;
-    int counter;
-};
-
-void* _get_hotreload_vars() {
-    static struct Vars v = {0};
-    v.time = time;
-    v.counter = counter;
-    return &v;
-}
-
-void _set_hotreload_vars(void* p) {
-    struct Vars* v = (struct Vars*)p;
-    time = v->time;
-    counter = v->counter;
-}
-```
 set_output_object_file(String)    
 String get_output_object_file()    
 set_input_object_file(String)    
@@ -274,7 +249,7 @@ godot_free_variant(variant) // frees memory of ARRAY, DICTIONARY etc - can be us
 > VARTYPE_DICTIONARY = 27,    
 > VARTYPE_ARRAY = 28,        
 > VARTYPE_PACKED_BYTE = 29,    
-  
+
 
 # example src/main.c   
 ```
@@ -489,6 +464,46 @@ void _draw(void* self) {
 
 ```
 
+# hotreload:    
+recompile() // HOT-RELOAD - recompile is called from extern for example from gdscript for example:    
+```
+var gdtcc: GDTinyCC
+
+func _ready():
+	gdtcc = GDTinyCC.new()
+	gdtcc.source_file = "res://src/hotreload_test.c"
+	add_child(gdtcc)
+
+func _input(event):
+	if Input.is_key_pressed(KEY_R):
+		print("gdscript: recompile")
+		gdtcc.recompile()
+```
+// for hotreload set the variables in a struct and create two functions
+// _get_hotreload_vars and _set_hotreload_vars in the C-program - they are called from recompile (only the user knows the variables) - example:    
+```
+// variables for hotreload with recompile
+static float time = 0.0f;
+static int counter = 0;
+
+struct Vars {
+    float time;
+    int counter;
+};
+
+void* _get_hotreload_vars() {
+    static struct Vars v = {0};
+    v.time = time;
+    v.counter = counter;
+    return &v;
+}
+
+void _set_hotreload_vars(void* p) {
+    struct Vars* v = (struct Vars*)p;
+    time = v->time;
+    counter = v->counter;
+}
+```
     
 # build:    
 - copy tinycc-mob (i use version 0.9.28rc) into src/tinycc-mob   
