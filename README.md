@@ -506,7 +506,7 @@ void _set_hotreload_vars(void* p) {
 ```
 
 # use the release:
-- unpack the release into you project-directory
+- unpack the release into your project-directory
 - in the inspector press "Add Child Node" and there should be a new node GDTinyCC    
     
 # build:    
