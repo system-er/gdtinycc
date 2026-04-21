@@ -504,6 +504,19 @@ void _set_hotreload_vars(void* p) {
     counter = v->counter;
 }
 ```
+# Global variables (in Project/Project Settings/Globals):    
+if you have for example a global node for global variables Gobals.gd    
+```
+extends Node
+var health = 42
+```
+you can get the globalvariable health in C:    
+```
+    void* globals = godot_get_node(self, "/root/Globals");
+    GDExtensionVariant vg;
+    godot_get_variant(globals, "health", &vg);
+    godot_print("Globals.health: %d", vg.value.i);
+```
 
 # use the release:
 - unpack the release into your project-directory
