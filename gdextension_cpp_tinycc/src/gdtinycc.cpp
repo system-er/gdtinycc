@@ -394,6 +394,7 @@ void GDTinyCC::compile_file() {
         return;
     }
 
+    long long compile_start_time = godot_get_ticks_msec();
     compile_error_count = 0;
     compile_warning_count = 0;
     last_compile_error = "";
@@ -631,9 +632,21 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         String abs_path = ProjectSettings::get_singleton()->globalize_path(path);
 
         if (tcc_output_file(s, abs_path.utf8().get_data()) < 0) {
+            long long compile_end_time = godot_get_ticks_msec();
+            int compile_time_ms = (int)(compile_end_time - compile_start_time);
             UtilityFunctions::print("error: could not write object file");
+            UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s), ", compile_time_ms, " ms ===");
         } else {
-            UtilityFunctions::print("object file saved: ", abs_path);
+            long long compile_end_time = godot_get_ticks_msec();
+            int compile_time_ms = (int)(compile_end_time - compile_start_time);
+            UtilityFunctions::print("object file saved: ", abs_path, " (", compile_time_ms, " ms)");
+            if (compile_error_count > 0) {
+                UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s) ===");
+            } else if (compile_warning_count > 0) {
+                UtilityFunctions::print("=== SUCCESS: 0 error(s), ", compile_warning_count, " warning(s) ===");
+            } else {
+                UtilityFunctions::print("=== SUCCESS ===");
+            }
         }
 
         tcc_delete(s);
@@ -648,10 +661,18 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         return;
     }
 
+    long long compile_end_time = godot_get_ticks_msec();
+    int compile_time_ms = (int)(compile_end_time - compile_start_time);
+
+    if (compile_error_count > 0) {
+        UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s), ", compile_time_ms, " ms ===");
+    } else if (compile_warning_count > 0) {
+        UtilityFunctions::print("=== SUCCESS: 0 error(s), ", compile_warning_count, " warning(s), ", compile_time_ms, " ms ===");
+    } else {
+        UtilityFunctions::print("=== SUCCESS: ", compile_time_ms, " ms ===");
+    }
+
     tcc_state = s;
-    //shared_tcc_state = tcc_state;
-    //shared_drawer->init(tcc_state);
- 
 
     using MainFunc = void(*)();
     MainFunc main_func = (MainFunc)tcc_get_symbol(s, "main");
@@ -661,16 +682,8 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     } else {
         UtilityFunctions::print("error: compile_file - main-function not found!");
     }
-    
+
     g_current_compiling_instance = nullptr;
-    
-    if (compile_error_count > 0) {
-        UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s) ===");
-    } else if (compile_warning_count > 0) {
-        UtilityFunctions::print("=== SUCCESS: 0 error(s), ", compile_warning_count, " warning(s) ===");
-    } else {
-        UtilityFunctions::print("=== SUCCESS ===");
-    }
 }
 
 void GDTinyCC::set_output_object_file(const String &p_path) {
