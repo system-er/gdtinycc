@@ -312,7 +312,7 @@ GDTinyCC::GDTinyCC() {
     }
     //_current_instance = this;
     tcc_state = nullptr;
-    UtilityFunctions::print("GDTinyCC v0.7.2 started.");
+    UtilityFunctions::print("GDTinyCC v0.7.4 started.");
     set_process_input(true);
 }
 
