@@ -307,11 +307,11 @@ void GDTinyCC::_bind_methods() {
 
 
 GDTinyCC::GDTinyCC() {
+    tcc_state = nullptr;
     if (Engine::get_singleton()->is_editor_hint()) {
         return;
     }
     //_current_instance = this;
-    tcc_state = nullptr;
     UtilityFunctions::print("GDTinyCC v0.7.4 started.");
     set_process_input(true);
 }
@@ -640,7 +640,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         } else {
             auto compile_end_time = std::chrono::high_resolution_clock::now();
             int compile_time_ms = (int)std::chrono::duration_cast<std::chrono::milliseconds>(compile_end_time - compile_start_time).count();
-            UtilityFunctions::print("object file saved: ", abs_path, " (", compile_time_ms, " ms)");
+            UtilityFunctions::print("object file saved: ", abs_path);
             if (compile_error_count > 0) {
                 UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s) ===");
             } else if (compile_warning_count > 0) {
