@@ -394,7 +394,7 @@ void GDTinyCC::compile_file() {
         return;
     }
 
-    long long compile_start_time = godot_get_ticks_msec();
+    long long compile_start_time = Time::get_singleton()->get_ticks_msec();
     compile_error_count = 0;
     compile_warning_count = 0;
     last_compile_error = "";
@@ -632,12 +632,12 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         String abs_path = ProjectSettings::get_singleton()->globalize_path(path);
 
         if (tcc_output_file(s, abs_path.utf8().get_data()) < 0) {
-            long long compile_end_time = godot_get_ticks_msec();
+            long long compile_end_time = Time::get_singleton()->get_ticks_msec();
             int compile_time_ms = (int)(compile_end_time - compile_start_time);
             UtilityFunctions::print("error: could not write object file");
             UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s), ", compile_time_ms, " ms ===");
         } else {
-            long long compile_end_time = godot_get_ticks_msec();
+            long long compile_end_time = Time::get_singleton()->get_ticks_msec();
             int compile_time_ms = (int)(compile_end_time - compile_start_time);
             UtilityFunctions::print("object file saved: ", abs_path, " (", compile_time_ms, " ms)");
             if (compile_error_count > 0) {
@@ -661,7 +661,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         return;
     }
 
-    long long compile_end_time = godot_get_ticks_msec();
+    long long compile_end_time = Time::get_singleton()->get_ticks_msec();
     int compile_time_ms = (int)(compile_end_time - compile_start_time);
 
     if (compile_error_count > 0) {
