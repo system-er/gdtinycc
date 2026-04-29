@@ -517,9 +517,6 @@ you can get the globalvariable health in C:
     godot_get_variant(globals, "health", &vg);
     godot_print("Globals.health: %d", vg.value.i);
 ```
-# changelog:
-v0.7.3: added output compiletime    
-v0.7.4: found bug crash signal 11   
 
 # use the release (easy way):
 - unpack the release into your project-directory
@@ -535,6 +532,12 @@ v0.7.4: found bug crash signal 11
 - start scons    
 
 (tested on ubuntu 24.4 and windows 11)    
+
+
+# changelog:    
+v0.7.3: added output compiletime    
+v0.7.4: found bug crash signal 11   
+
 
 
 
