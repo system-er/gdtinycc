@@ -4,6 +4,7 @@
 #include <cstdarg>
 #include <cstring>
 #include <cstdlib>
+#include <chrono>
 #include <vector>
 #include <array>
 #include <godot_cpp/core/class_db.hpp>
@@ -394,7 +395,7 @@ void GDTinyCC::compile_file() {
         return;
     }
 
-    long long compile_start_time = Time::get_singleton()->get_ticks_msec();
+    auto compile_start_time = std::chrono::high_resolution_clock::now();
     compile_error_count = 0;
     compile_warning_count = 0;
     last_compile_error = "";
@@ -632,13 +633,13 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         String abs_path = ProjectSettings::get_singleton()->globalize_path(path);
 
         if (tcc_output_file(s, abs_path.utf8().get_data()) < 0) {
-            long long compile_end_time = Time::get_singleton()->get_ticks_msec();
-            int compile_time_ms = (int)(compile_end_time - compile_start_time);
+            auto compile_end_time = std::chrono::high_resolution_clock::now();
+            int compile_time_ms = (int)std::chrono::duration_cast<std::chrono::milliseconds>(compile_end_time - compile_start_time).count();
             UtilityFunctions::print("error: could not write object file");
             UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s), ", compile_time_ms, " ms ===");
         } else {
-            long long compile_end_time = Time::get_singleton()->get_ticks_msec();
-            int compile_time_ms = (int)(compile_end_time - compile_start_time);
+            auto compile_end_time = std::chrono::high_resolution_clock::now();
+            int compile_time_ms = (int)std::chrono::duration_cast<std::chrono::milliseconds>(compile_end_time - compile_start_time).count();
             UtilityFunctions::print("object file saved: ", abs_path, " (", compile_time_ms, " ms)");
             if (compile_error_count > 0) {
                 UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s) ===");
@@ -661,8 +662,8 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
         return;
     }
 
-    long long compile_end_time = Time::get_singleton()->get_ticks_msec();
-    int compile_time_ms = (int)(compile_end_time - compile_start_time);
+    auto compile_end_time = std::chrono::high_resolution_clock::now();
+    int compile_time_ms = (int)std::chrono::duration_cast<std::chrono::milliseconds>(compile_end_time - compile_start_time).count();
 
     if (compile_error_count > 0) {
         UtilityFunctions::print("=== FAILED: ", compile_error_count, " error(s), ", compile_warning_count, " warning(s), ", compile_time_ms, " ms ===");
