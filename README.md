@@ -70,7 +70,7 @@ gets the output in godot:
 > GDTinyCC started.    
 > === Compiling res://src/helloworld.c ===    
 > hello world from GDTinyCC main.    
-> === SUCCESS ===    
+> === SUCCESS: 0 error(s), 0 warning(s), 4 ms ===    
 > gdscript: behind gdtcc.compile_file    
     
 - GDTinyCC methods for tcc to access godot:    
