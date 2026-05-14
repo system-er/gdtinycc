@@ -559,7 +559,7 @@ you can get the globalvariable health in C:
 # changelog:    
 v0.7.3: added output compiletime    
 v0.7.4: found bug crash signal 11   
-v0.7.5: terminated some bugs and new bridgefunctions for tilemap, 2draycast and inputaction    
+v0.7.5: terminated some bugs and new bridgefunctions for tilemaplayer, 2draycast and inputaction    
 
 
 
