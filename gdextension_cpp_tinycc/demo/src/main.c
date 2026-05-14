@@ -177,8 +177,8 @@ void _ready(void* self) {
     // test tilemaplayer
     void* tml = godot_create("TileMapLayer");
     if (tml) {
-        godot_tilemaplayer_set_cell(tml, 0, 0, 1);
-        godot_tilemaplayer_set_cell(tml, 1, 0, 1);
+        godot_tilemaplayer_set_cell(tml, 0, 0, 42);
+        godot_tilemaplayer_set_cell(tml, 1, 0, 11);
         godot_tilemaplayer_set_cell_ex(tml, 2, 0, 1, 0, 0, 0);
         int src = godot_tilemaplayer_get_cell_source_id(tml, 0, 0);
         godot_print("tilemaplayer cell (0,0) source_id: %d", src);
