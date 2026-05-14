@@ -147,7 +147,21 @@ godot_get_tree(self) // for example to quit program:
 	void* tree = godot_get_tree(self);
 	godot_call(tree, "quit", 0, NULL, &result);
 ```
-  
+
+- tilemap:    
+void godot_tilemap_set_cell(void* tilemap, int layer, int x, int y, int source_id)    
+void godot_tilemap_set_cell_ex(void* tilemap, int layer, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile)    
+int godot_tilemap_get_cell_source_id(void* tilemap, int layer, int x, int y)    
+tcc_Vector2i godot_tilemap_get_cell_atlas_coords(void* tilemap, int layer, int x, int y)    
+void godot_tilemap_clear(void* tilemap)    
+void godot_tilemap_clear_layer(void* tilemap, int layer)
+
+- 2d raycast:    
+RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask)
+
+- input action:    
+int godot_is_action_pressed(const char* action_name)    
+int godot_is_action_just_pressed(const char* action_name)    
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(self, node, signal_name, callback_func, user_data)
