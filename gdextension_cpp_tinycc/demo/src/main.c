@@ -32,6 +32,11 @@ void _ready(void* self) {
 
     // get the parentnode
     void* parent = godot_get_node(self, "/root/Main");
+    
+    //void* globals = godot_get_node(self, "/root/Globals");
+    //GDExtensionVariant vg;
+    //godot_get_variant(globals, "health", &vg);
+    //godot_print("Globals.health: %d", vg.value.i);
 
     if (parent != NULL) {
         GDExtensionVariant v;
@@ -167,6 +172,18 @@ void _ready(void* self) {
     int existfile = godot_file_exists("res://icon.svg");
     if(existfile) {
         godot_print("file icon.svg exists");
+    }
+
+    // test tilemaplayer
+    void* tml = godot_create("TileMapLayer");
+    if (tml) {
+        godot_tilemaplayer_set_cell(tml, 0, 0, 1);
+        godot_tilemaplayer_set_cell(tml, 1, 0, 1);
+        godot_tilemaplayer_set_cell_ex(tml, 2, 0, 1, 0, 0, 0);
+        int src = godot_tilemaplayer_get_cell_source_id(tml, 0, 0);
+        godot_print("tilemaplayer cell (0,0) source_id: %d", src);
+        godot_add_child_deferred(parent, tml);
+        godot_print("tilemaplayer created and added");
     }
 }
 
