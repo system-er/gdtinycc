@@ -148,13 +148,13 @@ godot_get_tree(self) // for example to quit program:
 	godot_call(tree, "quit", 0, NULL, &result);
 ```
 
-- v0.7.5:tilemap:    
-void godot_tilemap_set_cell(void* tilemap, int layer, int x, int y, int source_id)    
-void godot_tilemap_set_cell_ex(void* tilemap, int layer, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile)    
-int godot_tilemap_get_cell_source_id(void* tilemap, int layer, int x, int y)    
-tcc_Vector2i godot_tilemap_get_cell_atlas_coords(void* tilemap, int layer, int x, int y)    
-void godot_tilemap_clear(void* tilemap)    
-void godot_tilemap_clear_layer(void* tilemap, int layer)
+- v0.7.5:tilemaplayer:    
+void godot_tilemaplayer_set_cell(void* tilemap, int x, int y, int source_id)    
+void godot_tilemaplayer_set_cell_ex(void* tilemap, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile)    
+int godot_tilemaplayer_get_cell_source_id(void* tilemap, int x, int y)    
+tcc_Vector2i godot_tilemaplayer_get_cell_atlas_coords(void* tilemap, int x, int y)    
+void godot_tilemaplayer_clear(void* tilemap)    
+void godot_tilemaplayer_erase_cell(void* tilemap, int x, int y)    
 
 - v0.7.5:2d raycast:    
 RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask)    
