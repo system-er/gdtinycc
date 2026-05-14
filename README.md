@@ -1,4 +1,4 @@
-# GDTinyCC - gdextension C compiler (v0.7.4)             
+# GDTinyCC - gdextension C compiler (v0.7.5)             
 
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
@@ -537,6 +537,8 @@ you can get the globalvariable health in C:
 # changelog:    
 v0.7.3: added output compiletime    
 v0.7.4: found bug crash signal 11   
+v0.7.5: terminated some bugs and new bridgefunctions for tilemap, 2draycast and inputaction    
+
 
 
 
