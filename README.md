@@ -148,7 +148,7 @@ godot_get_tree(self) // for example to quit program:
 	godot_call(tree, "quit", 0, NULL, &result);
 ```
 
-- tilemap:    
+v0.7.5: - tilemap:    
 void godot_tilemap_set_cell(void* tilemap, int layer, int x, int y, int source_id)    
 void godot_tilemap_set_cell_ex(void* tilemap, int layer, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile)    
 int godot_tilemap_get_cell_source_id(void* tilemap, int layer, int x, int y)    
@@ -156,12 +156,9 @@ tcc_Vector2i godot_tilemap_get_cell_atlas_coords(void* tilemap, int layer, int x
 void godot_tilemap_clear(void* tilemap)    
 void godot_tilemap_clear_layer(void* tilemap, int layer)
 
-- 2d raycast:    
+v0.7.5: - 2d raycast:    
 RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask)
 
-- input action:    
-int godot_is_action_pressed(const char* action_name)    
-int godot_is_action_just_pressed(const char* action_name)    
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(self, node, signal_name, callback_func, user_data)
@@ -181,6 +178,11 @@ godot_delay_msec(milliseconds)
 godot_is_pressed(event)     
 godot_eventcode(event) //if key gets the keycode, if mouse: 1=left, 2=right, 3=middle, ...
 godot_get_global_mouse_position(self)
+
+v0.7.5: - input action:    
+int godot_is_action_pressed(const char* action_name)    
+int godot_is_action_just_pressed(const char* action_name)    
+
 
 - file I/O files:    
 godot_file_open(path, mode)    
