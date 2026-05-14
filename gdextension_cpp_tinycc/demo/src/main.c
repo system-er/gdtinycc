@@ -206,6 +206,14 @@ void _process(void* self, double delta) {
     if (result.value.b) {
         godot_print("Key W is pressed");
     }
+
+    // test godot_is_action_pressed (built-in actions)
+    if (godot_is_action_pressed("ui_left")) {
+        godot_print("ui_left action pressed");
+    }
+    if (godot_is_action_pressed("ui_right")) {
+        godot_print("ui_right action pressed");
+    }
 }
 
 
