@@ -50,6 +50,8 @@
 #include <godot_cpp/classes/rigid_body3d.hpp>
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/classes/physics_server3d.hpp>
+#include <godot_cpp/classes/physics_direct_space_state2d.hpp>
+#include <godot_cpp/classes/physics_ray_query_parameters2d.hpp>
 #include <godot_cpp/classes/timer.hpp>
 #include <godot_cpp/classes/time.hpp>
 #include <godot_cpp/classes/image.hpp>
@@ -89,6 +91,7 @@
 #include <godot_cpp/variant/packed_color_array.hpp>
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/tile_map.hpp>
 #include <godot_cpp/godot.hpp>
 
 
@@ -101,6 +104,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
+#include <cstdint>
 
 #ifdef _WIN32
 #define PATH_SEPARATOR "\\"
@@ -191,10 +195,10 @@ void* godot_file_open(const char* path, const char* mode);
 int godot_file_read(void* handle, char* buffer, int size);
 int godot_file_write(void* handle, const char* buffer, int size);
 void godot_file_close(void* handle);
-void godot_file_seek(void* handle, long position);
-long godot_file_get_position(void* handle);
+void godot_file_seek(void* handle, int64_t position);
+int64_t godot_file_get_position(void* handle);
 int godot_file_eof(void* handle);
-long godot_file_get_size(void* handle);
+int64_t godot_file_get_size(void* handle);
 int godot_file_exists(const char* path);
 int godot_directory_exists(const char* path);
 int godot_make_dir(const char* path);
@@ -204,6 +208,18 @@ float godot_clamp_float(float value, float min_val, float max_val);
 float godot_lerp_float(float from, float to, float weight);
 float godot_lerp_angle(float from, float to, float weight);
 int godot_clamp_int(int value, int min_val, int max_val);
+
+void godot_tilemap_set_cell(void* tilemap, int layer, int x, int y, int source_id);
+void godot_tilemap_set_cell_ex(void* tilemap, int layer, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile);
+int godot_tilemap_get_cell_source_id(void* tilemap, int layer, int x, int y);
+tcc_Vector2i godot_tilemap_get_cell_atlas_coords(void* tilemap, int layer, int x, int y);
+void godot_tilemap_clear(void* tilemap);
+void godot_tilemap_clear_layer(void* tilemap, int layer);
+
+RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask);
+
+int godot_is_action_pressed(const char* action_name);
+int godot_is_action_just_pressed(const char* action_name);
 
 void godot_free_variant(GDExtensionVariant* variant) {
     if (!variant || !variant->ptr) {
@@ -244,8 +260,8 @@ float godot_lerp_float(float from, float to, float weight) {
 
 float godot_lerp_angle(float from, float to, float weight) {
     float diff = to - from;
-    while (diff < -180.0f) diff += 360.0f;
-    while (diff > 180.0f) diff -= 360.0f;
+    while (diff < -Math_PI) diff += Math_TAU;
+    while (diff > Math_PI) diff -= Math_TAU;
     return from + diff * weight;
 }
 
@@ -253,6 +269,79 @@ int godot_clamp_int(int value, int min_val, int max_val) {
     if (value < min_val) return min_val;
     if (value > max_val) return max_val;
     return value;
+}
+
+void godot_tilemap_set_cell(void* tilemap_ptr, int layer, int x, int y, int source_id) {
+    if (!tilemap_ptr) return;
+    static_cast<godot::TileMap*>(tilemap_ptr)->set_cell(layer, godot::Vector2i(x, y), source_id);
+}
+
+void godot_tilemap_set_cell_ex(void* tilemap_ptr, int layer, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile) {
+    if (!tilemap_ptr) return;
+    static_cast<godot::TileMap*>(tilemap_ptr)->set_cell(layer, godot::Vector2i(x, y), source_id, godot::Vector2i(atlas_x, atlas_y), alternative_tile);
+}
+
+int godot_tilemap_get_cell_source_id(void* tilemap_ptr, int layer, int x, int y) {
+    if (!tilemap_ptr) return -1;
+    return static_cast<godot::TileMap*>(tilemap_ptr)->get_cell_source_id(layer, godot::Vector2i(x, y));
+}
+
+tcc_Vector2i godot_tilemap_get_cell_atlas_coords(void* tilemap_ptr, int layer, int x, int y) {
+    tcc_Vector2i result = {-1, -1};
+    if (!tilemap_ptr) return result;
+    godot::Vector2i coords = static_cast<godot::TileMap*>(tilemap_ptr)->get_cell_atlas_coords(layer, godot::Vector2i(x, y));
+    result.x = coords.x;
+    result.y = coords.y;
+    return result;
+}
+
+void godot_tilemap_clear(void* tilemap_ptr) {
+    if (!tilemap_ptr) return;
+    static_cast<godot::TileMap*>(tilemap_ptr)->clear();
+}
+
+void godot_tilemap_clear_layer(void* tilemap_ptr, int layer) {
+    if (!tilemap_ptr) return;
+    static_cast<godot::TileMap*>(tilemap_ptr)->clear_layer(layer);
+}
+
+RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask) {
+    RaycastHit2D result = {0};
+    if (!self) return result;
+
+    godot::Node* node = static_cast<godot::Node*>(self);
+    godot::Viewport* viewport = node->get_viewport();
+    if (!viewport) return result;
+
+    godot::Ref<godot::World2D> world = viewport->get_world_2d();
+    if (world.is_null()) return result;
+
+    godot::PhysicsDirectSpaceState2D* space_state = world->get_direct_space_state();
+    if (!space_state) return result;
+
+    godot::Ref<godot::PhysicsRayQueryParameters2D> params = godot::PhysicsRayQueryParameters2D::create(
+        godot::Vector2(from_x, from_y),
+        godot::Vector2(to_x, to_y),
+        (uint32_t)collision_mask
+    );
+
+    godot::Dictionary dict = space_state->intersect_ray(params);
+    if (dict.is_empty()) return result;
+
+    result.hit = 1;
+
+    godot::Vector2 pos = dict["position"];
+    result.pos_x = pos.x;
+    result.pos_y = pos.y;
+
+    godot::Vector2 normal = dict["normal"];
+    result.normal_x = normal.x;
+    result.normal_y = normal.y;
+
+    godot::Object* collider = dict["collider"];
+    result.collider = static_cast<void*>(collider);
+
+    return result;
 }
 
 static std::vector<godot::Variant> g_loaded_resources;
@@ -524,6 +613,16 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_make_dir", (void*)godot_make_dir);
     tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
     tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
+
+    tcc_add_symbol(s, "godot_tilemap_set_cell", (void*)godot_tilemap_set_cell);
+    tcc_add_symbol(s, "godot_tilemap_set_cell_ex", (void*)godot_tilemap_set_cell_ex);
+    tcc_add_symbol(s, "godot_tilemap_get_cell_source_id", (void*)godot_tilemap_get_cell_source_id);
+    tcc_add_symbol(s, "godot_tilemap_get_cell_atlas_coords", (void*)godot_tilemap_get_cell_atlas_coords);
+    tcc_add_symbol(s, "godot_tilemap_clear", (void*)godot_tilemap_clear);
+    tcc_add_symbol(s, "godot_tilemap_clear_layer", (void*)godot_tilemap_clear_layer);
+    tcc_add_symbol(s, "godot_raycast_2d", (void*)godot_raycast_2d);
+    tcc_add_symbol(s, "godot_is_action_pressed", (void*)godot_is_action_pressed);
+    tcc_add_symbol(s, "godot_is_action_just_pressed", (void*)godot_is_action_just_pressed);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -833,6 +932,16 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
     tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
 
+    tcc_add_symbol(s, "godot_tilemap_set_cell", (void*)godot_tilemap_set_cell);
+    tcc_add_symbol(s, "godot_tilemap_set_cell_ex", (void*)godot_tilemap_set_cell_ex);
+    tcc_add_symbol(s, "godot_tilemap_get_cell_source_id", (void*)godot_tilemap_get_cell_source_id);
+    tcc_add_symbol(s, "godot_tilemap_get_cell_atlas_coords", (void*)godot_tilemap_get_cell_atlas_coords);
+    tcc_add_symbol(s, "godot_tilemap_clear", (void*)godot_tilemap_clear);
+    tcc_add_symbol(s, "godot_tilemap_clear_layer", (void*)godot_tilemap_clear_layer);
+    tcc_add_symbol(s, "godot_raycast_2d", (void*)godot_raycast_2d);
+    tcc_add_symbol(s, "godot_is_action_pressed", (void*)godot_is_action_pressed);
+    tcc_add_symbol(s, "godot_is_action_just_pressed", (void*)godot_is_action_just_pressed);
+
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
     tcc_add_symbol(s, "tan", (void*)static_cast<double(*)(double)>(std::tan));
@@ -999,6 +1108,16 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_make_dir", (void*)godot_make_dir);
     tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
     tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
+
+    tcc_add_symbol(s, "godot_tilemap_set_cell", (void*)godot_tilemap_set_cell);
+    tcc_add_symbol(s, "godot_tilemap_set_cell_ex", (void*)godot_tilemap_set_cell_ex);
+    tcc_add_symbol(s, "godot_tilemap_get_cell_source_id", (void*)godot_tilemap_get_cell_source_id);
+    tcc_add_symbol(s, "godot_tilemap_get_cell_atlas_coords", (void*)godot_tilemap_get_cell_atlas_coords);
+    tcc_add_symbol(s, "godot_tilemap_clear", (void*)godot_tilemap_clear);
+    tcc_add_symbol(s, "godot_tilemap_clear_layer", (void*)godot_tilemap_clear_layer);
+    tcc_add_symbol(s, "godot_raycast_2d", (void*)godot_raycast_2d);
+    tcc_add_symbol(s, "godot_is_action_pressed", (void*)godot_is_action_pressed);
+    tcc_add_symbol(s, "godot_is_action_just_pressed", (void*)godot_is_action_just_pressed);
 
     tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
     tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
@@ -1240,6 +1359,16 @@ void* godot_get_os() {
 
 void* godot_get_input() {
     return godot::Input::get_singleton();
+}
+
+int godot_is_action_pressed(const char* action_name) {
+    if (!action_name) return 0;
+    return godot::Input::get_singleton()->is_action_pressed(godot::String(action_name)) ? 1 : 0;
+}
+
+int godot_is_action_just_pressed(const char* action_name) {
+    if (!action_name) return 0;
+    return godot::Input::get_singleton()->is_action_just_pressed(godot::String(action_name)) ? 1 : 0;
 }
 
 void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {
@@ -1583,6 +1712,9 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("MeshInstance2D")) {
         return static_cast<void*>(memnew(godot::MeshInstance2D));
     }
+    if (class_name_sn == godot::StringName("TileMap")) {
+        return static_cast<void*>(memnew(godot::TileMap));
+    }
     if (class_name_sn == godot::StringName("MeshInstance3D")) {
         return static_cast<void*>(memnew(godot::MeshInstance3D));
     }
@@ -1610,9 +1742,9 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("SpotLight3D")) {
         return static_cast<void*>(memnew(godot::SpotLight3D));
     }
-    if (class_name_sn == godot::StringName("PackedColorArray")) {
-        return static_cast<void*>(memnew(godot::PackedColorArray));
-    }
+    //if (class_name_sn == godot::StringName("PackedColorArray")) {
+    //    return static_cast<void*>(memnew(godot::PackedColorArray));
+    //}
     //if (class_name_sn == godot::StringName("PackedVector3Array")) {
     //    return static_cast<void*>(memnew(godot::PackedVector3Array));
     //}
@@ -2566,13 +2698,13 @@ void godot_file_close(void* handle) {
     fa->close();
 }
 
-void godot_file_seek(void* handle, long position) {
+void godot_file_seek(void* handle, int64_t position) {
     if (!handle) return;
     godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
     fa->seek(position);
 }
 
-long godot_file_get_position(void* handle) {
+int64_t godot_file_get_position(void* handle) {
     if (!handle) return 0;
     godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
     return fa->get_position();
@@ -2584,7 +2716,7 @@ int godot_file_eof(void* handle) {
     return fa->eof_reached() ? 1 : 0;
 }
 
-long godot_file_get_size(void* handle) {
+int64_t godot_file_get_size(void* handle) {
     if (!handle) return 0;
     godot::FileAccess* fa = static_cast<godot::FileAccess*>(handle);
     return fa->get_length();

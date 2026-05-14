@@ -90,6 +90,13 @@ typedef enum {
 
 } GDExtensionVarType;
 
+typedef struct {
+    int hit;
+    float pos_x, pos_y;
+    float normal_x, normal_y;
+    void* collider;
+} RaycastHit2D;
+
 namespace godot {
 
 
