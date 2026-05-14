@@ -91,7 +91,7 @@
 #include <godot_cpp/variant/packed_color_array.hpp>
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
-#include <godot_cpp/classes/tile_map.hpp>
+#include <godot_cpp/classes/tile_map_layer.hpp>
 #include <godot_cpp/godot.hpp>
 
 
@@ -209,12 +209,12 @@ float godot_lerp_float(float from, float to, float weight);
 float godot_lerp_angle(float from, float to, float weight);
 int godot_clamp_int(int value, int min_val, int max_val);
 
-void godot_tilemap_set_cell(void* tilemap, int layer, int x, int y, int source_id);
-void godot_tilemap_set_cell_ex(void* tilemap, int layer, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile);
-int godot_tilemap_get_cell_source_id(void* tilemap, int layer, int x, int y);
-tcc_Vector2i godot_tilemap_get_cell_atlas_coords(void* tilemap, int layer, int x, int y);
-void godot_tilemap_clear(void* tilemap);
-void godot_tilemap_clear_layer(void* tilemap, int layer);
+void godot_tilemaplayer_set_cell(void* tilemap, int x, int y, int source_id);
+void godot_tilemaplayer_set_cell_ex(void* tilemap, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile);
+int godot_tilemaplayer_get_cell_source_id(void* tilemap, int x, int y);
+tcc_Vector2i godot_tilemaplayer_get_cell_atlas_coords(void* tilemap, int x, int y);
+void godot_tilemaplayer_clear(void* tilemap);
+void godot_tilemaplayer_erase_cell(void* tilemap, int x, int y);
 
 RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask);
 
@@ -271,38 +271,38 @@ int godot_clamp_int(int value, int min_val, int max_val) {
     return value;
 }
 
-void godot_tilemap_set_cell(void* tilemap_ptr, int layer, int x, int y, int source_id) {
+void godot_tilemaplayer_set_cell(void* tilemap_ptr, int x, int y, int source_id) {
     if (!tilemap_ptr) return;
-    static_cast<godot::TileMap*>(tilemap_ptr)->set_cell(layer, godot::Vector2i(x, y), source_id);
+    static_cast<godot::TileMapLayer*>(tilemap_ptr)->set_cell(godot::Vector2i(x, y), source_id);
 }
 
-void godot_tilemap_set_cell_ex(void* tilemap_ptr, int layer, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile) {
+void godot_tilemaplayer_set_cell_ex(void* tilemap_ptr, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile) {
     if (!tilemap_ptr) return;
-    static_cast<godot::TileMap*>(tilemap_ptr)->set_cell(layer, godot::Vector2i(x, y), source_id, godot::Vector2i(atlas_x, atlas_y), alternative_tile);
+    static_cast<godot::TileMapLayer*>(tilemap_ptr)->set_cell(godot::Vector2i(x, y), source_id, godot::Vector2i(atlas_x, atlas_y), alternative_tile);
 }
 
-int godot_tilemap_get_cell_source_id(void* tilemap_ptr, int layer, int x, int y) {
+int godot_tilemaplayer_get_cell_source_id(void* tilemap_ptr, int x, int y) {
     if (!tilemap_ptr) return -1;
-    return static_cast<godot::TileMap*>(tilemap_ptr)->get_cell_source_id(layer, godot::Vector2i(x, y));
+    return static_cast<godot::TileMapLayer*>(tilemap_ptr)->get_cell_source_id(godot::Vector2i(x, y));
 }
 
-tcc_Vector2i godot_tilemap_get_cell_atlas_coords(void* tilemap_ptr, int layer, int x, int y) {
+tcc_Vector2i godot_tilemaplayer_get_cell_atlas_coords(void* tilemap_ptr, int x, int y) {
     tcc_Vector2i result = {-1, -1};
     if (!tilemap_ptr) return result;
-    godot::Vector2i coords = static_cast<godot::TileMap*>(tilemap_ptr)->get_cell_atlas_coords(layer, godot::Vector2i(x, y));
+    godot::Vector2i coords = static_cast<godot::TileMapLayer*>(tilemap_ptr)->get_cell_atlas_coords(godot::Vector2i(x, y));
     result.x = coords.x;
     result.y = coords.y;
     return result;
 }
 
-void godot_tilemap_clear(void* tilemap_ptr) {
+void godot_tilemaplayer_clear(void* tilemap_ptr) {
     if (!tilemap_ptr) return;
-    static_cast<godot::TileMap*>(tilemap_ptr)->clear();
+    static_cast<godot::TileMapLayer*>(tilemap_ptr)->clear();
 }
 
-void godot_tilemap_clear_layer(void* tilemap_ptr, int layer) {
+void godot_tilemaplayer_erase_cell(void* tilemap_ptr, int x, int y) {
     if (!tilemap_ptr) return;
-    static_cast<godot::TileMap*>(tilemap_ptr)->clear_layer(layer);
+    static_cast<godot::TileMapLayer*>(tilemap_ptr)->erase_cell(godot::Vector2i(x, y));
 }
 
 RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask) {
@@ -614,12 +614,12 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
     tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
 
-    tcc_add_symbol(s, "godot_tilemap_set_cell", (void*)godot_tilemap_set_cell);
-    tcc_add_symbol(s, "godot_tilemap_set_cell_ex", (void*)godot_tilemap_set_cell_ex);
-    tcc_add_symbol(s, "godot_tilemap_get_cell_source_id", (void*)godot_tilemap_get_cell_source_id);
-    tcc_add_symbol(s, "godot_tilemap_get_cell_atlas_coords", (void*)godot_tilemap_get_cell_atlas_coords);
-    tcc_add_symbol(s, "godot_tilemap_clear", (void*)godot_tilemap_clear);
-    tcc_add_symbol(s, "godot_tilemap_clear_layer", (void*)godot_tilemap_clear_layer);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell", (void*)godot_tilemaplayer_set_cell);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell_ex", (void*)godot_tilemaplayer_set_cell_ex);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_source_id", (void*)godot_tilemaplayer_get_cell_source_id);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_atlas_coords", (void*)godot_tilemaplayer_get_cell_atlas_coords);
+    tcc_add_symbol(s, "godot_tilemaplayer_clear", (void*)godot_tilemaplayer_clear);
+    tcc_add_symbol(s, "godot_tilemaplayer_erase_cell", (void*)godot_tilemaplayer_erase_cell);
     tcc_add_symbol(s, "godot_raycast_2d", (void*)godot_raycast_2d);
     tcc_add_symbol(s, "godot_is_action_pressed", (void*)godot_is_action_pressed);
     tcc_add_symbol(s, "godot_is_action_just_pressed", (void*)godot_is_action_just_pressed);
@@ -932,12 +932,12 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
     tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
 
-    tcc_add_symbol(s, "godot_tilemap_set_cell", (void*)godot_tilemap_set_cell);
-    tcc_add_symbol(s, "godot_tilemap_set_cell_ex", (void*)godot_tilemap_set_cell_ex);
-    tcc_add_symbol(s, "godot_tilemap_get_cell_source_id", (void*)godot_tilemap_get_cell_source_id);
-    tcc_add_symbol(s, "godot_tilemap_get_cell_atlas_coords", (void*)godot_tilemap_get_cell_atlas_coords);
-    tcc_add_symbol(s, "godot_tilemap_clear", (void*)godot_tilemap_clear);
-    tcc_add_symbol(s, "godot_tilemap_clear_layer", (void*)godot_tilemap_clear_layer);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell", (void*)godot_tilemaplayer_set_cell);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell_ex", (void*)godot_tilemaplayer_set_cell_ex);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_source_id", (void*)godot_tilemaplayer_get_cell_source_id);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_atlas_coords", (void*)godot_tilemaplayer_get_cell_atlas_coords);
+    tcc_add_symbol(s, "godot_tilemaplayer_clear", (void*)godot_tilemaplayer_clear);
+    tcc_add_symbol(s, "godot_tilemaplayer_erase_cell", (void*)godot_tilemaplayer_erase_cell);
     tcc_add_symbol(s, "godot_raycast_2d", (void*)godot_raycast_2d);
     tcc_add_symbol(s, "godot_is_action_pressed", (void*)godot_is_action_pressed);
     tcc_add_symbol(s, "godot_is_action_just_pressed", (void*)godot_is_action_just_pressed);
@@ -1109,12 +1109,12 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
     tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
 
-    tcc_add_symbol(s, "godot_tilemap_set_cell", (void*)godot_tilemap_set_cell);
-    tcc_add_symbol(s, "godot_tilemap_set_cell_ex", (void*)godot_tilemap_set_cell_ex);
-    tcc_add_symbol(s, "godot_tilemap_get_cell_source_id", (void*)godot_tilemap_get_cell_source_id);
-    tcc_add_symbol(s, "godot_tilemap_get_cell_atlas_coords", (void*)godot_tilemap_get_cell_atlas_coords);
-    tcc_add_symbol(s, "godot_tilemap_clear", (void*)godot_tilemap_clear);
-    tcc_add_symbol(s, "godot_tilemap_clear_layer", (void*)godot_tilemap_clear_layer);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell", (void*)godot_tilemaplayer_set_cell);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell_ex", (void*)godot_tilemaplayer_set_cell_ex);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_source_id", (void*)godot_tilemaplayer_get_cell_source_id);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_atlas_coords", (void*)godot_tilemaplayer_get_cell_atlas_coords);
+    tcc_add_symbol(s, "godot_tilemaplayer_clear", (void*)godot_tilemaplayer_clear);
+    tcc_add_symbol(s, "godot_tilemaplayer_erase_cell", (void*)godot_tilemaplayer_erase_cell);
     tcc_add_symbol(s, "godot_raycast_2d", (void*)godot_raycast_2d);
     tcc_add_symbol(s, "godot_is_action_pressed", (void*)godot_is_action_pressed);
     tcc_add_symbol(s, "godot_is_action_just_pressed", (void*)godot_is_action_just_pressed);
@@ -1712,8 +1712,8 @@ void* godot_create(const char* class_name) {
     if (class_name_sn == godot::StringName("MeshInstance2D")) {
         return static_cast<void*>(memnew(godot::MeshInstance2D));
     }
-    if (class_name_sn == godot::StringName("TileMap")) {
-        return static_cast<void*>(memnew(godot::TileMap));
+    if (class_name_sn == godot::StringName("TileMapLayer")) {
+        return static_cast<void*>(memnew(godot::TileMapLayer));
     }
     if (class_name_sn == godot::StringName("MeshInstance3D")) {
         return static_cast<void*>(memnew(godot::MeshInstance3D));
