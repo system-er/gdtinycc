@@ -157,7 +157,13 @@ void godot_tilemap_clear(void* tilemap)
 void godot_tilemap_clear_layer(void* tilemap, int layer)
 
 v0.7.5: - 2d raycast:    
-RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask)
+RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask)    
+> typedef struct {
+>     int hit;
+>     float pos_x, pos_y;
+>     float normal_x, normal_y;
+>     void* collider;
+> } RaycastHit2D;
 
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
