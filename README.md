@@ -156,15 +156,6 @@ tcc_Vector2i godot_tilemaplayer_get_cell_atlas_coords(void* tilemap, int x, int 
 void godot_tilemaplayer_clear(void* tilemap)    
 void godot_tilemaplayer_erase_cell(void* tilemap, int x, int y)    
 
-- v0.7.5:2d raycast:    
-RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask)    
-> typedef struct {
->     int hit;
->     float pos_x, pos_y;
->     float normal_x, normal_y;
->     void* collider;
-> } RaycastHit2D;
-
 - signals:    
 godot_emit_signal(node, signal_name, arg_count, args)    
 godot_connect(self, node, signal_name, callback_func, user_data)
@@ -240,13 +231,22 @@ godot_get_drawingcanvas(self)
 godot_draw_rect(drawingnode, x, y, width, height, r, g, b, a, filled)    
 godot_draw_circle(drawingnode, x, y, radius, r, g, b, a, filled)    
 godot_draw_line(drawingnode, x1, y1, x2, y2, r, g, b, a, thickness)    
-godot_draw_string(drawingnode, font, x, y, text, r, g, b, a, font_size)      
+godot_draw_string(drawingnode, font, x, y, text, r, g, b, a, font_size)
+
 - collision:    
 godot_get_physics_server2D()    
 godot_get_physics_server3D()    
 v0.7.1:int godot_check_collision(void* area_ptr, void* other_ptr) // use in _physics_process!    
 v0.7.1:int godot_check_collision_3d(void* area_ptr, void* other_ptr) // use in _physics_process!       
-void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3)    
+void godot_setup_collision_shape(void* collision_shape, const char* shape_type, float param1, float param2, float param3)
+- v0.7.5:2d raycast:    
+RaycastHit2D godot_raycast_2d(void* self, float from_x, float from_y, float to_x, float to_y, int collision_mask)    
+> typedef struct {
+>     int hit;
+>     float pos_x, pos_y;
+>     float normal_x, normal_y;
+>     void* collider;
+> } RaycastHit2D;
 
 - debugging:    
 godot_get_class_name(object)    
