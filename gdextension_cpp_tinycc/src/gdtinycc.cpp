@@ -92,6 +92,7 @@
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/tile_map_layer.hpp>
+#include <godot_cpp/classes/tile_set.hpp>
 #include <godot_cpp/godot.hpp>
 
 
@@ -273,7 +274,7 @@ int godot_clamp_int(int value, int min_val, int max_val) {
 
 void godot_tilemaplayer_set_cell(void* tilemap_ptr, int x, int y, int source_id) {
     if (!tilemap_ptr) return;
-    static_cast<godot::TileMapLayer*>(tilemap_ptr)->set_cell(godot::Vector2i(x, y), source_id);
+    static_cast<godot::TileMapLayer*>(tilemap_ptr)->set_cell(godot::Vector2i(x, y), source_id, godot::Vector2i(0, 0), 0);
 }
 
 void godot_tilemaplayer_set_cell_ex(void* tilemap_ptr, int x, int y, int source_id, int atlas_x, int atlas_y, int alternative_tile) {
@@ -1714,6 +1715,9 @@ void* godot_create(const char* class_name) {
     }
     if (class_name_sn == godot::StringName("TileMapLayer")) {
         return static_cast<void*>(memnew(godot::TileMapLayer));
+    }
+    if (class_name_sn == godot::StringName("TileSet")) {
+        return static_cast<void*>(memnew(godot::TileSet));
     }
     if (class_name_sn == godot::StringName("MeshInstance3D")) {
         return static_cast<void*>(memnew(godot::MeshInstance3D));
