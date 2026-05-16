@@ -7,6 +7,7 @@
 #include <godot_cpp/classes/canvas_layer.hpp> 
 #include <godot_cpp/classes/input_event.hpp>
 #include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/string_name.hpp>
 #include <godot_cpp/variant/callable.hpp>
 #include <godot_cpp/variant/vector2i.hpp>
 #include <godot_cpp/variant/vector3i.hpp>
@@ -135,7 +136,13 @@ public:
 
 private:
     void *tcc_state;
-    std::vector<SignalHandler*> signal_handlers;
+
+    struct SignalConnection {
+        Node* node;
+        StringName signal;
+        SignalHandler* handler;
+    };
+    std::vector<SignalConnection> signal_connections;
 
     bool enable_2d_drawing = false;
     CanvasLayer* drawing_canvas = nullptr;

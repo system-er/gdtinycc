@@ -450,6 +450,9 @@ void GDTinyCC::_process(double delta) {
 }
 
 void GDTinyCC::_physics_process(double delta) {
+    if (Engine::get_singleton()->is_editor_hint()) {
+        return;
+    }
    if (tcc_state) {
         using PPFunc = void(*)(void*, double);
         PPFunc pprocess_func = (PPFunc)tcc_get_symbol((TCCState*)tcc_state, "_physics_process");
@@ -492,6 +495,7 @@ void GDTinyCC::compile_file() {
     last_compile_warning = "";
     compile_errors.clear();
     compile_warnings.clear();
+    g_loaded_resources.clear();
     
     g_current_compiling_instance = this;
 
@@ -636,7 +640,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "ceil", (void*)static_cast<double(*)(double)>(std::ceil));
     tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
     tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
-    tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
+    tcc_add_symbol(s, "abs", (void*)static_cast<int(*)(int)>(std::abs));
 
     tcc_add_symbol(s, "log", (void*)static_cast<double(*)(double)>(std::log));
     tcc_add_symbol(s, "log10", (void*)static_cast<double(*)(double)>(std::log10));
@@ -954,7 +958,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "ceil", (void*)static_cast<double(*)(double)>(std::ceil));
     tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
     tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
-    tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
+    tcc_add_symbol(s, "abs", (void*)static_cast<int(*)(int)>(std::abs));
 
     tcc_add_symbol(s, "log", (void*)static_cast<double(*)(double)>(std::log));
     tcc_add_symbol(s, "log10", (void*)static_cast<double(*)(double)>(std::log10));
@@ -1025,6 +1029,7 @@ void GDTinyCC::load_object_file() {
     if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
                             (LPCSTR)&godot_print, &hModule)) {
         UtilityFunctions::print("error: load_object_file - no dll handle");
+        tcc_delete(s);
         return;
     }
     GetModuleFileNameA(hModule, dll_path, sizeof(dll_path));
@@ -1033,6 +1038,7 @@ void GDTinyCC::load_object_file() {
     Dl_info info;
     if (dladdr((void*)godot_print, &info) == 0) {
         UtilityFunctions::print("error: load_object_file - no so handle");
+        tcc_delete(s);
         return;
     }
     strncpy(dll_path, info.dli_fname, sizeof(dll_path) - 1);
@@ -1131,7 +1137,7 @@ tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
     tcc_add_symbol(s, "ceil", (void*)static_cast<double(*)(double)>(std::ceil));
     tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
     tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
-    tcc_add_symbol(s, "abs", (void*)static_cast<double(*)(double)>(std::abs));
+    tcc_add_symbol(s, "abs", (void*)static_cast<int(*)(int)>(std::abs));
 
     tcc_add_symbol(s, "log", (void*)static_cast<double(*)(double)>(std::log));
     tcc_add_symbol(s, "log10", (void*)static_cast<double(*)(double)>(std::log10));
@@ -1270,7 +1276,7 @@ void godot_print(const char *format, ...) {
 
 void* godot_get_node(void* self, const char* path) {
     if (!self) {
-        UtilityFunctions::print("godot_connect: missing self pointer");
+        UtilityFunctions::print("godot_get_node: missing self pointer");
         return nullptr;
     }
     GDTinyCC* instance = static_cast<GDTinyCC*>(self);
@@ -1374,7 +1380,7 @@ int godot_is_action_just_pressed(const char* action_name) {
 
 void godot_set_variant(void* node_ptr, const char* property, GDExtensionVariant variant) {
     if (!node_ptr) {
-        UtilityFunctions::print("godot_set_variant: node is null, property: %s", property);
+        UtilityFunctions::print("godot_set_variant: node is null, property: " + String(property));
         return;
     }
     
@@ -2253,24 +2259,31 @@ bool GDTinyCC::connect_signal(void* node_ptr, const char* signal_name, void* cal
     }
     
     godot::Node* node = static_cast<godot::Node*>(node_ptr);
-    godot::String signal_sn(signal_name);
+    godot::StringName signal_sn(signal_name);
     
     godot::SignalHandler* handler = memnew(godot::SignalHandler);
     handler->callback_func = callback_func;
     handler->user_data = user_data;
     
-    signal_handlers.push_back(handler);
+    SignalConnection conn;
+    conn.node = node;
+    conn.signal = signal_sn;
+    conn.handler = handler;
+    signal_connections.push_back(conn);
     
-    bool result = node->connect(signal_sn, godot::Callable(handler, "_on_signal_callback"));
+    Error err = node->connect(signal_sn, godot::Callable(handler, "_on_signal_callback"));
     
-    return result;
+    return err == OK;
 }
 
 void GDTinyCC::disconnect_all_signals() {
-    for (auto* handler : signal_handlers) {
-        memdelete(handler);
+    for (auto& conn : signal_connections) {
+        if (conn.node) {
+            conn.node->disconnect(conn.signal, godot::Callable(conn.handler, "_on_signal_callback"));
+        }
+        memdelete(conn.handler);
     }
-    signal_handlers.clear();
+    signal_connections.clear();
 }
 
 void godot_connect(void* self, void* node_ptr, const char* signal_name, void* callback_func, void* user_data) {
