@@ -44,6 +44,9 @@
 #include <godot_cpp/classes/sphere_shape3d.hpp>
 #include <godot_cpp/classes/box_shape3d.hpp>
 #include <godot_cpp/classes/capsule_shape3d.hpp>
+#include <godot_cpp/classes/circle_shape2d.hpp>
+#include <godot_cpp/classes/rectangle_shape2d.hpp>
+#include <godot_cpp/classes/capsule_shape2d.hpp>
 #include <godot_cpp/classes/static_body2d.hpp>
 #include <godot_cpp/classes/static_body3d.hpp>
 #include <godot_cpp/classes/rigid_body2d.hpp>
@@ -440,6 +443,14 @@ void GDTinyCC::_process(double delta) {
     if (Engine::get_singleton()->is_editor_hint()) {
         return;
     }
+    if (enable_2d_drawing && drawing_node) {
+        if (tcc_state) {
+            auto draw_func = tcc_get_symbol((TCCState*)tcc_state, "_draw");
+            if (draw_func) {
+                drawing_node->queue_redraw();
+            }
+        }
+    }
     if (tcc_state) {
         using ProcessFunc = void(*)(void*, double);
         ProcessFunc process_func = (ProcessFunc)tcc_get_symbol((TCCState*)tcc_state, "_process");
@@ -496,7 +507,12 @@ void GDTinyCC::compile_file() {
     compile_errors.clear();
     compile_warnings.clear();
     g_loaded_resources.clear();
-    
+
+    if (tcc_state) {
+        tcc_delete((TCCState*)tcc_state);
+        tcc_state = nullptr;
+    }
+
     g_current_compiling_instance = this;
 
     char dll_path[1024];
@@ -550,6 +566,13 @@ void GDTinyCC::compile_file() {
     String tinycc_include = String(dll_path) + PATH_SEPARATOR ".." PATH_SEPARATOR ".." PATH_SEPARATOR "src" PATH_SEPARATOR "tinycc-mob" PATH_SEPARATOR "include";
 #endif
     tcc_add_sysinclude_path(s, tinycc_include.utf8().get_data());
+
+#ifndef _WIN32
+    tcc_add_include_path(s, "/usr/include/x86_64-linux-gnu");
+    tcc_add_sysinclude_path(s, "/usr/include/x86_64-linux-gnu");
+    tcc_add_include_path(s, "/usr/include");
+    tcc_add_sysinclude_path(s, "/usr/include");
+#endif
     
     tcc_add_library_path(s, dll_path);
 
@@ -832,6 +855,116 @@ void GDTinyCC::compile_to_object(const String &output_file) {
 #endif
 
     tcc_add_include_path(s, dll_path);
+
+    tcc_add_symbol(s, "godot_print", (void*)godot_print);
+    tcc_add_symbol(s, "godot_get_node", (void*)godot_get_node);
+    tcc_add_symbol(s, "godot_get_variant", (void*)godot_get_variant);
+    tcc_add_symbol(s, "godot_set_variant", (void*)godot_set_variant);
+    tcc_add_symbol(s, "godot_instantiate", (void*)godot_instantiate);
+    tcc_add_symbol(s, "godot_create", (void*)godot_create);
+    tcc_add_symbol(s, "godot_add_child", (void*)godot_add_child);
+    tcc_add_symbol(s, "godot_add_child_deferred", (void*)godot_add_child_deferred);
+    tcc_add_symbol(s, "godot_remove_child", (void*)godot_remove_child);
+    tcc_add_symbol(s, "godot_remove_child_deferred", (void*)godot_remove_child_deferred);
+    tcc_add_symbol(s, "godot_get_children_count", (void*)godot_get_children_count);
+    tcc_add_symbol(s, "godot_get_child_at", (void*)godot_get_child_at);
+    tcc_add_symbol(s, "godot_find_node", (void*)godot_find_node);
+    tcc_add_symbol(s, "godot_call", (void*)godot_call);
+    tcc_add_symbol(s, "godot_call_pod", (void*)godot_call_pod);
+    tcc_add_symbol(s, "godot_queue_free", (void*)godot_queue_free);
+    tcc_add_symbol(s, "godot_get_type_name", (void*)godot_get_type_name);
+    tcc_add_symbol(s, "godot_get_ticks_msec", (void*)godot_get_ticks_msec);
+    tcc_add_symbol(s, "godot_delay_msec", (void*)godot_delay_msec);
+    tcc_add_symbol(s, "godot_get_rendering_server", (void*)godot_get_rendering_server);
+    tcc_add_symbol(s, "godot_get_engine", (void*)godot_get_engine);
+    tcc_add_symbol(s, "godot_get_tree", (void*)godot_get_tree);
+    tcc_add_symbol(s, "godot_get_display_server", (void*)godot_get_display_server);
+    tcc_add_symbol(s, "godot_get_os", (void*)godot_get_os);
+    tcc_add_symbol(s, "godot_get_input", (void*)godot_get_input);
+    tcc_add_symbol(s, "godot_emit_signal", (void*)godot_emit_signal);
+    tcc_add_symbol(s, "godot_connect", (void*)godot_connect);
+    tcc_add_symbol(s, "godot_randf", (void*)godot_randf);
+    tcc_add_symbol(s, "godot_randi", (void*)godot_randi);
+    tcc_add_symbol(s, "godot_randf_range", (void*)godot_randf_range);
+    tcc_add_symbol(s, "godot_randi_range", (void*)godot_randi_range);
+    tcc_add_symbol(s, "godot_randomize", (void*)godot_randomize);
+    tcc_add_symbol(s, "godot_draw_rect", (void*)godot_draw_rect);
+    tcc_add_symbol(s, "godot_draw_circle", (void*)godot_draw_circle);
+    tcc_add_symbol(s, "godot_draw_line", (void*)godot_draw_line);
+    tcc_add_symbol(s, "godot_draw_string", (void*)godot_draw_string);
+    tcc_add_symbol(s, "godot_get_drawingnode", (void*)godot_get_drawingnode);
+    tcc_add_symbol(s, "godot_get_drawingcanvas", (void*)godot_get_drawingcanvas);
+    tcc_add_symbol(s, "godot_is_pressed", (void*)godot_is_pressed);
+    tcc_add_symbol(s, "godot_eventcode",(void*)godot_eventcode);
+    tcc_add_symbol(s, "godot_get_global_mouse_position", (void*)godot_get_global_mouse_position);
+    tcc_add_symbol(s, "godot_load_resource", (void*)godot_load_resource);
+    tcc_add_symbol(s, "godot_get_class_name", (void*)godot_get_class_name);
+    tcc_add_symbol(s, "godot_free_variant", (void*)godot_free_variant);
+    tcc_add_symbol(s, "godot_check_collision", (void*)godot_check_collision);
+    tcc_add_symbol(s, "godot_check_collision_3d", (void*)godot_check_collision_3d);
+    tcc_add_symbol(s, "godot_setup_collision_shape", (void*)godot_setup_collision_shape);
+    tcc_add_symbol(s, "godot_get_physics_server2D", (void*)godot_get_physics_server2D);
+    tcc_add_symbol(s, "godot_get_physics_server3D", (void*)godot_get_physics_server3D);
+    tcc_add_symbol(s, "godot_call_deferred", (void*)godot_call_deferred);
+    tcc_add_symbol(s, "godot_file_open", (void*)godot_file_open);
+    tcc_add_symbol(s, "godot_file_read", (void*)godot_file_read);
+    tcc_add_symbol(s, "godot_file_write", (void*)godot_file_write);
+    tcc_add_symbol(s, "godot_file_close", (void*)godot_file_close);
+    tcc_add_symbol(s, "godot_file_seek", (void*)godot_file_seek);
+    tcc_add_symbol(s, "godot_file_get_position", (void*)godot_file_get_position);
+    tcc_add_symbol(s, "godot_file_eof", (void*)godot_file_eof);
+    tcc_add_symbol(s, "godot_file_get_size", (void*)godot_file_get_size);
+    tcc_add_symbol(s, "godot_file_exists", (void*)godot_file_exists);
+    tcc_add_symbol(s, "godot_directory_exists", (void*)godot_directory_exists);
+    tcc_add_symbol(s, "godot_make_dir", (void*)godot_make_dir);
+    tcc_add_symbol(s, "godot_remove_file", (void*)godot_remove_file);
+    tcc_add_symbol(s, "godot_remove_dir", (void*)godot_remove_dir);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell", (void*)godot_tilemaplayer_set_cell);
+    tcc_add_symbol(s, "godot_tilemaplayer_set_cell_ex", (void*)godot_tilemaplayer_set_cell_ex);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_source_id", (void*)godot_tilemaplayer_get_cell_source_id);
+    tcc_add_symbol(s, "godot_tilemaplayer_get_cell_atlas_coords", (void*)godot_tilemaplayer_get_cell_atlas_coords);
+    tcc_add_symbol(s, "godot_tilemaplayer_clear", (void*)godot_tilemaplayer_clear);
+    tcc_add_symbol(s, "godot_tilemaplayer_erase_cell", (void*)godot_tilemaplayer_erase_cell);
+    tcc_add_symbol(s, "godot_raycast_2d", (void*)godot_raycast_2d);
+    tcc_add_symbol(s, "godot_is_action_pressed", (void*)godot_is_action_pressed);
+    tcc_add_symbol(s, "godot_is_action_just_pressed", (void*)godot_is_action_just_pressed);
+
+    tcc_add_symbol(s, "sin", (void*)static_cast<double(*)(double)>(std::sin));
+    tcc_add_symbol(s, "cos", (void*)static_cast<double(*)(double)>(std::cos));
+    tcc_add_symbol(s, "tan", (void*)static_cast<double(*)(double)>(std::tan));
+    tcc_add_symbol(s, "atan", (void*)static_cast<double(*)(double)>(std::atan));
+    tcc_add_symbol(s, "atan2", (void*)static_cast<double(*)(double, double)>(std::atan2));
+    tcc_add_symbol(s, "sqrt", (void*)static_cast<double(*)(double)>(std::sqrt));
+    tcc_add_symbol(s, "pow", (void*)static_cast<double(*)(double, double)>(std::pow));
+    tcc_add_symbol(s, "floor", (void*)static_cast<double(*)(double)>(std::floor));
+    tcc_add_symbol(s, "ceil", (void*)static_cast<double(*)(double)>(std::ceil));
+    tcc_add_symbol(s, "fabs", (void*)static_cast<double(*)(double)>(std::fabs));
+    tcc_add_symbol(s, "fmod", (void*)static_cast<double(*)(double, double)>(std::fmod));
+    tcc_add_symbol(s, "abs", (void*)static_cast<int(*)(int)>(std::abs));
+    tcc_add_symbol(s, "log", (void*)static_cast<double(*)(double)>(std::log));
+    tcc_add_symbol(s, "log10", (void*)static_cast<double(*)(double)>(std::log10));
+    tcc_add_symbol(s, "exp", (void*)static_cast<double(*)(double)>(std::exp));
+    tcc_add_symbol(s, "asin", (void*)static_cast<double(*)(double)>(std::asin));
+    tcc_add_symbol(s, "acos", (void*)static_cast<double(*)(double)>(std::acos));
+    tcc_add_symbol(s, "sinh", (void*)static_cast<double(*)(double)>(std::sinh));
+    tcc_add_symbol(s, "cosh", (void*)static_cast<double(*)(double)>(std::cosh));
+    tcc_add_symbol(s, "tanh", (void*)static_cast<double(*)(double)>(std::tanh));
+    tcc_add_symbol(s, "asinh", (void*)static_cast<double(*)(double)>(std::asinh));
+    tcc_add_symbol(s, "acosh", (void*)static_cast<double(*)(double)>(std::acosh));
+    tcc_add_symbol(s, "atanh", (void*)static_cast<double(*)(double)>(std::atanh));
+    tcc_add_symbol(s, "fmin", (void*)static_cast<double(*)(double, double)>(std::fmin));
+    tcc_add_symbol(s, "fmax", (void*)static_cast<double(*)(double, double)>(std::fmax));
+    tcc_add_symbol(s, "round", (void*)static_cast<double(*)(double)>(std::round));
+    tcc_add_symbol(s, "trunc", (void*)static_cast<double(*)(double)>(std::trunc));
+    tcc_add_symbol(s, "godot_clamp_float", (void*)godot_clamp_float);
+    tcc_add_symbol(s, "godot_lerp_float", (void*)godot_lerp_float);
+    tcc_add_symbol(s, "godot_lerp_angle", (void*)godot_lerp_angle);
+    tcc_add_symbol(s, "godot_clamp_int", (void*)godot_clamp_int);
+    tcc_add_symbol(s, "snprintf", (void*)snprintf);
+    tcc_add_symbol(s, "memset", (void*)memset);
+    tcc_add_symbol(s, "memcpy", (void*)memcpy);
+    tcc_add_symbol(s, "malloc", (void*)malloc);
+    tcc_add_symbol(s, "free", (void*)free);
 
     String full_path = source_file;
     if (!source_file.begins_with("res://"))
@@ -2528,23 +2661,42 @@ int godot_check_collision_3d(void* area_ptr, void* other_ptr)
 
 void godot_setup_collision_shape(void* collision_shape_ptr, const char* shape_type, float param1, float param2, float param3) {
     if (!collision_shape_ptr) return;
-    
-    godot::CollisionShape3D* shape = static_cast<godot::CollisionShape3D*>(collision_shape_ptr);
+
+    godot::Object* obj = static_cast<godot::Object*>(collision_shape_ptr);
     godot::String type(shape_type);
-    
-    if (type == "sphere" || type == "circle") {
-        godot::SphereShape3D* sphere = memnew(godot::SphereShape3D);
-        sphere->set_radius(param1);
-        shape->set_shape(sphere);
-    } else if (type == "box" || type == "rect") {
-        godot::BoxShape3D* box = memnew(godot::BoxShape3D);
-        box->set_size(godot::Vector3(param1, param2, param3));
-        shape->set_shape(box);
-    } else if (type == "capsule") {
-        godot::CapsuleShape3D* capsule = memnew(godot::CapsuleShape3D);
-        capsule->set_radius(param1);
-        capsule->set_height(param2);
-        shape->set_shape(capsule);
+
+    if (obj->is_class("CollisionShape2D")) {
+        godot::CollisionShape2D* shape = static_cast<godot::CollisionShape2D*>(collision_shape_ptr);
+        if (type == "circle") {
+            godot::CircleShape2D* circle = memnew(godot::CircleShape2D);
+            circle->set_radius(param1);
+            shape->set_shape(circle);
+        } else if (type == "rect" || type == "box") {
+            godot::RectangleShape2D* rect = memnew(godot::RectangleShape2D);
+            rect->set_size(godot::Vector2(param1, param2));
+            shape->set_shape(rect);
+        } else if (type == "capsule") {
+            godot::CapsuleShape2D* capsule = memnew(godot::CapsuleShape2D);
+            capsule->set_radius(param1);
+            capsule->set_height(param2);
+            shape->set_shape(capsule);
+        }
+    } else if (obj->is_class("CollisionShape3D")) {
+        godot::CollisionShape3D* shape = static_cast<godot::CollisionShape3D*>(collision_shape_ptr);
+        if (type == "sphere" || type == "circle") {
+            godot::SphereShape3D* sphere = memnew(godot::SphereShape3D);
+            sphere->set_radius(param1);
+            shape->set_shape(sphere);
+        } else if (type == "box" || type == "rect") {
+            godot::BoxShape3D* box = memnew(godot::BoxShape3D);
+            box->set_size(godot::Vector3(param1, param2, param3));
+            shape->set_shape(box);
+        } else if (type == "capsule") {
+            godot::CapsuleShape3D* capsule = memnew(godot::CapsuleShape3D);
+            capsule->set_radius(param1);
+            capsule->set_height(param2);
+            shape->set_shape(capsule);
+        }
     }
 }
 
@@ -2556,18 +2708,25 @@ void GDTinyCC::set_enable_2d_drawing(bool enabled) {
 
     enable_2d_drawing = enabled;
 
+    if (enabled && is_inside_tree() && !drawing_node) {
+        drawing_canvas = memnew(CanvasLayer);
+        drawing_canvas->set_layer(100);
+        this->add_child(drawing_canvas);
+
+        drawing_node = memnew(GDTinyCCDrawer);
+        static_cast<GDTinyCCDrawer*>(drawing_node)->parent_tcc = this;
+        drawing_canvas->add_child(drawing_node);
+    }
 }
 
 void* godot_get_drawingnode(void* self) {
-    //GDTinyCC* tcc = static_cast<GDTinyCC*>(self);
-    //return tcc ? tcc->get_drawingnode() : nullptr;
+    if (!self) return nullptr;
     GDTinyCC* instance = static_cast<GDTinyCC*>(self);
     return instance->get_drawingnode();
 }
 
 void* godot_get_drawingcanvas(void* self) {
-    //GDTinyCC* tcc = static_cast<GDTinyCC*>(self);
-    //return tcc ? tcc->get_drawingnode() : nullptr;
+    if (!self) return nullptr;
     GDTinyCC* instance = static_cast<GDTinyCC*>(self);
     return instance->get_drawingcanvas();
 }
