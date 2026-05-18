@@ -561,7 +561,7 @@ v0.7.3: added output compiletime
 v0.7.4: found bug crash signal 11   
 v0.7.5: terminated some bugs and new bridgefunctions for tilemaplayer, 2draycast and inputaction   
 v0.7.6: terminated some bugs    
-v0.7.7: terminated some bugs, queue_redraw and new demo julia.c    
+v0.7.7: terminated some bugs, queue_redraw for 2D and new demo julia.c    
 
 
 
