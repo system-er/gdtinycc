@@ -1,4 +1,4 @@
-# GDTinyCC - gdextension C compiler (v0.7.6)             
+# GDTinyCC - gdextension C compiler (v0.7.7)             
 
 integrates tinycc(aka TCC) into a Godot node.     
 compile and execute C code directly (both very fast!).    
@@ -561,6 +561,8 @@ v0.7.3: added output compiletime
 v0.7.4: found bug crash signal 11   
 v0.7.5: terminated some bugs and new bridgefunctions for tilemaplayer, 2draycast and inputaction   
 v0.7.6: terminated some bugs    
+v0.7.7: terminated some bugs, queue_redraw and new demo julia.c    
+
 
 
 
